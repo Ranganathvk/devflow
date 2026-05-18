@@ -1,0 +1,38 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor / IDE (local only — derived .cursor/ is committed for this framework repo)
+../.idea/
+*.swp
+*.swo
+*~
+
+# Secrets and local env
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+secrets.*
+
+# Logs and temp
+*.log
+tmp/
+temp/
+
+# Node / Python (if consumers add tooling later)
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+dist/
+build/
+
+.cursor/
+# Consumer workflow outputs (when dogfooding or testing install locally)
+# Uncomment if you prefer not to commit generated contracts in attached repos:
+# AI_CONTEXT/*.contract.yaml
