@@ -1,0 +1,61 @@
+# Reference shape for AI_CONTEXT/CONVENTIONS.contract.yaml
+# Emitted by /convention-detect — not a runtime config file.
+
+contract_version: "1"
+artifact: conventions
+workflow_profile: brownfield
+detected_at: "2026-01-01"
+project_overview_contract_path: AI_CONTEXT/PROJECT_OVERVIEW.contract.yaml
+
+summary: "<one paragraph, evidence-backed>"
+
+conventions:
+  naming:
+    scope: repo
+    patterns: []
+      # - id: type_pascal_case
+      #   statement: "Public types use PascalCase"
+      #   example: "UserService"
+      #   evidence: ["src/UserService.ts"]
+    notes: null
+
+  dependency_injection:
+    scope: none_found
+    patterns: []
+    notes: null
+
+  dto_entity:
+    scope: none_found
+    patterns: []
+    notes: null
+
+  exceptions:
+    scope: none_found
+    patterns: []
+    notes: null
+
+  logging:
+    scope: none_found
+    patterns: []
+    notes: null
+
+  config:
+    scope: none_found
+    patterns: []
+    notes: null
+
+  testing:
+    scope: none_found
+    patterns: []
+    notes: null
+
+tooling:
+  linter: null
+  formatter: null
+  evidence: []
+
+module_overrides: []
+
+open_gaps: []
+
+downstream_skills: []

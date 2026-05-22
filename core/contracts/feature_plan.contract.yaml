@@ -1,0 +1,71 @@
+# Reference shape for AI_CONTEXT/<FEATURE>_PLAN.contract.yaml
+# Emitted by /plan-feature — Simple Dev Loop, stage-wise planning.
+
+contract_version: "1"
+artifact: feature_plan
+workflow_profile: simple_dev_loop
+feature_id: OTP_LOGIN
+title: "add OTP login"
+plan_status: draft
+revision: initial
+current_stage: clarify
+awaiting_approval: clarify
+current_task: null
+approved_at: null
+
+understand_contract_path: AI_CONTEXT/UNDERSTAND.contract.yaml
+conventions_contract_path: AI_CONTEXT/CONVENTIONS.contract.yaml
+feature_contract_path: AI_CONTEXT/OTP_LOGIN.contract.yaml
+
+summary: "<one paragraph>"
+
+stages:
+  clarify:
+    status: draft
+    approved_at: null
+  impact:
+    status: pending
+    approved_at: null
+    evidence_paths: []
+  research:
+    status: pending
+    approved_at: null
+    evidence_paths: []
+  design:
+    status: pending
+    approved_at: null
+  compat:
+    status: pending
+    approved_at: null
+    blocking: false
+  tdd:
+    status: pending
+    approved_at: null
+  tasksplit:
+    status: pending
+    approved_at: null
+
+acceptance_criteria: []
+  # - id: AC-001
+  #   given_when_then: "Given ... When ... Then ..."
+
+test_cases: []
+  # - id: TC-001
+  #   summary: "Happy path OTP verify"
+  #   traces_to: [AC-001]
+
+tasks: []
+  # - id: OTP_LOGIN:C1
+  #   status: pending
+  #   summary: "Add OTP request endpoint"
+  #   depends_on: []
+  #   scope_in: ["src/auth/..."]
+  #   scope_out: []
+  #   implements_cases: [TC-001]
+
+ordered_sequence: []
+
+open_gaps: []
+
+downstream_skills:
+  - implement-next

@@ -1,0 +1,29 @@
+# Reference shape for AI_CONTEXT/<FEATURE>_TASKS.contract.yaml
+# Emitted by /tasksplit — Greenfield Dev Loop task queue.
+
+contract_version: "1"
+artifact: feature_tasks
+workflow_profile: greenfield_dev_loop
+feature_id: AUTH
+tasks_status: draft
+current_task: null
+feature_contract_path: AI_CONTEXT/AUTH.contract.yaml
+tdd_contract_path: AI_CONTEXT/AUTH_TDD.contract.yaml
+
+summary: "<one sentence>"
+tasks: []
+  # - id: AUTH:C1
+  #   status: pending
+  #   summary: "..."
+  #   depends_on: []
+  #   scope_in: []
+  #   scope_out: []
+  #   implements_cases: [TC-001]
+
+ordered_sequence: []
+
+open_questions: []
+assumptions: []
+
+downstream_skills:
+  - implement-next

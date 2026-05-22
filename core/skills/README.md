@@ -6,28 +6,47 @@ Canonical home of all framework skills. Each skill is a folder containing at lea
 
 - Skills are **modular and reusable** — small, bounded, composable.
 - Each `SKILL.md` defines: purpose, when to invoke, required/forbidden inputs, exact workflow steps, expected outputs, files mutated, context budget, failure handling.
-- **No mega-skills.** Prefer orchestration of small skills over a monolith.
+- **No mega-skills** at the dev-facing layer — orchestrators hide internal stages.
 - Use the template at `core/templates/SKILL.template.md` to bootstrap a new skill.
 
-## Implemented skills (canonical)
+## Developer-facing loops
+
+### Brownfield — [BROWNFIELD_DEV_LOOP.md](../../docs/BROWNFIELD_DEV_LOOP.md)
+
+| Skill | Path |
+|-------|------|
+| `/understand [change]` | `core/skills/understand/SKILL.md` |
+| `/slice` (optional) | `core/skills/slice/SKILL.md` |
+| `/design <FEATURE>` | `core/skills/design/SKILL.md` |
+| `/tdd <FEATURE>` | `core/skills/tdd/SKILL.md` |
+| `/tasksplit <FEATURE>` | `core/skills/tasksplit/SKILL.md` |
+| `/implement-next [FEATURE]` | `core/skills/implement-next/SKILL.md` |
+| `/review [TASK_ID]` | `core/skills/review/SKILL.md` |
+| `/snapshot [TASK_ID]` | `core/skills/snapshot/SKILL.md` |
+| `/plan-feature` | deprecated → `design` |
+
+### Greenfield — [GREENFIELD_DEV_LOOP.md](../../docs/GREENFIELD_DEV_LOOP.md)
 
 | Skill | Path |
 |-------|------|
 | `/grillme` | `core/skills/grillme/SKILL.md` |
 | `/system-hld` | `core/skills/system-hld/SKILL.md` |
 | `/slice` | `core/skills/slice/SKILL.md` |
-| `/feature-questions <FEATURE>` | `core/skills/feature-questions/SKILL.md` |
-| `/feature-research <FEATURE>` | `core/skills/feature-research/SKILL.md` |
-| `/feature-design <FEATURE>` | `core/skills/feature-design/SKILL.md` |
-| `/feature-db <FEATURE>` | `core/skills/feature-db/SKILL.md` |
-| `/feature-api <FEATURE>` | `core/skills/feature-api/SKILL.md` |
+| `/design <FEATURE>` | `core/skills/design/SKILL.md` |
 | `/tdd <FEATURE>` | `core/skills/tdd/SKILL.md` |
 | `/tasksplit <FEATURE>` | `core/skills/tasksplit/SKILL.md` |
-| `/implement <TASK_ID \| FEATURE>` | `core/skills/implement/SKILL.md` |
-| `/review <TASK_ID>` | `core/skills/review/SKILL.md` |
-| `/debug <TASK_ID>` | `core/skills/debug/SKILL.md` |
-| `/snapshot <TASK_ID>` | `core/skills/snapshot/SKILL.md` |
-| `/learn <TASK_ID>` | `core/skills/learn/SKILL.md` |
+| `/implement-next [FEATURE]` | `core/skills/implement-next/SKILL.md` |
+| `/review [TASK_ID]` | `core/skills/review/SKILL.md` |
+| `/snapshot [TASK_ID]` | `core/skills/snapshot/SKILL.md` |
+
+### Advanced / partial
+
+| Skill | Path |
+|-------|------|
+| `/workspace-scan`, `/convention-detect` | Phase 0 partial (prefer `/understand`) |
+| `/feature-questions`, `/feature-research`, `/feature-design`, `/feature-db`, `/feature-api` | Greenfield partial (prefer `/design`) |
+| `/implement <TASK_ID \| FEATURE>` | Explicit task invoke |
+| `/debug`, `/learn` | Optional legacy |
 
 ## Derived locations
 

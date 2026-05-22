@@ -16,7 +16,8 @@ Run [`installer/sync-cursor.ps1`](../../installer/sync-cursor.ps1) (or `.sh`) af
 ## Discovery
 
 - Cursor loads skills from **`.cursor/skills/<name>/SKILL.md`** with YAML front matter (`name`, `description`).
-- Invoke in chat with **`/<name>`** (e.g. `/grillme`, `/implement AUTH:C1`).
+- Invoke in chat with **`/<name>`** (e.g. `/understand "add OTP"`, `/design OTP_LOGIN`, `/implement-next`).
+- **Brownfield default:** [docs/BROWNFIELD_DEV_LOOP.md](../../docs/BROWNFIELD_DEV_LOOP.md) — same shape as greenfield after `/understand`.
 - The agent should follow **`core/AGENTS.md`** content (mirrored to `.cursor/AGENTS.md`).
 
 ## Consumer repo layout

@@ -1,0 +1,48 @@
+# Reference shape for AI_CONTEXT/PROJECT_OVERVIEW.contract.yaml
+# Emitted by /workspace-scan — not a runtime config file.
+
+contract_version: "1"
+artifact: project_overview
+workflow_profile: brownfield
+scanned_at: "2026-01-01"
+repo_root: "."
+
+summary: "<one paragraph, evidence-backed>"
+
+languages: []
+  # - id: typescript
+  #   evidence: ["package.json"]
+
+frameworks: []
+  # - id: null
+  #   evidence: []
+  #   confidence: confirmed | tentative
+
+build:
+  tool: null
+  package_manager: null
+  evidence: []
+
+test:
+  framework: null
+  ci: null
+  evidence: []
+
+modules: []
+  # - id: core
+  #   path: "core"
+  #   role: "Framework core"
+  #   evidence: ["core/README.md"]
+
+boundaries: []
+
+integrations: []
+
+architecture_guess: null
+
+open_gaps: []
+
+downstream_skills:
+  - understand
+  - convention-detect
+  - plan-feature

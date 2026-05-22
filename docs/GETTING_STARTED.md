@@ -7,9 +7,19 @@ This guide walks through using **agentic-dev-os** in a real project with **Curso
 - **Bounded skills** (`/grillme`, `/system-hld`, `/implement`, …) instead of mega-prompts
 - **Vertical feature delivery** — one slice end-to-end, not “all DB then all APIs”
 - **Contract handoffs** — compact `*.contract.yaml` files downstream skills consume
-- **Human ownership** — review → debug → snapshot → learn on every implementation path
+- **Human ownership** — review → snapshot on every Simple Dev Loop task (legacy path adds `/debug`, `/learn`)
 
 Full product definition: [AI_CONTEXT/SPEC.md](../AI_CONTEXT/SPEC.md).
+
+## Brownfield Dev Loop (existing repos)
+
+Same command shape as greenfield after orientation:
+
+```text
+/understand [change] → optional /slice → /design FEATURE → /tdd → /tasksplit → /implement-next → /review → /snapshot
+```
+
+See **[BROWNFIELD_DEV_LOOP.md](BROWNFIELD_DEV_LOOP.md)**. **New products:** **[GREENFIELD_DEV_LOOP.md](GREENFIELD_DEV_LOOP.md)** (`/grillme` → `/system-hld` → `/slice` → …).
 
 ## Option A — Use this framework repo as a template
 
@@ -43,9 +53,17 @@ The installer:
 - Creates `AI_CONTEXT/` and seeds `SPEC.md` / `PROJECT_STATE.md` from templates if missing
 - Syncs `core/` → `.cursor/` for Cursor
 
-Then edit `AI_CONTEXT/SPEC.md` and invoke skills from Cursor chat (e.g. `/grillme`, `/slice`).
+Then run **`/understand`** on a brownfield app, or **`/grillme`** on a greenfield product.
 
-## Locked workflow (cheat sheet)
+## Greenfield Dev Loop (cheat sheet)
+
+```text
+/grillme → /system-hld → /slice → /design AUTH → /tdd AUTH → /tasksplit AUTH → /implement-next → /review → /snapshot
+```
+
+Full guide: [GREENFIELD_DEV_LOOP.md](GREENFIELD_DEV_LOOP.md).
+
+## Greenfield workflow — legacy detail (cheat sheet)
 
 ```mermaid
 flowchart TD
@@ -134,7 +152,9 @@ If you change a skill under `core/skills/`, refresh Cursor:
 
 ## Next reads
 
+- [docs/README.md](README.md) — documentation index
 - [README.md](../README.md) — overview and repository map
+- [BROWNFIELD_PRINCIPLES.md](BROWNFIELD_PRINCIPLES.md) — brownfield operating rules
 - [CONTRIBUTING.md](../CONTRIBUTING.md) — how to change the framework
 - [core/AGENTS.md](../core/AGENTS.md) — harness rules agents follow
 - [adapters/cursor/README.md](../adapters/cursor/README.md) — Cursor-specific paths
