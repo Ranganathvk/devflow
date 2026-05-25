@@ -180,7 +180,7 @@ Detail: [docs/GREENFIELD_DEV_LOOP.md](docs/GREENFIELD_DEV_LOOP.md)
 
 ```powershell
 # From your existing app (Windows)
-path\to\agentic-dev-os\installer\install.ps1 -TargetPath .
+path\to\devflow\installer\install.ps1 -TargetPath .
 ```
 
 Then in Cursor:
@@ -212,7 +212,7 @@ Canonical sources: [`core/skills/`](core/skills/). After editing, run **`install
 ## Repository map
 
 ```text
-agentic-dev-os/
+devflow/
 ├── AI_CONTEXT/
 │   └── SPEC.md           # Your product spec — edit or @-attach this file in chat
 │                         # (+ plans, contracts, reviews as skills run)
