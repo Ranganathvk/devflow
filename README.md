@@ -1,4 +1,4 @@
-# agentic-dev-os
+# devflow
 
 A **public, reusable AI engineering workflow framework** for coding agents (Cursor, Claude Code, Codex, Windsurf, Copilot, and compatible tools). It replaces mega-prompts with **bounded skills**, **contract-based handoffs**, and **human approval gates** so teams can evolve **existing codebases** safely.
 
