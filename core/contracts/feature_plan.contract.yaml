@@ -1,9 +1,9 @@
-# Reference shape for AI_CONTEXT/<FEATURE>_PLAN.contract.yaml
-# Emitted by /plan-feature — Simple Dev Loop, stage-wise planning.
+# DEPRECATED — use feature_tasks.contract.yaml via /design → /tasksplit.
+# Kept for legacy /plan-feature consumers only.
 
 contract_version: "1"
 artifact: feature_plan
-workflow_profile: simple_dev_loop
+workflow_profile: devflow
 feature_id: OTP_LOGIN
 title: "add OTP login"
 plan_status: draft

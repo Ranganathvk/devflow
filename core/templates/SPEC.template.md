@@ -48,7 +48,7 @@ Bullets — risks, integrations that may bite, areas where decisions are likely 
 
 ## Open items (TBD in implementation)
 
-Bullets — explicitly deferred decisions. Each open item should name **what** is unresolved and **when** it must be resolved (e.g. before `/architect`, before `/feature-design AUTH`).
+Bullets — explicitly deferred decisions. Each open item should name **what** is unresolved and **when** it must be resolved (e.g. before `/system-hld`, before `/design AUTH`).
 
 ---
 

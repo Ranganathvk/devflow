@@ -1,21 +1,21 @@
 ---
 name: understand
 description: >-
-  Brownfield phase 0: repo orientation (workspace-scan + convention-detect) and optional SPEC delta
-  refinement. Human provides AI_CONTEXT/SPEC.md (edit or @-attach in chat); agent grill-updates
-  that file with blast-radius analysis. Invoke /understand before /design.
+  Repo orientation (workspace-scan + convention-detect) and optional SPEC delta refinement.
+  Human provides AI_CONTEXT/SPEC.md (edit or @-attach in chat); agent grill-updates that file
+  with blast-radius analysis. Invoke /understand when working in an existing codebase.
 ---
 
 # /understand — attach `AI_CONTEXT/SPEC.md`
 
 ## Purpose
 
-**One command** for brownfield onboarding and intent alignment:
+**One command** for repo onboarding and intent alignment:
 
 1. **Orientation** — how the repo is laid out and how code is written (when artifacts are missing or stale).
 2. **Spec delta** — read **`AI_CONTEXT/SPEC.md`** (human must edit the file or attach `@AI_CONTEXT/SPEC.md` in chat). Refine it grill-style (one question at a time, recommended answers) and record **blast radius** under **Current change**. Do not treat a short slash-command phrase as the spec — the **file** is authoritative.
 
-Downstream: **`/design <FEATURE>`** (same command name as greenfield).
+Downstream: **`/design <FEATURE>`**.
 
 ## When to invoke
 
@@ -25,7 +25,7 @@ Downstream: **`/design <FEATURE>`** (same command name as greenfield).
 | `/understand` + `@AI_CONTEXT/SPEC.md` | Orientation (if needed) + SPEC delta from the attached/edited file |
 | `/understand` (SPEC already has **Current change**) | SPEC-only pass when overview/conventions already exist |
 
-- Do **not** use for greenfield product shaping from scratch — use `/grillme`.
+- Do **not** use when starting from an empty spec with no repo — use `/grillme` first.
 - Do **not** implement features — use `/design` → `/tdd` → `/tasksplit` → `/implement-next`.
 
 ## Inputs
@@ -51,13 +51,13 @@ If both artifacts already exist and the invocation is **spec-delta only**, set `
 
 ### 2 — Spec delta (when change description provided)
 
-Follow [grillme](../grillme/SKILL.md) **Workflow B (incremental)** for the human’s change:
+Follow [grillme](../grillme/SKILL.md) **Workflow B (incremental)** for the human's change:
 
 - One question per turn with **recommended** answer (radio-style options when fixed choices).
 - **No silent writes** — merge into `SPEC.md` only after each answered question (verbatim-insert exception per grillme).
 - Explore the codebase when a question is factual (paths, existing auth flow, etc.).
 
-Additionally for brownfield:
+Additionally:
 
 1. Maintain or create section **`## Current change`** in `SPEC.md` with:
    - **Intent** — one paragraph from human input
@@ -98,7 +98,7 @@ Do **not** run `/design`, `/tdd`, or `/implement-next` in the same invocation.
 ```yaml
 contract_version: "1"
 artifact: understand
-workflow_profile: brownfield_dev_loop
+workflow_profile: devflow
 completed_at: "YYYY-MM-DD"
 
 project_overview_contract_path: AI_CONTEXT/PROJECT_OVERVIEW.contract.yaml
@@ -130,7 +130,7 @@ downstream_skills:
 ## Forbidden
 
 - Feature design, TDD, tasksplit, implementation, review.
-- Replacing `/grillme` on empty greenfield products.
+- Replacing `/grillme` when spec is empty and no repo context exists.
 - Chaining `/design` in the same run.
 
 ## Quality bar
@@ -145,4 +145,4 @@ downstream_skills:
 |------|-----|
 | Layout only | `/workspace-scan` |
 | Conventions only | `/convention-detect` |
-| Full product spec (greenfield) | `/grillme` |
+| Full product spec interview | `/grillme` |

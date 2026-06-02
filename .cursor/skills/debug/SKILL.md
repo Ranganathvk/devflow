@@ -1,8 +1,8 @@
 ---
 name: debug
 description: >-
-  Legacy/advanced: minimal fixes after /review blocking findings. Not part of Simple Dev Loop
-  (use fix + re-/review instead). Invoke as /debug <TASK_ID>. Greenfield and full framework only.
+  Legacy/advanced: minimal fixes after /review blocking findings. Default loop: fix in editor and
+  re-run /review. Invoke as /debug <TASK_ID> when automated fix pass is desired.
 ---
 
 # /debug — Surgical fix pass for a reviewed task
@@ -23,14 +23,14 @@ Close the loop between **`/review`** and a **green verification** state by fixin
 - **Required:** Resolved `<TASK_ID>` matching `^[A-Z][A-Z0-9_]{1,31}:C[1-9][0-9]*$`.
 - **Required:** `AI_CONTEXT/<FEATURE>_C<n>_REVIEW.contract.yaml` for that task (create via `/review` first **or** human provides equivalent pasted findings — if missing, run `/review` first unless human explicitly waived with a pasted defect list).
 - **Required:** `AI_CONTEXT/SPEC.md` — **Implementation rules** and **Design principles** (minimum).
-- **Optional (Simple Dev Loop):** `AI_CONTEXT/<FEATURE>_PLAN.contract.yaml` — task row for `scope_in` / `scope_out` / `implements_cases`.
-- **Optional (legacy):** `AI_CONTEXT/<FEATURE>_TASKS.contract.yaml` — task row when plan contract absent.
+- **Optional (legacy):** `AI_CONTEXT/<FEATURE>_PLAN.contract.yaml` — task row when deprecated plan queue used.
+- **Optional:** `AI_CONTEXT/<FEATURE>_TASKS.contract.yaml` — task row for scope.
 - **Optional:** Plan `test_cases[]` or `<FEATURE>_TDD.contract.yaml` for failing `TC-*`.
 - **Forbidden:** Expanding task scope. “Fixing” upstream contracts to match wrong code without human direction. Unbounded refactors.
 
 ## Resolve TASK_ID (when argument omitted)
 
-Same algorithm as `/review`: read `current_task` from approved/in-flight `*_PLAN.contract.yaml` with `workflow_profile: simple_dev_loop`; if ambiguous, stop and ask for `<TASK_ID>`.
+Same algorithm as `/review`: read `current_task` from `*_TASKS.contract.yaml` first; legacy `*_PLAN.contract.yaml` fallback.
 
 ## Workflow
 

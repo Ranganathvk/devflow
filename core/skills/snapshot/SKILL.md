@@ -77,7 +77,7 @@ No application source edits in this skill.
 ```yaml
 contract_version: "1"
 artifact: task_snapshot
-workflow_profile: simple_dev_loop
+workflow_profile: devflow
 task_id: "<FEATURE>:C<n>"
 feature_id: "<FEATURE>"
 snapshot_basename: "<FEATURE>_C<n>"
@@ -121,4 +121,4 @@ notes: ""
 
 ## Legacy
 
-Greenfield flows may use `/snapshot <TASK_ID>` without a plan contract; set `plan_contract_path: null` and skip step 9.
+Legacy flows without a tasks queue may set `plan_contract_path` and skip queue update step 9.

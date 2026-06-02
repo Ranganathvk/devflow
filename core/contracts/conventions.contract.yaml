@@ -3,7 +3,7 @@
 
 contract_version: "1"
 artifact: conventions
-workflow_profile: brownfield
+workflow_profile: devflow
 detected_at: "2026-01-01"
 project_overview_contract_path: AI_CONTEXT/PROJECT_OVERVIEW.contract.yaml
 

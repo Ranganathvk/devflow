@@ -1,7 +1,7 @@
 ---
 name: implement-next
 description: >-
-  Execute the next pending task from an approved FEATURE_TASKS queue (brownfield or greenfield).
+  Execute the next pending task from an approved FEATURE_TASKS queue.
   Legacy *_PLAN.contract.yaml is deprecated. Sets current_task, bounded implementation, then /review.
   Invoke as /implement-next or /implement-next FEATURE.
 ---
@@ -22,7 +22,7 @@ Updates `current_task` on the tasks contract; `/snapshot` marks `done`.
 
 ## Queue discovery (no `<FEATURE>` argument)
 
-1. Collect `*_TASKS.contract.yaml` with `tasks_status: approved` and `workflow_profile` in `brownfield_dev_loop` | `greenfield_dev_loop`.
+1. Collect `*_TASKS.contract.yaml` with `tasks_status: approved`.
 2. **Legacy:** `*_PLAN.contract.yaml` with `plan_status: approved` — supported but deprecated; prefer `/design` → `/tdd` → `/tasksplit`.
 3. **0** → stop: run `/design` → `/tdd` → `/tasksplit` → approve tasks.
 4. **1** → use its `feature_id`.
@@ -32,11 +32,11 @@ Updates `current_task` on the tasks contract; `/snapshot` marks `done`.
 
 1. **Resolve** `<FEATURE>` from argument or discovery.
 2. **Load** `*_TASKS.contract.yaml` and `AI_CONTEXT/<FEATURE>.contract.yaml`.
-3. **Gates:** `tasks_status: approved`; `design_status: approved`; brownfield: `design_stages.compat.blocking` must not be true when present.
+3. **Gates:** `tasks_status: approved`; `design_status: approved`; when `design_stages.compat.blocking` present it must not be true.
 4. **In-flight gate:** if `current_task` with task `in_progress` → stop; `/review` → `/snapshot` first.
 5. **Select next task:** `pending` + `depends_on` satisfied; use `ordered_sequence` when present.
 6. **Bind:** set `current_task`, task `in_progress`.
-7. **Scope-lock** from task row; brownfield also load `CONVENTIONS.contract.yaml`.
+7. **Scope-lock** from task row; load `CONVENTIONS.contract.yaml` when present.
 8. **Implement** per feature contract + SPEC **Current change** when relevant.
 9. **Run checks** for touched area.
 10. **STOP** → suggest **`/review`**.
@@ -68,5 +68,3 @@ Updates `current_task` on the tasks contract; `/snapshot` marks `done`.
 ```text
 /design → approve → /tdd → /tasksplit → approve → implement-next → review → snapshot
 ```
-
-(Same command sequence for brownfield and greenfield.)

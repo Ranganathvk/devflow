@@ -1,8 +1,8 @@
-# Product specification — agentic-dev-os
+# Product specification — devflow
 
 ## Summary
 
-**agentic-dev-os** is a **public, production-quality, reusable AI engineering workflow framework** (not a customer application). It targets multiple coding agents and AGENTS.md-style tools (Codex, Claude Code, Cursor, Windsurf, Copilot, and future compatible agents) through a shared **core** plus thin **adapters**.
+**devflow** is a **public, production-quality, reusable AI engineering workflow framework** (not a customer application). It targets multiple coding agents and AGENTS.md-style tools (Codex, Claude Code, Cursor, Windsurf, Copilot, and future compatible agents) through a shared **core** plus thin **adapters**.
 
 **Scope decision (agreed):** This repository’s authoritative product is **the framework only**. A prior draft in this file described a separate **post-deploy DevOps AI agent** product; that content is **superseded** and is **out of scope** for this repo unless reintroduced as an explicit, separate effort elsewhere.
 
@@ -45,26 +45,22 @@ The framework **enforces** disciplined workflows; the **human** remains architec
 
 **Stage 3 — Per vertical feature** (repeat per feature, e.g. `AUTH`)
 
-Stage 3 is a **toolkit**. Commands are **pick-what-you-need** per feature; they are not a forced waterfall.
+- `/design <FEATURE>` — asks what to build; classifies `needs_db` / `needs_api` / `needs_tasks`; emits DESIGN + conditional DB/API artifacts
+- `/tdd <FEATURE>` *(optional; recommended when risk is non-trivial)*
+- `/tasksplit <FEATURE>` *(optional; when chunking into `FEATURE:Cn` helps)*
+- `/implement <FEATURE>` *(lite)* or `/implement <TASK_ID>` *(task-based)*
+- `/review` → `/debug` *(optional)* → `/snapshot` → `/learn` *(optional)*
 
-- `/feature-questions <FEATURE>` *(optional quality gate)*  
-- `/feature-research <FEATURE>` *(optional evidence pass)*  
-- `/feature-design <FEATURE>` *(recommended for non-trivial features; can also set delivery flags)*  
-- `/feature-db <FEATURE>` *(only when the feature needs persistence)*  
-- `/feature-api <FEATURE>` *(only when the feature needs an interface contract)*  
-- `/tdd <FEATURE>` *(optional planning depth; recommended when risk is non-trivial)*  
-- `/tasksplit <FEATURE>` *(optional; use when chunking into `FEATURE:Cn` tasks helps execution)*  
-- `/implement <FEATURE>` *(lite direct path)* or `/implement <TASK_ID>` *(task-based path)*  
-- `/review <TASK_OR_FEATURE>` → `/debug <TASK_OR_FEATURE>` → `/snapshot <TASK_OR_FEATURE>` → `/learn <TASK_OR_FEATURE>`
+**Illustration (standard):** `/design AUTH` → `/tdd AUTH` → `/tasksplit AUTH` → `AUTH:C1` → review → snapshot.
 
-**Illustration (full path):** `AUTH` can run questions → research → design → db → api → tdd → tasksplit → e.g. `AUTH:C1` → review → debug → snapshot.
+**Illustration (lite):** `/design AUTH` with `needs_tasks: false` → `/implement AUTH` → review → snapshot.
 
-**Illustration (lite path):** `AUTH` can run slice context + minimal design flags, then go directly to `/implement AUTH` when DB/API/tasksplit are not required.
+Deprecated: `/feature-questions`, `/feature-research`, `/feature-design`, `/feature-db`, `/feature-api` — absorbed into `/design`.
 
 ## Repository layout (target)
 
 ```text
-agentic-dev-os/
+devflow/
   core/
     skills/
     templates/
@@ -133,8 +129,8 @@ Major workflows emit **paired** artifacts:
 
 Downstream skills must **not** require loading entire prior narrative outputs.
 
-- **Good:** e.g. `feature-db` consumes `AI_CONTEXT/SPEC.md`, `SYSTEM_HLD.contract.yaml`, and `FEATURE.contract.yaml`.  
-- **Bad:** `feature-db` consumes full HLD prose, full design history, or giant chat context.
+- **Good:** e.g. `/design` emits `_DB.contract.yaml` only when `delivery.needs_db: true`; downstream reads `<FEATURE>.contract.yaml` + compact DB contract.
+- **Bad:** separate mega-skills chain or full HLD prose in every handoff.
 
 ## Implementation rules
 

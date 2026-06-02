@@ -26,8 +26,8 @@ Provide a **repeatable, file-backed review** for a single task-sized change set 
 - **Required:** Resolved `<TASK_ID>` matching `^[A-Z][A-Z0-9_]{1,31}:C[1-9][0-9]*$` **or** explicit paths + human waiver for ad-hoc (see Purpose).
 - **Required:** `AI_CONTEXT/SPEC.md` — read **Design principles**, **Implementation rules**, and **Human code ownership** (minimum).
 - **Required:** Change set — `git diff` / `git show` / or the files the human listed as in-scope for this review.
-- **Optional (brownfield):** `AI_CONTEXT/<FEATURE>_PLAN.contract.yaml` — task row + `test_cases[]`.
-- **Optional (greenfield):** `AI_CONTEXT/<FEATURE>_TASKS.contract.yaml` — task row + TDD cases.
+- **Optional:** `AI_CONTEXT/<FEATURE>_TASKS.contract.yaml` — task row + TDD cases.
+- **Optional (legacy plan):** `AI_CONTEXT/<FEATURE>_PLAN.contract.yaml` — deprecated queue.
 - **Optional:** `AI_CONTEXT/<FEATURE>_TDD.contract.yaml` — narrow `cases[]` when not using plan `test_cases[]`.
 - **Optional:** `AI_CONTEXT/PROJECT_STATE.md` — branch, constraints, or “what was supposed to be done.”
 - **Forbidden:** Treating chat as the diff. Inventing files “reviewed” that are not in the change set. Approving work without listing evidence (commands run, files read).
@@ -35,8 +35,8 @@ Provide a **repeatable, file-backed review** for a single task-sized change set 
 ## Resolve TASK_ID (when argument omitted)
 
 1. Find contracts with non-null `current_task`:
-   - `*_PLAN.contract.yaml` (`workflow_profile: simple_dev_loop`)
-   - `*_TASKS.contract.yaml` (`workflow_profile: greenfield_dev_loop`)
+   - `*_TASKS.contract.yaml` (primary)
+   - `*_PLAN.contract.yaml` (legacy, deprecated)
 2. **One match** → use `current_task`.
 3. **Multiple** → stop; ask for `/review <TASK_ID>`.
 4. **None** → `PROJECT_STATE.md` / user message; else stop.
@@ -46,7 +46,7 @@ Provide a **repeatable, file-backed review** for a single task-sized change set 
 1. **Resolve** `<TASK_ID>` from argument or **Resolve TASK_ID** above.
 2. **Parse** into `feature_id` (`<FEATURE>`) and chunk `C<n>`. Derive **safe basename** `review_basename = "<FEATURE>_C<n>"` (filename-safe; mirrors `AUTH:C1` → `AUTH_C1`).
 3. **Resolve** change set: prefer repository diff against merge base or last commit; if ambiguous, **stop** with one question.
-4. **Scope check:** Load task row from plan `tasks[]` or greenfield `tasks[]`. Confirm edits align with `scope_in` and `implements_cases`; flag **violations** as `blocking`.
+4. **Scope check:** Load task row from `_TASKS.tasks[]` or legacy plan `tasks[]`. Confirm edits align with `scope_in` and `implements_cases`; flag **violations** as `blocking`.
 5. **Checklist (systematic):** Cover at minimum: correctness vs task/TDD IDs, tests present for new behavior, error paths, naming/style match (`CONVENTIONS.contract.yaml` when present), secrets/logging, migration safety if applicable, and “no drive-by refactors.” Record each item as **pass / fail / not_applicable** with a one-line note in the human doc.
 6. **Classify findings:** Each issue is `blocking` (must fix before sign-off) or `non_blocking` (may defer with explicit reason in `deferred[]`).
 7. **Write** `AI_CONTEXT/<FEATURE>_C<n>_REVIEW.md` (target ≤ **~120** lines): summary, checklist table, findings, open questions for the human, **sign-off block** (human fills).

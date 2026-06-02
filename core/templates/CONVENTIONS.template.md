@@ -1,6 +1,6 @@
 # Coding conventions
 
-> Brownfield convention map. Fill via `/convention-detect`; keep evidence-backed.
+> Convention map for existing repos. Fill via `/convention-detect`; keep evidence-backed.
 
 ## Document control
 

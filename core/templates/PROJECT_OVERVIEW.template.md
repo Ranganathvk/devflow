@@ -1,6 +1,6 @@
 # Project overview
 
-> Brownfield orientation. Fill via `/workspace-scan`; keep concise and evidence-backed.
+> Repo orientation. Fill via `/workspace-scan`; keep concise and evidence-backed.
 
 ## Document control
 

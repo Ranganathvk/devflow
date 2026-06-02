@@ -4,11 +4,11 @@
 
 ## Current focus
 
-One line: the vertical feature or stage actively in flight (e.g. `AUTH — /feature-design`, or `bootstrap — repo skeleton`).
+One line: the vertical feature or stage actively in flight (e.g. `AUTH — /design`, or `bootstrap — repo skeleton`).
 
 ## Active workflow stage
 
-Pick one: `spec-alignment` / `system-shape` / `feature-questions` / `feature-research` / `feature-design` / `feature-db` / `feature-api` / `tdd` / `tasksplit` / `implement` / `review` / `debug` / `snapshot` / `learn`.
+Pick one: `spec-alignment` / `system-shape` / `design` / `tdd` / `tasksplit` / `implement` / `review` / `debug` / `snapshot` / `learn`.
 
 ## Recent decisions
 

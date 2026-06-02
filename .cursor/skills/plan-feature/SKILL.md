@@ -1,13 +1,13 @@
 ---
 name: plan-feature
 description: >-
-  DEPRECATED — use /design instead. Brownfield planning now uses /design with the same stage-wise
-  approval gates and _DESIGN.md artifacts, aligned with the greenfield command path (/tdd, /tasksplit).
+  DEPRECATED — use /design instead. Same stage-wise approval gates and _DESIGN.md artifacts
+  (/tdd, /tasksplit, /implement-next).
 ---
 
 # /plan-feature — Deprecated
 
-**Use `/design`** per [BROWNFIELD_DEV_LOOP.md](../../docs/BROWNFIELD_DEV_LOOP.md).
+**Use `/design`** per [DEV_LOOP.md](../../docs/DEV_LOOP.md).
 
 | Old | New |
 |-----|-----|

@@ -9,44 +9,36 @@ Canonical home of all framework skills. Each skill is a folder containing at lea
 - **No mega-skills** at the dev-facing layer — orchestrators hide internal stages.
 - Use the template at `core/templates/SKILL.template.md` to bootstrap a new skill.
 
-## Developer-facing loops
+## Dev Loop — [DEV_LOOP.md](../../docs/DEV_LOOP.md)
 
-### Brownfield — [BROWNFIELD_DEV_LOOP.md](../../docs/BROWNFIELD_DEV_LOOP.md)
-
-| Skill | Path |
-|-------|------|
-| `/understand [change]` | `core/skills/understand/SKILL.md` |
-| `/slice` (optional) | `core/skills/slice/SKILL.md` |
-| `/design <FEATURE>` | `core/skills/design/SKILL.md` |
-| `/tdd <FEATURE>` | `core/skills/tdd/SKILL.md` |
-| `/tasksplit <FEATURE>` | `core/skills/tasksplit/SKILL.md` |
-| `/implement-next [FEATURE]` | `core/skills/implement-next/SKILL.md` |
-| `/review [TASK_ID]` | `core/skills/review/SKILL.md` |
-| `/snapshot [TASK_ID]` | `core/skills/snapshot/SKILL.md` |
-| `/plan-feature` | deprecated → `design` |
-
-### Greenfield — [GREENFIELD_DEV_LOOP.md](../../docs/GREENFIELD_DEV_LOOP.md)
+### Optional prelude
 
 | Skill | Path |
 |-------|------|
 | `/grillme` | `core/skills/grillme/SKILL.md` |
+| `/understand [change]` | `core/skills/understand/SKILL.md` |
 | `/system-hld` | `core/skills/system-hld/SKILL.md` |
 | `/slice` | `core/skills/slice/SKILL.md` |
+
+### Core loop (per feature)
+
+| Skill | Path |
+|-------|------|
 | `/design <FEATURE>` | `core/skills/design/SKILL.md` |
 | `/tdd <FEATURE>` | `core/skills/tdd/SKILL.md` |
 | `/tasksplit <FEATURE>` | `core/skills/tasksplit/SKILL.md` |
 | `/implement-next [FEATURE]` | `core/skills/implement-next/SKILL.md` |
 | `/review [TASK_ID]` | `core/skills/review/SKILL.md` |
 | `/snapshot [TASK_ID]` | `core/skills/snapshot/SKILL.md` |
+| `/plan-feature`, `/feature-*` | Deprecated → `/design` |
 
 ### Advanced / partial
 
 | Skill | Path |
 |-------|------|
-| `/workspace-scan`, `/convention-detect` | Phase 0 partial (prefer `/understand`) |
-| `/feature-questions`, `/feature-research`, `/feature-design`, `/feature-db`, `/feature-api` | Greenfield partial (prefer `/design`) |
+| `/workspace-scan`, `/convention-detect` | Orientation partial (prefer `/understand`) |
 | `/implement <TASK_ID \| FEATURE>` | Explicit task invoke |
-| `/debug`, `/learn` | Optional legacy |
+| `/debug`, `/learn` | Optional |
 
 ## Derived locations
 

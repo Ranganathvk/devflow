@@ -1,8 +1,8 @@
 ---
 name: grillme
 description: >-
-  Greenfield Dev Loop step 1: interview-driven refinement of AI_CONTEXT/SPEC.md. One question at a
-  time with recommended answers. Invoke /grillme before /system-hld on new products. Supports delta mode.
+  Interview-driven refinement of AI_CONTEXT/SPEC.md. One question at a time with recommended
+  answers. Invoke /grillme when spec is thin or before /system-hld. Supports delta mode.
 ---
 
 # /grillme — SPEC stress-test and refinement
@@ -26,7 +26,7 @@ Reach **shared understanding** by grilling the plan: expose gaps, resolve depend
 ## When to invoke
 
 - `/grillme` — `SPEC.md` is thin, fuzzy, or disputed.
-- Before `/architect` or implementation.
+- Before `/system-hld` or implementation when spec needs alignment.
 - After a large pivot to realign requirements.
 - **`/grillme delta`** or “new idea on top of existing SPEC” — **incremental pass** only (see Workflow B); do **not** restart from question one unless the human asks for a **full re-grill**.
 

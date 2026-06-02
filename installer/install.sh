@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Attach agentic-dev-os to a consumer repository.
+# Attach devflow to a consumer repository.
 # Usage: ./installer/install.sh /path/to/your-app
 
 set -euo pipefail
@@ -19,7 +19,7 @@ copy_tree() {
   cp -R "$src"/. "$dest"/
 }
 
-echo "Installing agentic-dev-os into: $TARGET"
+echo "Installing devflow into: $TARGET"
 
 copy_tree "$FRAMEWORK_ROOT/core" "$TARGET/core"
 copy_tree "$FRAMEWORK_ROOT/adapters" "$TARGET/adapters"

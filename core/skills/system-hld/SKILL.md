@@ -1,8 +1,8 @@
 ---
 name: system-hld
 description: >-
-  Greenfield Dev Loop step 2: compact system HLD (SYSTEM_HLD.md + SYSTEM_HLD.contract.yaml).
-  Invoke /system-hld after /grillme when SPEC is concrete enough. Next: /slice. Does not replace /design.
+  Compact system HLD (SYSTEM_HLD.md + SYSTEM_HLD.contract.yaml). Invoke /system-hld after /grillme
+  when SPEC is concrete enough. Next: /slice. Does not replace /design.
 ---
 
 # /system-hld — System shape (HLD + contract)
@@ -19,7 +19,7 @@ This skill is **bounded**: system boundaries, major logical pieces, interfaces a
 - After `/grillme` when the spec is no longer placeholder-only.
 - When `SYSTEM_HLD` artifacts are missing or **stale** after a meaningful SPEC change.
 - Do **not** invoke on an empty or purely aspirational SPEC — run `/grillme` first.
-- Do **not** use this skill for a single vertical feature’s deep design — use `/feature-design <FEATURE>` (and related feature skills) instead.
+- Do **not** use this skill for a single vertical feature’s deep design — use **`/design <FEATURE>`** instead.
 
 ## Inputs
 
@@ -127,7 +127,7 @@ artifact_conventions: []
   # Human + machine pairs this repo uses (from SPEC artifact pattern), as strings
 
 downstream_skills: []
-  # Next slash stages from SPEC, e.g. slice, feature-questions — strings only
+  # Next slash stages from SPEC, e.g. slice, design — strings only
 
 integrations: []
   # - id: ...

@@ -3,7 +3,7 @@
 
 contract_version: "1"
 artifact: project_overview
-workflow_profile: brownfield
+workflow_profile: devflow
 scanned_at: "2026-01-01"
 repo_root: "."
 

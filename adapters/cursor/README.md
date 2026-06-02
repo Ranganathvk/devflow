@@ -1,6 +1,6 @@
 # Cursor adapter
 
-How **agentic-dev-os** materializes on disk for [Cursor](https://cursor.com) (Desktop, IDE, CLI, Cloud Agents).
+How **devflow** materializes on disk for [Cursor](https://cursor.com) (Desktop, IDE, CLI, Cloud Agents).
 
 ## Materialized paths
 
@@ -17,7 +17,7 @@ Run [`installer/sync-cursor.ps1`](../../installer/sync-cursor.ps1) (or `.sh`) af
 
 - Cursor loads skills from **`.cursor/skills/<name>/SKILL.md`** with YAML front matter (`name`, `description`).
 - Invoke in chat with **`/<name>`** (e.g. `/understand "add OTP"`, `/design OTP_LOGIN`, `/implement-next`).
-- **Brownfield default:** [docs/BROWNFIELD_DEV_LOOP.md](../../docs/BROWNFIELD_DEV_LOOP.md) — same shape as greenfield after `/understand`.
+- **Dev Loop:** [docs/DEV_LOOP.md](../../docs/DEV_LOOP.md)
 - The agent should follow **`core/AGENTS.md`** content (mirrored to `.cursor/AGENTS.md`).
 
 ## Consumer repo layout

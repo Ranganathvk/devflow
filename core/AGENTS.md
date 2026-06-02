@@ -1,6 +1,6 @@
 # Framework agent harness (canonical)
 
-This is the **canonical** agent harness for the `agentic-dev-os` framework. It applies to any coding agent or AGENTS.md-respecting tool (Codex, Claude Code, Cursor, Windsurf, Copilot, and future compatible agents) that has been attached to a repo via the installer.
+This is the **canonical** agent harness for the `devflow` framework. It applies to any coding agent or AGENTS.md-respecting tool (Codex, Claude Code, Cursor, Windsurf, Copilot, and future compatible agents) that has been attached to a repo via the installer.
 
 > **Do not hand-edit derived copies.** Files such as `.cursor/AGENTS.md`, `.claude/AGENTS.md`, etc. are materialized from this file by the installer/sync described under `adapters/<agent>/`. Edit **here** and re-sync.
 
@@ -11,7 +11,7 @@ This is the **canonical** agent harness for the `agentic-dev-os` framework. It a
 - **One direction of truth.** Do not duplicate specs in chat — update the canonical file instead.
 - **No mega prompts.** Split work into bounded skills; prefer small orchestrated workflows over monolithic skills.
 - **Vertical implementation.** Deliver one feature end-to-end before broadening; no horizontal "all DB then all APIs then all UI" passes.
-- **Human code ownership.** Every implementation path must include review → test → debug → snapshot. AI is a bounded pair engineer, not an autonomous owner.
+- **Human code ownership.** Every implementation path includes review and snapshot; fix blockers in-editor and re-run `/review`. Optional `/debug` and `/learn` for deeper loops.
 
 ## Source of truth (read order)
 
@@ -24,54 +24,46 @@ Agents reading this harness must consult these inputs in order before acting on 
 | 3 | `AI_CONTEXT/PROJECT_STATE.md` (when present) | Where we are now — decisions, active work, blockers |
 | 4 | The relevant `SKILL.md` for the requested slash command, if any | Bounded workflow module |
 
-If `AI_CONTEXT/SPEC.md` is unfilled or placeholder-heavy, treat it as a prompt to align with the human (via `/grillme` for greenfield, or `/understand` with a change description for brownfield) before any large change. Same for `PROJECT_STATE.md`.
+If `AI_CONTEXT/SPEC.md` is unfilled or placeholder-heavy, align with the human via `/grillme` or `/understand` (attach `@AI_CONTEXT/SPEC.md`) before any large change. Same for `PROJECT_STATE.md`.
 
-## Workflow selection
+## Dev Loop (single workflow)
 
-| Situation | Default loop | Doc |
-|-----------|--------------|-----|
-| **Existing codebase** (brownfield) | `/understand` → optional `/slice` → `/design` → `/tdd` → `/tasksplit` → `/implement-next` → `/review` → `/snapshot` | [docs/BROWNFIELD_DEV_LOOP.md](../docs/BROWNFIELD_DEV_LOOP.md) |
-| **New product** (greenfield) | `/grillme` → `/system-hld` → `/slice` → `/design` → `/tdd` → `/tasksplit` → implement loop | [docs/GREENFIELD_DEV_LOOP.md](../docs/GREENFIELD_DEV_LOOP.md) |
+One workflow for all projects. **Optional prelude** skills depend on repo state. Full doc: [docs/DEV_LOOP.md](../docs/DEV_LOOP.md).
 
-Brownfield agents follow [docs/BROWNFIELD_PRINCIPLES.md](../docs/BROWNFIELD_PRINCIPLES.md). The Simple Dev Loop omits `/debug` and `/learn`; fix blockers in-editor and re-run `/review`.
+### Optional prelude (pick what you need)
 
-## Locked workflow — greenfield toolkit (slash commands)
+| Skill | When |
+|-------|------|
+| `/grillme` | Spec is thin, fuzzy, or needs interview-driven refinement |
+| `/understand` | Existing codebase — orientation + SPEC delta + blast radius |
+| `/system-hld` | System shape needed before slicing |
+| `/slice` | Large scope — feature catalog before per-feature work |
 
-The framework also standardizes the following **greenfield** stages. Skills implementing each stage live under `core/skills/`.
+### Core loop (per feature)
 
-**Stage 1 — Spec alignment**
+```text
+/design <FEATURE> → /tdd <FEATURE> → /tasksplit <FEATURE>
+→ /implement-next → /review → /snapshot
+```
 
-- `/grillme` — interview-driven refinement of `AI_CONTEXT/SPEC.md`.
+`/design` asks what to build, classifies delivery (`needs_db`, `needs_api`, `needs_tasks`), and emits DB/API artifacts when needed — no separate `/feature-*` commands.
 
-**Stage 2 — System shape**
+Repeat `/implement-next` → `/review` → `/snapshot` until the task queue is empty.
 
-- `/system-hld` — compact system HLD plus `SYSTEM_HLD.contract.yaml` under `AI_CONTEXT/` (see `core/skills/system-hld/SKILL.md`).
-- `/slice` — vertical feature decomposition plus `FEATURE_SLICES.contract.yaml` for Stage 3 (see `core/skills/slice/SKILL.md`).
+### Other commands
 
-**Stage 3 — Per vertical feature** (repeat per feature, e.g. `AUTH`)
+- `/implement <FEATURE>` or `/implement <TASK_ID>` — explicit invoke (lite path)
+- `/debug`, `/learn` — optional post-review depth
 
-Stage 3 is an **optional routing toolkit**, not a required waterfall. Use only the depth needed for the current feature.
-
-- `/feature-questions <FEATURE>` — optional clarification gate.
-- `/feature-research <FEATURE>` — optional evidence pass.
-- `/feature-design <FEATURE>` — feature contract + delivery flags (`delivery_profile`, `needs_db`, `needs_api`, `needs_tasks`).
-- `/feature-db <FEATURE>` — run only when `needs_db: true`.
-- `/feature-api <FEATURE>` — run only when `needs_api: true`.
-- `/tdd <FEATURE>` — optional test-planning depth.
-- `/tasksplit <FEATURE>` — optional task chunking when `needs_tasks: true`.
-- `/implement <FEATURE>` — lite direct implementation path.
-- `/implement <TASK_ID>` — task-based path for one bounded chunk (e.g. `AUTH:C1`).
-- `/review <TASK_OR_FEATURE>` → `/debug <TASK_OR_FEATURE>` → `/snapshot <TASK_OR_FEATURE>` → `/learn <TASK_OR_FEATURE>` — post-implementation verification loop.
-
-Suggested routes:
+### Suggested routes
 
 | Route | Typical sequence |
 |-------|------------------|
-| Lite | `slice` → `feature-design` (minimal contract flags) → `implement <FEATURE>` |
-| Standard | `feature-questions` → `feature-research` → `feature-design` → conditional db/api → optional `tdd` → `implement` |
-| Compliance-heavy | standard + `tdd` + `tasksplit` → `implement <TASK_ID>` for each chunk |
+| Lite | `/slice` → `/design` → `/implement <FEATURE>` when `needs_tasks: false` |
+| Standard | prelude as needed → `/design` → `/tdd` → `/tasksplit` → implement loop |
+| Compliance-heavy | standard + `/tasksplit` → `/implement <TASK_ID>` per chunk + `/learn` |
 
-Stage 3 skills through `/learn` are implemented under `core/skills/` (see `core/skills/README.md`).
+Existing-repo safe-change principles: [docs/DELTA_PRINCIPLES.md](../docs/DELTA_PRINCIPLES.md).
 
 ## Default session command order
 
@@ -93,15 +85,18 @@ Stage 3 skills through `/learn` are implemented under `core/skills/` (see `core/
 
 Major workflows emit **paired** artifacts: a human-readable doc and a machine-readable compact contract.
 
+All workflow contracts use **`workflow_profile: devflow`** unless marked legacy deprecated.
+
 | Human doc | Machine contract |
 |-----------|------------------|
+| `AI_CONTEXT/PROJECT_OVERVIEW.md` | `AI_CONTEXT/PROJECT_OVERVIEW.contract.yaml` |
+| `AI_CONTEXT/CONVENTIONS.md` | `AI_CONTEXT/CONVENTIONS.contract.yaml` |
+| *(orientation rollup)* | `AI_CONTEXT/UNDERSTAND.contract.yaml` |
 | `AI_CONTEXT/SYSTEM_HLD.md` | `AI_CONTEXT/SYSTEM_HLD.contract.yaml` |
 | `AI_CONTEXT/FEATURE_SLICES.md` | `AI_CONTEXT/FEATURE_SLICES.contract.yaml` |
 | `<FEATURE>_DESIGN.md` | `<FEATURE>.contract.yaml` |
-| `<FEATURE>_DB.md` | `<FEATURE>_DB.contract.yaml` |
-| `<FEATURE>_API.md` | `<FEATURE>_API.contract.yaml` |
-| `<FEATURE>_QUESTIONS.md` | `<FEATURE>_QUESTIONS.contract.yaml` |
-| `<FEATURE>_RESEARCH.md` | `<FEATURE>_RESEARCH.contract.yaml` |
+| `<FEATURE>_DB.md` | `<FEATURE>_DB.contract.yaml` *(when `needs_db`)* |
+| `<FEATURE>_API.md` | `<FEATURE>_API.contract.yaml` *(when `needs_api`)* |
 | `<FEATURE>_TDD.md` | `<FEATURE>_TDD.contract.yaml` |
 | `<FEATURE>_TASKS.md` | `<FEATURE>_TASKS.contract.yaml` |
 | `AI_CONTEXT/<FEATURE>_C<n>_REVIEW.md` | `AI_CONTEXT/<FEATURE>_C<n>_REVIEW.contract.yaml` |
@@ -110,13 +105,14 @@ Major workflows emit **paired** artifacts: a human-readable doc and a machine-re
 
 Contracts are stability-critical. Downstream skills consume contracts, not prose.
 
-`<FEATURE>_DB*`, `<FEATURE>_API*`, `<FEATURE>_TDD*`, and `<FEATURE>_TASKS*` are **conditional artifacts**. Emit them only when applicable for the feature; record intentional skips in `<FEATURE>.contract.yaml` via `delivery` flags.
+Conditional artifacts (`_DB*`, `_API*`, `_TDD*`, `_TASKS*`) emit only when applicable; record skips in `<FEATURE>.contract.yaml` via `delivery` flags.
 
 ## Skill discovery
 
 - Canonical skills live under `core/skills/<name>/SKILL.md`.
 - Agent-specific paths (e.g. `.cursor/skills/<name>/SKILL.md`, `.claude/skills/<name>/SKILL.md`) are **derived** by the installer. See `adapters/<agent>/` for each tool's discovery convention.
 - To add a skill: author it under `core/skills/`, then re-sync.
+- **Deprecated slash commands** (`/feature-*`, `/plan-feature`) remain as redirect stubs only — do not extend.
 
 ## Hooks (allowed responsibilities)
 
@@ -129,6 +125,7 @@ Hooks may **only** summarize, generate contracts, checkpoint state, or trim cont
 - Editing derived `AGENTS.md` / `SKILL.md` mirrors instead of the canonical source under `core/`.
 - Treating chat history as durable state — update files instead.
 - Marking `AI_CONTEXT/SPEC.md` "approved" — the human owns that.
+- Invoking deprecated `/feature-*` skills for new work — use `/design`.
 
 ---
 

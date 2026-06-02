@@ -1,6 +1,6 @@
 # installer/
 
-Bootstrap and sync utilities for attaching **agentic-dev-os** to consumer repositories and keeping agent mirrors up to date.
+Bootstrap and sync utilities for attaching **devflow** to consumer repositories and keeping agent mirrors up to date.
 
 ## Scripts
 
@@ -14,7 +14,7 @@ Bootstrap and sync utilities for attaching **agentic-dev-os** to consumer reposi
 
 ```powershell
 # Windows — run from your application repo
-C:\path\to\agentic-dev-os\installer\install.ps1 -TargetPath C:\path\to\your-app
+C:\path\to\devflow\installer\install.ps1 -TargetPath C:\path\to\your-app
 ```
 
 Parameters:

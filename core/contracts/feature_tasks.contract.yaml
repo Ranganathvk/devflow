@@ -1,9 +1,9 @@
 # Reference shape for AI_CONTEXT/<FEATURE>_TASKS.contract.yaml
-# Emitted by /tasksplit — Greenfield Dev Loop task queue.
+# Emitted by /tasksplit — Dev Loop task queue.
 
 contract_version: "1"
 artifact: feature_tasks
-workflow_profile: greenfield_dev_loop
+workflow_profile: devflow
 feature_id: AUTH
 tasks_status: draft
 current_task: null

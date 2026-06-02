@@ -1,11 +1,11 @@
 ---
 name: tasksplit
 description: >-
-  Task queue FEATURE:Cn after /tdd (brownfield or greenfield). Writes FEATURE_TASKS.md and contract
-  with tasks_status draft until approved. Invoke /tasksplit FEATURE before /implement-next.
+  Task queue FEATURE:Cn after /tdd. Writes FEATURE_TASKS.md and contract with tasks_status draft
+  until approved. Invoke /tasksplit FEATURE before /implement-next.
 ---
 
-# /tasksplit \<FEATURE\> — Task queue (Greenfield Dev Loop)
+# /tasksplit \<FEATURE\> — Task queue
 
 ## Purpose
 
@@ -31,7 +31,7 @@ Create bounded `FEATURE:Cn` units for `/implement-next`, with `scope_in`, `depen
 2. Read `delivery.needs_tasks` and slice `in_scope` / `out_of_scope`.
 3. Build `tasks[]` (typically 3–8; single `C1` when lite).
 4. Each task: `id`, `status: pending`, `summary`, `depends_on`, `scope_in`, `scope_out`, `implements_cases`.
-5. Write `AI_CONTEXT/<FEATURE>_TASKS.md` and `AI_CONTEXT/<FEATURE>_TASKS.contract.yaml` with `tasks_status: draft`, `current_task: null`, `workflow_profile` matching feature contract.
+5. Write `AI_CONTEXT/<FEATURE>_TASKS.md` and `AI_CONTEXT/<FEATURE>_TASKS.contract.yaml` with `tasks_status: draft`, `current_task: null`, `workflow_profile: devflow`.
 6. **STOP.** Chat reply: task table, explicit **approve tasks then `/implement-next <FEATURE>`**. Do **not** set `tasks_status: approved` without human approval.
 
 ## Output artifacts
@@ -46,7 +46,7 @@ Create bounded `FEATURE:Cn` units for `/implement-next`, with `scope_in`, `depen
 ```yaml
 contract_version: "1"
 artifact: feature_tasks
-workflow_profile: greenfield_dev_loop
+workflow_profile: devflow
 feature_id: "<FEATURE>"
 tasks_status: draft
 current_task: null
@@ -70,7 +70,7 @@ assumptions: []
 
 ## Approval semantics
 
-- **`tasks_status: approved`** — only after explicit human approval; required before `/implement-next` (greenfield path).
+- **`tasks_status: approved`** — only after explicit human approval; required before `/implement-next`.
 
 ## Failure handling
 

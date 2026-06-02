@@ -1,8 +1,8 @@
 ---
 name: tdd
 description: >-
-  Test plan for FEATURE after /design is approved (brownfield or greenfield). Writes FEATURE_TDD.md
-  and FEATURE_TDD.contract.yaml. Invoke /tdd FEATURE before /tasksplit.
+  Test plan for FEATURE after /design is approved. Writes FEATURE_TDD.md and FEATURE_TDD.contract.yaml.
+  Invoke /tdd FEATURE before /tasksplit.
 ---
 
 # /tdd \<FEATURE\> — Test plan
@@ -30,7 +30,7 @@ Map acceptance criteria from `<FEATURE>.contract.yaml` into a compact test matri
 1. Validate `<FEATURE>` and `design_status: approved` — else **stop**; complete `/design` approval first.
 2. Read `delivery` flags and `acceptance_criteria[]`.
 3. Build `cases[]` with ids `TC-001`, … linked to `AC-*`.
-4. Write `AI_CONTEXT/<FEATURE>_TDD.md` and `AI_CONTEXT/<FEATURE>_TDD.contract.yaml` — set `workflow_profile` from `<FEATURE>.contract.yaml` (`brownfield_dev_loop` or `greenfield_dev_loop`).
+4. Write `AI_CONTEXT/<FEATURE>_TDD.md` and `AI_CONTEXT/<FEATURE>_TDD.contract.yaml` — set `workflow_profile: devflow`.
 5. **STOP.** Suggest **`/tasksplit <FEATURE>`** when `needs_tasks: true`; else **`/tasksplit <FEATURE>`** still recommended for single-task queue, or **`/implement-next <FEATURE>`** only if tasksplit documents lite single task.
 
 ## Output artifacts
@@ -47,7 +47,7 @@ No other files written or edited.
 ```yaml
 contract_version: "1"
 artifact: feature_tdd
-workflow_profile: greenfield_dev_loop
+workflow_profile: devflow
 feature_id: "<FEATURE>"
 feature_contract_path: AI_CONTEXT/<FEATURE>.contract.yaml
 feature_db_contract_path: AI_CONTEXT/<FEATURE>_DB.contract.yaml

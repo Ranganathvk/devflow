@@ -1,4 +1,4 @@
-# Attach agentic-dev-os to a consumer repository.
+# Attach devflow to a consumer repository.
 # Usage: .\installer\install.ps1 -TargetPath C:\path\to\your-app [-Agent cursor]
 
 param(
@@ -20,7 +20,7 @@ function Copy-Tree {
     Copy-Item -Path (Join-Path $Source "*") -Destination $Dest -Recurse -Force
 }
 
-Write-Host "Installing agentic-dev-os into: $TargetPath"
+Write-Host "Installing devflow into: $TargetPath"
 
 # Framework core (canonical skills, templates, contracts, hooks)
 Copy-Tree (Join-Path $FrameworkRoot "core") (Join-Path $TargetPath "core")

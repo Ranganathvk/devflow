@@ -1,130 +1,128 @@
 ---
 name: design
 description: >-
-  Per-feature design for brownfield and greenfield. Brownfield: orchestrates clarify/impact/research/
-  design/compat stages in AI_CONTEXT/<FEATURE>_DESIGN.md with chat approval gates. Greenfield:
-  questions/research/feature-design/db/api after /slice. Invoke /design FEATURE or /design "description".
-  Stops for approval before /tdd.
+  Per-feature design: asks what to build, classifies delivery (db/api/tasks), produces DESIGN +
+  contract and conditional DB/API artifacts. Invoke /design FEATURE, /design "description", or
+  /design (prompt for intent). Stops for approval before /tdd.
 ---
 
-# /design \<FEATURE\> | /design "\<description\>" [approved]
+# /design [\<FEATURE\> | "\<description\>"] [approved]
 
 ## Purpose
 
-**One command** for feature design on both workflows. Produces `AI_CONTEXT/<FEATURE>_DESIGN.md` and `<FEATURE>.contract.yaml` with `design_status` and stage gates.
+**One command** for all feature design. The agent:
 
-| Profile | When | Gates |
-|---------|------|-------|
-| **Brownfield** | Existing repo; after `/understand` | One internal stage per invocation; **wait for chat approval** between stages |
-| **Greenfield** | After `/slice` | Runs bundled stages; single design approval at end |
+1. **Asks the human** what they want to design (when intent is unclear).
+2. **Researches** the repo or slice context as needed.
+3. **Classifies delivery** — sets `needs_db`, `needs_api`, `needs_tasks` from the feature shape (not from a separate skill chain).
+4. **Designs accordingly** — core `_DESIGN.md` + `.contract.yaml`, plus `_DB.*` / `_API.*` only when classified.
 
 Downstream: **`/tdd <FEATURE>`** → **`/tasksplit <FEATURE>`** → **`/implement-next`**.
-
-## Profile detection
-
-1. If `FEATURE_SLICES.contract.yaml` exists **and** `<FEATURE>` is in slices **and** `SYSTEM_HLD.contract.yaml` exists → **greenfield**.
-2. Else → **brownfield** (requires `UNDERSTAND.contract.yaml` or overview + conventions).
 
 ## When to invoke
 
 | Invocation | When |
 |------------|------|
-| `/design "add OTP login"` | Brownfield: derive `feature_id`, start at stage **clarify** |
-| `/design OTP_LOGIN` | Continue brownfield (next stage if previous approved) |
+| `/design` | No feature yet — agent asks what you want to design |
+| `/design "add OTP login"` | New feature from description; derive `feature_id`, start **clarify** |
+| `/design OTP_LOGIN` | Continue next pending stage |
 | `/design OTP_LOGIN approved` | Approve awaiting stage, run **one** next stage |
-| `/design AUTH` | Greenfield: after `/slice` |
 
-- Do **not** implement code.
-- Do **not** skip design approval before `/tdd`.
+- Do **not** implement code in this skill.
+- Do **not** skip whole-design approval before `/tdd`.
+- **Deprecated:** `/feature-questions`, `/feature-research`, `/feature-design`, `/feature-db`, `/feature-api` → use **`/design`** only.
 
 ## Inputs
 
-### Brownfield
-
-- **Required:** `AI_CONTEXT/CONVENTIONS.contract.yaml`
-- **Required:** `AI_CONTEXT/SPEC.md` (incl. **Current change** when present)
-- **Required:** `UNDERSTAND.contract.yaml` or `PROJECT_OVERVIEW.contract.yaml`
-- **Required:** Consumer repo (impact/research)
-- **Optional:** `FEATURE_SLICES.contract.yaml` — scope boundary when `/slice` ran
-
-### Greenfield
-
 - **Required:** `AI_CONTEXT/SPEC.md`
-- **Required:** `FEATURE_SLICES.contract.yaml` — row for `<FEATURE>`
-- **Required:** `AI_CONTEXT/SYSTEM_HLD.contract.yaml`
+- **Required (existing repo):** `AI_CONTEXT/CONVENTIONS.contract.yaml` and `AI_CONTEXT/UNDERSTAND.contract.yaml` or `PROJECT_OVERVIEW.contract.yaml` — if missing, suggest `/understand` first
+- **Optional:** `AI_CONTEXT/FEATURE_SLICES.contract.yaml` — scope when `/slice` ran
+- **Optional:** `AI_CONTEXT/SYSTEM_HLD.contract.yaml`
+- **Required for work:** Consumer repo when impact/research/db/api touch code
+- **Forbidden:** Unbounded chat as spec; inventing scope the human has not confirmed
 
-## Brownfield — internal stages (one per invocation)
+## Stages (one per invocation)
 
 | # | Stage | `_DESIGN.md` section | Notes |
 |---|-------|----------------------|-------|
-| 1 | `clarify` | § Questions | From change + SPEC |
-| 2 | `impact` | § Impact | Evidence paths only |
-| 3 | `research` | § Research | ≤12 files; read-only explore |
-| 4 | `design` | § Design (delta) | Fills `delivery` on feature contract |
-| 5 | `compat` | § Compatibility | `blocking` flag |
+| 1 | `clarify` | § Intent & questions | **Ask the human** what to design; one question per turn with **recommended** answer; derive `feature_id` + title |
+| 2 | `impact` | § Impact | Evidence paths; skip as `skipped` if no repo (spec-only greenfield) |
+| 3 | `research` | § Research | ≤12 files read-only; skip as `skipped` if trivial and cited in SPEC |
+| 4 | `design` | § Design | Outcomes, ACs, behaviors; **classify `delivery`** (see below) |
+| 5 | `db` | § Data | Emit `_DB.*` only when `needs_db: true`; else mark `skipped` |
+| 6 | `api` | § API / interface | Emit `_API.*` only when `needs_api: true`; else mark `skipped` |
+| 7 | `compat` | § Compatibility | `blocking` flag for existing-repo deltas |
 
-After stage 5 approved → set **`design_status: approved`** only on explicit whole-design approval (same chat or follow-up).
+After stage 7 approved → set **`design_status: approved`** only on explicit whole-design approval.
 
-**Do not** run TDD/tasksplit inside `/design` on brownfield — use `/tdd` and `/tasksplit` (same as greenfield).
+## Delivery classification (during `design` stage)
 
-### Brownfield workflow
+Infer from clarified intent + SPEC + slice/HLD — **state rationale** in `delivery.notes`:
 
-**A — New (`/design "description"`)**
+| Flag | Set `true` when | Set `false` when |
+|------|-----------------|------------------|
+| `needs_db` | New/changed persistence, entities, migrations | Pure UI/config/docs/cli with no durable store |
+| `needs_api` | HTTP/RPC/events/CLI surface, external integrations | Internal-only refactor, library module, docs-only |
+| `needs_tasks` | Non-trivial scope; wants chunked `FEATURE:Cn` queue | Lite vertical slice; single bounded change |
 
-1. Parse `feature_id`, `title`; abort if `<FEATURE>.contract.yaml` exists with in-progress stages — use `/design <FEATURE>`.
-2. Load brownfield inputs; missing orientation → `/understand`.
-3. Create `<FEATURE>_DESIGN.md` (skeleton below), `<FEATURE>.contract.yaml` (`workflow_profile: brownfield_dev_loop`, `design_status: draft`, `awaiting_approval: clarify`, all stages `pending`).
-4. Run **clarify** only → `awaiting_approval: clarify`, stage `draft`.
-5. **STOP** — [stage stop message](#stage-stop-message).
+When uncertain, **ask one targeted question** in clarify/design — do not default all flags to `true`.
+
+## Workflow
+
+**A — New (`/design` or `/design "description"`)**
+
+1. If no description and no `<FEATURE>` → ask: *What feature or change do you want to design?* (recommended options from SPEC / slices if available). **STOP**.
+2. Parse or propose `feature_id` (`^[A-Z][A-Z0-9_]{1,31}$`); abort if contract exists in progress — use `/design <FEATURE>`.
+3. Load inputs; missing orientation on existing repo → `/understand`.
+4. Create `<FEATURE>_DESIGN.md` (skeleton), `<FEATURE>.contract.yaml` (`workflow_profile: devflow`, `design_status: draft`, `awaiting_approval: clarify`, all stages `pending`).
+5. Run **clarify** only — grill-style Q&A until intent is clear enough for impact/design.
+6. **STOP** — [stage stop message](#stage-stop-message).
 
 **B — Continue (`/design <FEATURE>` or `… approved`)**
 
 1. Load feature contract + DESIGN.md.
 2. If `awaiting_approval` set and no `approved` in message → **STOP** (remind section to read).
 3. On `approved`: mark stage `approved`, clear `awaiting_approval`.
-4. If all five stages `approved` and `design_status` still `draft` → prompt whole-design approval; **STOP** unless message explicitly approves design.
-5. Else run **exactly one** next `pending` stage → set `awaiting_approval`, **STOP**.
+4. If all stages `approved` or `skipped` and `design_status` still `draft` → prompt whole-design approval; **STOP** unless explicit approve.
+5. Run **exactly one** next `pending` stage:
+   - **`db`:** if `needs_db` → write `_DB.md` + `_DB.contract.yaml`; else set stage `skipped`.
+   - **`api`:** if `needs_api` → write `_API.md` + `_API.contract.yaml`; else set stage `skipped`.
+6. Set `awaiting_approval` for stages that produced content; **STOP**.
 
-### Greenfield workflow
-
-1. Validate `<FEATURE>` in `FEATURE_SLICES.contract.yaml`.
-2. Run stages per table (questions → research → feature-design → conditional db/api) using linked skills.
-3. Set `workflow_profile: greenfield_dev_loop`, `design_status: draft`.
-4. **STOP** — approve design, then `/tdd <FEATURE>`.
-
-## Stage stop message (brownfield)
+## Stage stop message
 
 ```text
 Design stage complete: <STAGE> — read AI_CONTEXT/<FEATURE>_DESIGN.md § "<section>".
 
-Edit the file for corrections. When satisfied, reply approved or:
+Edit for corrections. When satisfied, reply approved or:
   /design <FEATURE> approved
 
-Then: /tdd <FEATURE> → /tasksplit <FEATURE> → /implement-next (after each approval gate).
+Delivery flags: needs_db=<bool> needs_api=<bool> needs_tasks=<bool>
+
+Then: /tdd <FEATURE> → /tasksplit <FEATURE> → /implement-next (after design_status approved).
 ```
 
 ## Output artifacts
 
-| Path | Profile |
-|------|---------|
-| `AI_CONTEXT/<FEATURE>_DESIGN.md` | Both |
-| `AI_CONTEXT/<FEATURE>.contract.yaml` | Both |
-| `AI_CONTEXT/<FEATURE>_QUESTIONS.*` | Greenfield optional |
-| `AI_CONTEXT/<FEATURE>_RESEARCH.*` | Greenfield optional |
-| `AI_CONTEXT/<FEATURE>_DB.*` / `_API.*` | Greenfield conditional |
+| Path | When |
+|------|------|
+| `AI_CONTEXT/<FEATURE>_DESIGN.md` | Always (updated each stage) |
+| `AI_CONTEXT/<FEATURE>.contract.yaml` | Always |
+| `AI_CONTEXT/<FEATURE>_DB.md` + `_DB.contract.yaml` | `needs_db: true` (stage `db`) |
+| `AI_CONTEXT/<FEATURE>_API.md` + `_API.contract.yaml` | `needs_api: true` (stage `api`) |
 
 No application source edits.
 
-## `<FEATURE>.contract.yaml` (brownfield)
+## `<FEATURE>.contract.yaml` shape
 
 ```yaml
 contract_version: "1"
 artifact: feature
 feature_id: "<FEATURE>"
-workflow_profile: brownfield_dev_loop
+workflow_profile: devflow
 design_status: draft
 awaiting_approval: clarify
-title: "<description>"
+title: "<from clarify>"
 
 spec_path: AI_CONTEXT/SPEC.md
 understand_contract_path: AI_CONTEXT/UNDERSTAND.contract.yaml
@@ -136,13 +134,16 @@ design_stages:
   impact: { status: pending, approved_at: null }
   research: { status: pending, approved_at: null }
   design: { status: pending, approved_at: null }
+  db: { status: pending, approved_at: null }
+  api: { status: pending, approved_at: null }
   compat: { status: pending, approved_at: null, blocking: false }
 
 delivery:
-  delivery_profile: lite
+  delivery_profile: lite | standard | heavy
   needs_db: false
   needs_api: false
   needs_tasks: true
+  notes: "<why flags were set>"
 
 depends_on: []
 in_scope: []
@@ -151,36 +152,64 @@ acceptance_criteria: []
 open_questions: []
 ```
 
-Greenfield: same as before with `workflow_profile: greenfield_dev_loop` and `design_status: draft` (no `design_stages` required).
+## Conditional `_DB.contract.yaml` (minimal)
+
+```yaml
+contract_version: "1"
+artifact: feature_db
+feature_id: "<FEATURE>"
+feature_contract_path: AI_CONTEXT/<FEATURE>.contract.yaml
+summary: "<one sentence>"
+persistence: { primary_store: sql | document | kv | file | none | TBD }
+entities: []
+relationships: []
+migrations: []
+open_questions: []
+```
+
+## Conditional `_API.contract.yaml` (minimal)
+
+```yaml
+contract_version: "1"
+artifact: feature_api
+feature_id: "<FEATURE>"
+feature_contract_path: AI_CONTEXT/<FEATURE>.contract.yaml
+summary: "<one sentence>"
+style: { protocol: rest | grpc | graphql | cli | in_process | event | TBD }
+operations: []
+compatibility: []
+open_questions: []
+```
 
 ## Approval semantics
 
 | Gate | Rule |
 |------|------|
-| Brownfield stage | `approved` in chat while `awaiting_approval` matches |
-| `design_status: approved` | All brownfield stages `approved` + explicit human OK |
+| Stage | `approved` in chat while `awaiting_approval` matches |
+| `design_status: approved` | All stages `approved` or `skipped` + explicit human OK |
 | `/tdd` | Refuses if `design_status` not `approved` |
 
 ## Failure handling
 
-- **Brownfield: no orientation** → `/understand`.
-- **Greenfield: missing slice/HLD** → `/slice` or `/system-hld`.
-- **Unknown FEATURE (greenfield)** → list valid IDs.
+- **No SPEC** → seed from template or `/grillme`.
+- **No orientation on existing repo** → `/understand`.
+- **Unknown FEATURE in slices** → list valid IDs or `/slice`.
 - **Compat `blocking: true`** → do not approve design until resolved.
 
 ## Forbidden
 
-- More than one brownfield stage per invocation (except `approved` → one next stage).
-- `design_status: approved` without explicit human approval.
+- More than one substantive stage per invocation (except auto-`skipped` for db/api when flag false).
+- Invoking deprecated `/feature-*` skills in the same run.
 - `/tdd`, `/tasksplit`, `/implement-next` in same invocation.
-- Brownfield: requiring `SYSTEM_HLD` or `FEATURE_SLICES`.
 
 ## Deprecated
 
-**`/plan-feature`** — use **`/design`** (same artifacts pattern, aligned with greenfield). See [plan-feature](../plan-feature/SKILL.md).
+- **`/plan-feature`** → `/design` ([plan-feature](../plan-feature/SKILL.md))
+- **`/feature-questions`**, **`/feature-research`**, **`/feature-design`**, **`/feature-db`**, **`/feature-api`** → `/design`
 
 ## Quality bar
 
-- [ ] Correct `workflow_profile` set.
-- [ ] Brownfield: one stage written; chat names file + section.
-- [ ] Greenfield: `delivery` block populated; skip documented.
+- [ ] Human was asked (clarify) when intent was ambiguous.
+- [ ] `delivery` flags set with `notes` rationale.
+- [ ] DB/API artifacts exist iff flags true; otherwise stages `skipped`.
+- [ ] Chat names file, section, and next command.

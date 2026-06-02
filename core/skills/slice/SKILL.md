@@ -1,8 +1,8 @@
 ---
 name: slice
 description: >-
-  Vertical feature decomposition (FEATURE_SLICES.md + contract). Greenfield: after /system-hld.
-  Brownfield: optional when a change is large — uses SPEC + UNDERSTAND only. Next: /design FEATURE.
+  Vertical feature decomposition (FEATURE_SLICES.md + contract). After /system-hld when HLD exists;
+  optional for large changes in existing repos (SPEC + UNDERSTAND). Next: /design FEATURE.
 ---
 
 # /slice — Vertical feature decomposition
@@ -15,41 +15,41 @@ Outputs are **paired** artifacts under `AI_CONTEXT/` so Stage 3 skills load **co
 
 ## When to invoke
 
-**Greenfield**
+**After system HLD**
 
 - `/slice` — after `/system-hld` when `SYSTEM_HLD.contract.yaml` exists.
-- Do **not** invoke before `/system-hld`.
+- Do **not** invoke before `/system-hld` when HLD is required for your effort.
 
-**Brownfield (optional)**
+**Large change in existing repo (optional)**
 
 - `/slice` — when `AI_CONTEXT/SPEC.md` **Current change** is large, multi-part, or human says the feature is big.
 - Requires `UNDERSTAND.contract.yaml` (run `/understand` first).
 - Does **not** require `SYSTEM_HLD` — use SPEC blast radius + `PROJECT_OVERVIEW` for boundaries.
-- Set `workflow_profile: brownfield_dev_loop` on `FEATURE_SLICES.contract.yaml`; `system_hld_contract_path: null`.
+- Set `workflow_profile: devflow` on `FEATURE_SLICES.contract.yaml`; `system_hld_contract_path: null` when no HLD.
 
 **Both**
 
 - When `FEATURE_SLICES` is missing or stale after SPEC change.
 - Do **not** invoke for **horizontal** decomposition (“all DB”, “all APIs”) — vertical end-to-end slices only.
-- Do **not** replace `/feature-design`, `/feature-db`, or `/feature-api` — this skill only names and orders the **catalog** of features.
+- Do **not** replace `/design` — this skill only names and orders the **catalog** of features.
 
 ## Inputs
 
 - **Required:** `AI_CONTEXT/SPEC.md` — read in full.
-- **Required (greenfield):** `AI_CONTEXT/SYSTEM_HLD.contract.yaml`.
-- **Required (brownfield):** `AI_CONTEXT/UNDERSTAND.contract.yaml` or `PROJECT_OVERVIEW.contract.yaml`.
-- **Optional (brownfield):** `SYSTEM_HLD.contract.yaml` if it exists from a hybrid repo.
+- **Required (HLD-driven slice):** `AI_CONTEXT/SYSTEM_HLD.contract.yaml`.
+- **Required (repo-driven slice):** `AI_CONTEXT/UNDERSTAND.contract.yaml` or `PROJECT_OVERVIEW.contract.yaml`.
+- **Optional:** `SYSTEM_HLD.contract.yaml` if it exists alongside repo orientation artifacts.
 - **Optional:** `AI_CONTEXT/SYSTEM_HLD.md` — read only if the contract has `null`/empty lists that block safe slicing; prefer closing gaps via `open_questions` over inventing scope.
 - **Optional:** `AI_CONTEXT/PROJECT_STATE.md` for active feature focus or human notes.
 - **Forbidden:** Unbounded chat history as source of truth; inventing features absent from SPEC or `SYSTEM_HLD`; reading full `SYSTEM_HLD.md` by default when the contract suffices.
 
 ## Workflow
 
-1. Detect profile (see [design](../design/SKILL.md)). Read **required** inputs for that profile. Greenfield without `SYSTEM_HLD.contract.yaml` → **stop**; `/system-hld`. Brownfield without orientation → **stop**; `/understand`.
+1. Detect routing (see [design](../design/SKILL.md)). Read **required** inputs for that path. HLD-driven slice without `SYSTEM_HLD.contract.yaml` → **stop**; `/system-hld`. Repo-driven slice without orientation → **stop**; `/understand`.
 2. **Extract slicing signals** from SPEC + contract: `summary`, `product_boundary`, `logical_containers`, `constraints`, `downstream_skills`, `open_questions`, and any workflow/examples that imply user-visible capabilities.
 3. **Propose vertical features** — each feature MUST:
    - Have a **stable ID**: `^[A-Z][A-Z0-9_]{1,31}$` (examples: `AUTH`, `CORE_SKILLS`, `INSTALLER`).
-   - Represent **one vertical**: user- or operator-visible outcome, or a coherent framework increment that can flow through `/feature-questions` → `/implement` without “all layers everywhere.”
+   - Represent **one vertical**: user- or operator-visible outcome that can flow through `/design` → `/implement` without “all layers everywhere.”
    - Declare **in_scope** bullets (what this slice owns) and **out_of_scope** bullets (explicit non-ownership to prevent horizontal blobs).
    - List **`depends_on`**: other feature IDs only (empty if none). Graph must be **acyclic**; order features **topologically** in outputs.
 4. **Enforce framework rules from SPEC:** no mega-prompt-sized slices; prefer **fewer, larger** verticals over many micro-tasks unless SPEC already names fine-grained deliverables; respect **out_of_scope** / non-goals — do not create features for explicitly excluded product.
@@ -61,7 +61,7 @@ Outputs are **paired** artifacts under `AI_CONTEXT/` so Stage 3 skills load **co
    - Every feature ID is unique; `depends_on` references only defined IDs; no cycles.
    - Every `logical_containers[].id` from `SYSTEM_HLD.contract.yaml` is **mapped** to at least one feature’s `primary_containers` **or** called out under top-level `open_questions` with rationale (do not leave orphan containers silently).
    - **Suggested_sequence** lists all feature IDs exactly once in valid dependency order.
-8. Chat reply (brief): paths written, feature count, **numbered** open questions / assumptions, suggested next command (`/feature-questions <FIRST_FEATURE>` or human-picked feature).
+8. Chat reply (brief): paths written, feature count, **numbered** open questions / assumptions, suggested next command (`/design <FIRST_FEATURE>` or human-picked feature).
 
 ## Output artifacts
 
@@ -171,5 +171,5 @@ assumptions: []
 ## Quality bar (self-check before finishing)
 
 - [ ] YAML parses; `suggested_sequence` matches dependency order and includes every `features[].id`.
-- [ ] Each feature’s `in_scope` / `out_of_scope` is concrete enough for `/feature-questions <FEATURE>` to start cold.
-- [ ] Numbered chat list: open questions, suggested first `/feature-questions` target.
+- [ ] Each feature’s `in_scope` / `out_of_scope` is concrete enough for `/design <FEATURE>` to start cold.
+- [ ] Numbered chat list: open questions, suggested first `/design` target.

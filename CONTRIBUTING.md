@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for helping improve **agentic-dev-os**. This repo is a **framework** (skills, contracts, templates, adapters)—not an application product.
+Thank you for helping improve **devflow**. This repo is a **framework** (skills, contracts, templates, adapters)—not an application product.
 
 ## Where to edit
 
