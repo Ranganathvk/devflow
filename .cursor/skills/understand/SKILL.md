@@ -51,10 +51,11 @@ If both artifacts already exist and the invocation is **spec-delta only**, set `
 
 ### 2 — Spec delta (when change description provided)
 
-Follow [grillme](../grillme/SKILL.md) **Workflow B (incremental)** for the human's change:
+Follow [grillme](../grillme/SKILL.md) **incremental** workflow and **§ SPEC abstraction** for the human's change:
 
 - One question per turn with **recommended** answer (radio-style options when fixed choices).
 - **No silent writes** — merge into `SPEC.md` only after each answered question (verbatim-insert exception per grillme).
+- **SPEC body** stays high-level product intent; do not add technical/low-level design to main sections (use HLD/LLD for that).
 - Explore the codebase when a question is factual (paths, existing auth flow, etc.).
 
 Additionally:

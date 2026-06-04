@@ -20,7 +20,7 @@ Agents reading this harness must consult these inputs in order before acting on 
 | Order | Path | Role |
 |-------|------|------|
 | 1 | The `AGENTS.md` materialized for the current agent (this file's content) | Harness rules, read order, rotation policy |
-| 2 | `AI_CONTEXT/SPEC.md` | What we are building — goals, constraints, success criteria |
+| 2 | `AI_CONTEXT/SPEC.md` | What we are building — **high-level product intent only** (goals, boundary, requirements); not technical or low-level design (that lives in HLD/LLD) |
 | 3 | `AI_CONTEXT/PROJECT_STATE.md` (when present) | Where we are now — decisions, active work, blockers |
 | 4 | The relevant `SKILL.md` for the requested slash command, if any | Bounded workflow module |
 

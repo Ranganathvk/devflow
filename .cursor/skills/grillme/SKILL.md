@@ -1,15 +1,41 @@
 ---
 name: grillme
 description: >-
-  Interview-driven refinement of AI_CONTEXT/SPEC.md. One question at a time with recommended
-  answers. Invoke /grillme when spec is thin or before /system-hld. Supports delta mode.
+  Interview using human-provided SPEC as input; generate HLD and/or LLD only when asked.
+  One question at a time. Invoke /grillme hld, /grillme lld FEATURE, or /grillme spec when
+  refining intent. Supports delta mode.
 ---
 
-# /grillme — SPEC stress-test and refinement
+# /grillme — Grill from SPEC → HLD and/or LLD
 
 ## Purpose
 
-Reach **shared understanding** by grilling the plan: expose gaps, resolve dependencies between decisions in order, fold agreed intent into `AI_CONTEXT/SPEC.md`. Chat is the dialogue; the file is the durable record.
+The **human provides SPEC** (product intent). This skill **interviews** to close gaps and writes **only what the human asked to generate**:
+
+| Output (when requested) | Write target | SPEC role |
+|-------------------------|--------------|-----------|
+| **HLD only** | `SYSTEM_HLD.md` + `SYSTEM_HLD.contract.yaml` | Read-only baseline |
+| **LLD only** | `<FEATURE>_DESIGN.md` + `<FEATURE>.contract.yaml` | Read-only baseline |
+| **SPEC refinement** | `AI_CONTEXT/SPEC.md` | Active write target |
+
+Typical flow: attach or maintain **`AI_CONTEXT/SPEC.md`**, then **`/grillme hld`** or **`/grillme lld <FEATURE>`** — no SPEC rewriting unless the human explicitly wants spec refinement.
+
+## SPEC abstraction (high-level only)
+
+`AI_CONTEXT/SPEC.md` holds **product / high-level intent** — the same bar as `core/templates/SPEC.template.md` § Abstraction level.
+
+| In SPEC | Not in SPEC (use HLD or LLD) |
+|---------|------------------------------|
+| Who, what problem, boundary, v1 scope | Logical containers, system context, major module handoffs → **HLD** |
+| Requirements & principles (technology-agnostic) | Frameworks, languages, libraries, repo layout |
+| Success criteria, compliance/regime at product level | API paths, payloads, auth mechanism detail, DB schemas |
+| Intent-level risks & open questions | Algorithms, deployment, CI/CD, class design |
+
+**All modes:** When reading SPEC, treat any existing technical/low-level prose as **legacy** — do not copy it forward; offer to move it to HLD/LLD in a separate session.
+
+**`grill_target: spec`:** Ask **product-level** questions only (boundary, behaviour, rules, NFRs without stack). If the human answers with implementation detail, respond with a **product-level** rewrite for SPEC **or** defer: *“Record that in HLD/LLD — should I continue SPEC at intent level?”* Do not merge stack/API/schema text into SPEC.
+
+**`grill_target: hld` / `lld`:** Technical and low-level detail belongs in the **active output artifact**, not SPEC.
 
 ## Behavioral contract (verbatim)
 
@@ -21,108 +47,140 @@ Reach **shared understanding** by grilling the plan: expose gaps, resolve depend
 >
 > If a question can be answered by exploring the codebase, explore the codebase instead.
 
-**Scope note:** In **Workflow B (incremental)**, satisfy this contract for **every aspect of the new/changed idea and its knock-on decisions**, not by re-interviewing unrelated parts of the plan already captured in SPEC.
+**Scope note:** In **incremental / delta** mode, grill only the **new/changed idea** and its dependencies in the **active output artifact** — not unrelated settled HLD/LLD/SPEC content.
+
+## SPEC as input (default)
+
+1. **Required input:** `AI_CONTEXT/SPEC.md` — read in full before any question or write. Treat it as **given intent** unless the session target is **`spec`** refinement.
+2. **Human may also** `@`-attach SPEC in chat or paste a delta; use that for the session, but the **durable** SPEC is still `AI_CONTEXT/SPEC.md`. Persist chat-only SPEC text **only** when `grill_target: spec` or the human asks to save it to the file.
+3. **HLD-only / LLD-only:** Do **not** expand or rewrite SPEC to “fill in” design detail. Record unresolved intent gaps in the **HLD/LLD** artifact (`Open questions`, contract `open_questions`) and ask the human — or suggest a separate **`/grillme spec`** session if intent itself is wrong.
+4. **Intent-level contradiction** (answer conflicts SPEC): Ask **one** resolution question — update SPEC **only** if the human chooses to change intent; otherwise narrow the HLD/LLD decision to stay consistent with SPEC.
 
 ## When to invoke
 
-- `/grillme` — `SPEC.md` is thin, fuzzy, or disputed.
-- Before `/system-hld` or implementation when spec needs alignment.
-- After a large pivot to realign requirements.
-- **`/grillme delta`** or “new idea on top of existing SPEC” — **incremental pass** only (see Workflow B); do **not** restart from question one unless the human asks for a **full re-grill**.
+| Invocation | Behavior |
+|------------|----------|
+| `/grillme hld` or “HLD only”, “only system HLD” | `grill_target: hld` — SPEC read-only; write `SYSTEM_HLD*` only |
+| `/grillme lld <FEATURE>` or “LLD only for …” | `grill_target: lld` — SPEC read-only; write `<FEATURE>_DESIGN*` only |
+| `/grillme spec` or “refine SPEC”, thin/disputed spec | `grill_target: spec` — write `SPEC.md` only |
+| `/grillme` (no target) | After reading SPEC, ask **one** output question (HLD vs LLD vs SPEC) — see gate below |
+| `/grillme delta` | Incremental pass on the active output artifact |
+| Before `/system-hld` | Optional interview-first: `/grillme hld` then `/system-hld` if you want less automation |
+| Before `/design <FEATURE>` | `/grillme lld <FEATURE>` for extended clarify grilling |
+
+Do **not** implement code, run `/tdd`, or mark artifacts approved.
+
+## Output gate (only when target unclear)
+
+**Skip** when slash args or the human message already fixes the output (`hld`, `lld`, `spec`, “only HLD”, “only LLD”, feature name).
+
+**Otherwise**, first message after reading SPEC — **one** question, no edits:
+
+```markdown
+**Question:** You provided SPEC as input. What should this session generate?
+
+- **A — System HLD only** — Interview system shape; write `SYSTEM_HLD.md` (+ contract). SPEC stays as-is.
+- **B — Feature LLD only** — Interview one feature; write `<FEATURE>_DESIGN.md` (+ contract). SPEC stays as-is.
+- **C — SPEC refinement** — Interview and update `SPEC.md` (use when intent is still thin or disputed).
+
+**Recommended:** … (e.g. solid SPEC, no HLD yet → A; named feature → B; placeholder SPEC → C)
+```
+
+**Pre-specified (skip gate):**
+
+| Human says | `grill_target` |
+|------------|----------------|
+| `/grillme hld`, HLD only, system shape | `hld` |
+| `/grillme lld`, LLD only, feature design | `lld` |
+| `/grillme lld AUTH_LOGIN` | `lld` + `AUTH_LOGIN` |
+| `/grillme spec`, refine SPEC | `spec` |
+
+### Follow-up gate — LLD only
+
+If `grill_target: lld` and `feature_id` is unknown: **one** question to confirm `feature_id` (propose from SPEC / slices). Create `<FEATURE>_DESIGN.md` + contract skeleton **after** confirmation.
 
 ## Inputs
 
-- **Required:** `AI_CONTEXT/SPEC.md` — read in full before starting.
-- **Optional:** `core/AGENTS.md` (canonical framework harness when present), `AI_CONTEXT/PROJECT_STATE.md`, any materialized repo-local harness (e.g. `.cursor/AGENTS.md`) if it constrains how this session should behave.
-- **Forbidden:** Unbounded chat history as the source of truth; inventing product scope not grounded in the human’s answers or existing SPEC text.
+| Input | Role |
+|-------|------|
+| `AI_CONTEXT/SPEC.md` | **Always required** — human-provided intent; full read every turn |
+| `SYSTEM_HLD*` | Read when `grill_target: hld` and files exist |
+| `<FEATURE>_DESIGN*` + contract | Read when `grill_target: lld` and files exist |
+| `FEATURE_SLICES.contract.yaml`, `SYSTEM_HLD.contract.yaml` | Optional context for LLD/HLD |
+| `PROJECT_STATE.md`, harness | Optional session constraints |
 
-## Workflow
+**Forbidden:** Chat history as source of truth; inventing scope not in SPEC or human answers.
 
-Pick **A** or **B** after reading `AI_CONTEXT/SPEC.md`. Default to **B** when the spec already has real content (non-placeholder goals, requirements, or decisions).
+## Workflows
 
-### A — Baseline (empty or placeholder-heavy SPEC, or human asks for **full re-grill**)
+Pick **baseline** vs **incremental** from the **active output artifact** (HLD, LLD, or SPEC when refining spec).
 
-1. Read inputs. Build the **full decision tree**: branches and inter-dependencies.
-2. Walk it dependency-first — same **Per turn** loop as below.
-3. On session end: one-line summary of what changed and what branch is next.
+### Baseline
 
-### B — Incremental (**new idea**, pivot detail, or `/grillme delta`)
+1. Read SPEC + active artifact for `grill_target`.
+2. Build decision tree **for that output only** (HLD structure from SPEC; LLD feature shape from SPEC + HLD contract if present).
+3. **Per turn** until done.
+4. Session end: summary, open items, handoff (`/slice`, `/design <FEATURE>`, etc.).
 
-Goal: **update intelligently** — only reopen branches the new input touches; **do not** replay unrelated settled decisions from scratch.
+### Incremental (`/grillme delta`, pivot, new idea)
 
-1. Read `AI_CONTEXT/SPEC.md` end-to-end. Treat explicit, concrete statements as **baseline** unless contradicted.
-2. From the human message (or a short clarifying question if the delta is vague), extract **the delta**: what changed or what’s newly proposed.
-3. Compute **impact**: which SPEC sections/tables/rows must change or gain rows — include product-shaped headings when relevant (for example **Summary**, **Activation**, **Admin dashboard (v1)**, **Cluster access**, **Investigation scope**, **Deployment verification (v1)**, **Authorization**, **Functional requirements**, **Success criteria**, Risks, Open questions). Prefer touching the smallest set that stays internally consistent.
-4. Build a **small subgraph**: only dependencies needed to integrate the delta (e.g. new integration → clarify ownership, SLA, security — not re-litigate unrelated UX unless linked).
-5. **Reuse baseline:** skip questions already answered in SPEC with no conflict. **Invalidation:** if the new idea contradicts baseline, ask **one** resolution question at a time (replace vs narrow vs defer — map outcome into SPEC).
-6. **Human gate (mandatory for B):** On the **first** assistant message after you understand the delta, **do not edit `SPEC.md`.** You may only: briefly restate the delta (2–4 bullets), then ask **one** question + recommendation (same layout as **Per turn**). This forces a human turn before any incremental write.
-   - **Verbatim exception:** If the human supplied exact text and explicitly asked to insert it in a named section *verbatim*, you may apply **only** that block on that same message — then continue with **Per turn** for every further integration (no bulk “feature dump”).
-7. **Per turn** (below) until the subgraph is done — **each** substantive change to requirements/wording follows **one** human answer (see **No silent writes**).
-8. On session end: bullets — **Delta summary**, **Sections touched**, **Contradictions resolved** (if any).
+1. Read SPEC (baseline) + active artifact.
+2. Extract delta; impact **only** the output artifact (+ SPEC **only** if `grill_target: spec` or human changes intent).
+3. **Human gate:** first reply after delta — no edits (except verbatim insert); restate delta; **one** question.
+4. **Per turn** until subgraph done.
 
-### Per turn (shared by A and B)
+### Per turn (all targets)
 
-- **No silent writes (especially B):** Do not expand/interpret a “new idea” into new goals, features, F-* rows, success criteria, or product prose **without** the human answering your latest question in this thread — unless **verbatim exception** above applies to that chunk only.
-- **Codebase-first:** If the next item is purely factual about the repo (paths, filenames, existing harness layout) and **does not** change product intent, explore the codebase; report what you found; then either skip SPEC change or ask **one** question if the finding implies a spec decision.
-- If product intent or prioritization is ambiguous → ask **one** dependency- or subgraph-respecting question with your **recommended answer** and one-sentence rationale.
-- **Multiple-choice layout:** stem (`**Question:** …`), then `**A — Short label**` … End with `**Recommended:** …`.
-- After human reply → merge **only** what that answer settled into `AI_CONTEXT/SPEC.md` in the same turn.
-
-Repeat until done or only `[needs human]` stubs remain.
+- **One question** + recommended answer; radio layout for pick-one.
+- **Codebase-first** for factual repo questions.
+- After reply → merge into **active output artifact only**.
+- **`grill_target: hld`:** compact HLD (≤ ~200 lines target); unknowns → open questions — not SPEC prose.
+- **`grill_target: lld`:** clarify/intent/design sections + contract fields; no `/design` stages (`impact`, `db`, `api`, …).
+- **`grill_target: spec`:** update SPEC only — **high-level product content** per § SPEC abstraction; never add HLD/LLD-grade detail.
 
 ## Output artifacts
 
-| Path | Change | Notes |
-|------|--------|-------|
-| `AI_CONTEXT/SPEC.md` | Updated in-place as decisions land | Only file this skill may edit. |
+| `grill_target` | May edit | SPEC |
+|----------------|----------|------|
+| `hld` | `SYSTEM_HLD.md`, `SYSTEM_HLD.contract.yaml` | **Read-only** (exception: human explicitly revises intent → one resolution, then optional SPEC edit) |
+| `lld` | `<FEATURE>_DESIGN.md`, `<FEATURE>.contract.yaml` | **Read-only** (same exception) |
+| `spec` | `AI_CONTEXT/SPEC.md` | Active target |
 
-No other files written or edited.
+No application code or other feature artifacts.
 
-## Question format (multiple choice)
+## Question format
 
-Use this shape whenever the human must pick one of a small set of options.
-
-**Avoid** — single paragraph with inlined `(A) … (B) … (C)?` (hard to scan, unlike Plan-mode pick-one UI).
-
-**Use** — stem + stacked options + recommendation:
-
-```markdown
-**Question:** For fixes, what is the binding rule?
-
-- **A — Propose-only** — Read-only on cluster/Git; you apply every change.
-- **B — Gated execution** — kubectl/Git only after your approval per change or per playbook.
-- **C — Autonomous execution** — Agent may apply fixes without waiting for per-action approval.
-
-**Recommended:** B — balances speed with safety for production paths.
-```
-
-Reply handling: accept `A` / `B` / `C`, the label (“gated”), or a short paraphrase; map it to the chosen option before updating SPEC.
+Stem + stacked **A / B / C** options + **Recommended** — for output gate, feature gate, and substantive questions.
 
 ## Context budget
 
-- Read **in full:** `AI_CONTEXT/SPEC.md` (required every turn that advances the interview).
-- Read **in full when present and relevant:** `AI_CONTEXT/PROJECT_STATE.md`, `core/AGENTS.md` (or materialized harness) — only to align session constraints; do not treat them as product SPEC.
-- Do **not** load unrelated large docs, full blueprint folders, or prior chat dumps as substitutes for SPEC.
+- **Every turn:** `AI_CONTEXT/SPEC.md` in full.
+- **When active:** HLD or LLD artifact + contract; prefer contracts over long prose when sufficient.
 
 ## Failure handling
 
-- **`AI_CONTEXT/SPEC.md` missing** — Stop; tell the human to create it (e.g. from `core/templates/SPEC.template.md`) or provide the path they want treated as authoritative; do not invent a parallel spec file at repo root.
-- **Delta is vague** — Ask **one** clarifying question before choosing Workflow A vs B or before editing SPEC (except Workflow B human-gate rules).
-- **Answer contradicts an earlier settled line in SPEC** — Ask **one** resolution question (replace vs narrow vs defer); merge only after the human picks.
+- **SPEC missing** — Stop; human must provide or create `AI_CONTEXT/SPEC.md` (e.g. from `core/templates/SPEC.template.md`) before HLD/LLD grilling.
+- **HLD only but SPEC cannot bound structure** — One question: add minimal intent via `/grillme spec` vs proceed with explicit TBDs in HLD — do not invent product scope in SPEC silently.
+- **LLD only vs approved design conflict** — One resolution (replace / narrow / defer).
+- **Vague delta** — One clarifying question before writes.
 
 ## Forbidden
 
-- Multiple questions in one message.
-- Editing anything other than `AI_CONTEXT/SPEC.md`.
-- Inventing scope the human has not confirmed.
-- Asking what codebase exploration already shows.
-- Marking the spec "approved" — human owns that.
-- **Full-tree replay in incremental mode** — do not re-ask branches already settled in SPEC unless invalidated by the new idea or the human requests **full re-grill**.
-- **SPEC edits on the delta-discovery message** in Workflow B (first reply after “new idea”) except the narrow **verbatim exception**.
-- **Bulk inference** — turning a vague delta into many new requirements or rewriting sections in one shot without Q&A per substantive knot.
+- Multiple questions per message.
+- **HLD/LLD sessions:** editing SPEC for design detail, “helpful” spec expansion, or silent requirement invention.
+- Editing artifacts outside `grill_target`.
+- Inventing unconfirmed scope.
+- Marking artifacts approved.
+- Full-tree replay in incremental mode without invalidation or **full re-grill**.
+- Bulk inference without per-knot Q&A.
+- Running full `/design` pipeline inside `/grillme lld`.
+- **SPEC writes:** frameworks, APIs, schemas, file/module structure, deployment/ops detail, or other low-level design (belongs in HLD/LLD).
+- **SPEC spec-mode questions** that presuppose a tech stack when product intent is enough.
 
-## Quality bar (self-check before finishing)
+## Quality bar
 
-- [ ] Every substantive SPEC change in this thread maps to a human answer (or verbatim exception).
-- [ ] Only `AI_CONTEXT/SPEC.md` was edited among repo files.
-- [ ] Session end summary includes what changed and what remains open (if anything).
+- [ ] SPEC read as input; output target (HLD / LLD / spec) confirmed before substantive grilling.
+- [ ] Any SPEC edit stays high-level product intent (no technical/low-level leakage).
+- [ ] HLD-only and LLD-only sessions did not rewrite SPEC unless human explicitly changed intent.
+- [ ] Every substantive output change maps to a human answer (or verbatim exception).
+- [ ] Session end: what was generated, what remains open, next command.

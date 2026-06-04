@@ -2,6 +2,19 @@
 
 > **This is the canonical product specification for this repo.** Skills that say "the SPEC" read and update **this file**. Keep it short, concrete, and decision-oriented. Replace every `<…>` placeholder before merging.
 
+## Abstraction level (mandatory)
+
+**SPEC = high-level product intent only** — what and why, not how to build it.
+
+| Belongs in SPEC | Defer elsewhere |
+|-----------------|-----------------|
+| Goals, users, product boundary, in/out of scope | System structure, major components → **`SYSTEM_HLD`** (`/grillme hld`, `/system-hld`) |
+| Functional & non-functional requirements (testable, technology-agnostic) | APIs, events, schemas, data models → **`<FEATURE>_DESIGN`** (`/grillme lld`, `/design`) |
+| Locked design principles & success criteria (measurable at product level) | Frameworks, languages, libraries, file layout, deployment topology |
+| Risks & open items at **intent** level (“auth model unclear”) | Implementation detail (“use JWT in header X”, “table `users` column …”) |
+
+When grilling or editing SPEC (`/grillme spec`, `/understand` spec delta), **do not** add technical or low-level design. If the human answers with stack or implementation detail, capture the **product implication** in SPEC (or an open item) and record mechanics in HLD/LLD in a separate session.
+
 ## Summary
 
 One paragraph: what is being built, for whom, and why now. Frame it as a product, not a tech stack.
