@@ -20,11 +20,27 @@ Agents reading this harness must consult these inputs in order before acting on 
 | Order | Path | Role |
 |-------|------|------|
 | 1 | The `AGENTS.md` materialized for the current agent (this file's content) | Harness rules, read order, rotation policy |
-| 2 | `AI_CONTEXT/SPEC.md` | What we are building — **high-level product intent only** (goals, boundary, requirements); not technical or low-level design (that lives in HLD/LLD) |
-| 3 | `AI_CONTEXT/PROJECT_STATE.md` (when present) | Where we are now — decisions, active work, blockers |
+| 2 | `artifacts/SPEC.md` | What we are building — **high-level product intent only** (goals, boundary, requirements); not technical or low-level design (that lives in HLD/LLD) |
+| 3 | `artifacts/PROJECT_STATE.md` (when present) | Where we are now — decisions, active work, blockers |
 | 4 | The relevant `SKILL.md` for the requested slash command, if any | Bounded workflow module |
 
-If `AI_CONTEXT/SPEC.md` is unfilled or placeholder-heavy, align with the human via `/grillme` or `/understand` (attach `@AI_CONTEXT/SPEC.md`) before any large change. Same for `PROJECT_STATE.md`.
+If `artifacts/SPEC.md` is unfilled or placeholder-heavy, align with the human via `/grillme` or `/understand` (attach `@artifacts/SPEC.md`) before any large change. Same for `PROJECT_STATE.md`.
+
+## Context directory (configurable)
+
+Workflow files (SPEC, PROJECT_STATE, contracts, design docs) live under a **context directory** at the repo root. Canonical skills and contracts use the token **`artifacts/`** in paths (not a hardcoded folder name).
+
+Resolve the directory name **before** reading or writing any `artifacts/…` path:
+
+1. Environment variable **`DEVFLOW_CONTEXT_DIR`**
+2. Repo-root **`devflow.context.yaml`** → `context_dir`
+3. Default: **`artifacts`**
+
+Example: `artifacts/SPEC.md` → `artifacts/SPEC.md` when the default applies, or `my-context/SPEC.md` when configured.
+
+Repo installs **materialize** `artifacts/` paths to the resolved name in synced agent skills and `AGENTS.md`. Global (user-level) installs keep the token so each project resolves its own folder.
+
+Python: `devflow.config.resolve_context_dir(repo_root)`, `materialize_context_paths(text, dir)`.
 
 ## Dev Loop (single workflow)
 
@@ -68,18 +84,18 @@ Existing-repo safe-change principles: [docs/DELTA_PRINCIPLES.md](../docs/DELTA_P
 ## Default session command order
 
 1. Read this harness.
-2. Read `AI_CONTEXT/SPEC.md` for goals, constraints, and success criteria.
-3. Read `AI_CONTEXT/PROJECT_STATE.md` (if present) for decisions, active work, and blockers.
+2. Read `artifacts/SPEC.md` for goals, constraints, and success criteria.
+3. Read `artifacts/PROJECT_STATE.md` (if present) for decisions, active work, and blockers.
 4. If the user invoked a `/<command>`, read the matching `SKILL.md` and follow it literally.
-5. Execute the task; update `AI_CONTEXT/PROJECT_STATE.md` when completion or material facts change.
+5. Execute the task; update `artifacts/PROJECT_STATE.md` when completion or material facts change.
 6. Only then propose follow-ups — prefer updating files over long summaries.
 
 ## Context rotation
 
-- **Rotate out.** Once a slice of work is done, capture outcomes, decisions, and next steps in `AI_CONTEXT/PROJECT_STATE.md`; avoid relying on thread history for facts.
+- **Rotate out.** Once a slice of work is done, capture outcomes, decisions, and next steps in `artifacts/PROJECT_STATE.md`; avoid relying on thread history for facts.
 - **Rotate in.** After compaction or a new session, re-read the sources above before continuing — do not assume the transcript is complete.
-- **SPEC vs state.** `AI_CONTEXT/SPEC.md` changes rarely (intent). `AI_CONTEXT/PROJECT_STATE.md` changes often (progress). Keep that separation.
-- **Downstream skills must not reload entire prior narratives.** They consume `AI_CONTEXT/SPEC.md` plus the relevant compact `*.contract.yaml`, not full HLD prose or full chat history.
+- **SPEC vs state.** `artifacts/SPEC.md` changes rarely (intent). `artifacts/PROJECT_STATE.md` changes often (progress). Keep that separation.
+- **Downstream skills must not reload entire prior narratives.** They consume `artifacts/SPEC.md` plus the relevant compact `*.contract.yaml`, not full HLD prose or full chat history.
 
 ## Artifact pattern
 
@@ -89,19 +105,19 @@ All workflow contracts use **`workflow_profile: devflow`** unless marked legacy 
 
 | Human doc | Machine contract |
 |-----------|------------------|
-| `AI_CONTEXT/PROJECT_OVERVIEW.md` | `AI_CONTEXT/PROJECT_OVERVIEW.contract.yaml` |
-| `AI_CONTEXT/CONVENTIONS.md` | `AI_CONTEXT/CONVENTIONS.contract.yaml` |
-| *(orientation rollup)* | `AI_CONTEXT/UNDERSTAND.contract.yaml` |
-| `AI_CONTEXT/SYSTEM_HLD.md` | `AI_CONTEXT/SYSTEM_HLD.contract.yaml` |
-| `AI_CONTEXT/FEATURE_SLICES.md` | `AI_CONTEXT/FEATURE_SLICES.contract.yaml` |
+| `artifacts/PROJECT_OVERVIEW.md` | `artifacts/PROJECT_OVERVIEW.contract.yaml` |
+| `artifacts/CONVENTIONS.md` | `artifacts/CONVENTIONS.contract.yaml` |
+| *(orientation rollup)* | `artifacts/UNDERSTAND.contract.yaml` |
+| `artifacts/SYSTEM_HLD.md` | `artifacts/SYSTEM_HLD.contract.yaml` |
+| `artifacts/FEATURE_SLICES.md` | `artifacts/FEATURE_SLICES.contract.yaml` |
 | `<FEATURE>_DESIGN.md` | `<FEATURE>.contract.yaml` |
 | `<FEATURE>_DB.md` | `<FEATURE>_DB.contract.yaml` *(when `needs_db`)* |
 | `<FEATURE>_API.md` | `<FEATURE>_API.contract.yaml` *(when `needs_api`)* |
 | `<FEATURE>_TDD.md` | `<FEATURE>_TDD.contract.yaml` |
 | `<FEATURE>_TASKS.md` | `<FEATURE>_TASKS.contract.yaml` |
-| `AI_CONTEXT/<FEATURE>_C<n>_REVIEW.md` | `AI_CONTEXT/<FEATURE>_C<n>_REVIEW.contract.yaml` |
-| *(verification checkpoint; prose optional)* | `AI_CONTEXT/<FEATURE>_C<n>_SNAPSHOT.contract.yaml` |
-| `AI_CONTEXT/LEARNINGS.md` (append-only sections) | `AI_CONTEXT/<FEATURE>_C<n>_LEARN.contract.yaml` |
+| `artifacts/<FEATURE>_C<n>_REVIEW.md` | `artifacts/<FEATURE>_C<n>_REVIEW.contract.yaml` |
+| *(verification checkpoint; prose optional)* | `artifacts/<FEATURE>_C<n>_SNAPSHOT.contract.yaml` |
+| `artifacts/LEARNINGS.md` (append-only sections) | `artifacts/<FEATURE>_C<n>_LEARN.contract.yaml` |
 
 Contracts are stability-critical. Downstream skills consume contracts, not prose.
 
@@ -124,7 +140,7 @@ Hooks may **only** summarize, generate contracts, checkpoint state, or trim cont
 - Horizontal whole-system passes (all DB → all APIs → all UI) — work one vertical feature at a time.
 - Editing derived `AGENTS.md` / `SKILL.md` mirrors instead of the canonical source under `core/`.
 - Treating chat history as durable state — update files instead.
-- Marking `AI_CONTEXT/SPEC.md` "approved" — the human owns that.
+- Marking `artifacts/SPEC.md` "approved" — the human owns that.
 - Invoking deprecated `/feature-*` skills for new work — use `/design`.
 
 ---

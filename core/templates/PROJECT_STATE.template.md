@@ -1,6 +1,6 @@
 # Project state — <PROJECT_NAME>
 
-> **Durable working state** for this repo. Updated by agents at the end of each meaningful slice of work (per the framework's context rotation rule). This file changes often; `AI_CONTEXT/SPEC.md` changes rarely.
+> **Durable working state** for this repo. Updated by agents at the end of each meaningful slice of work (per the framework's context rotation rule). This file changes often; `{context_dir}/SPEC.md` changes rarely.
 
 ## Current focus
 

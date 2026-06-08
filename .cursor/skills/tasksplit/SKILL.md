@@ -20,9 +20,9 @@ Create bounded `FEATURE:Cn` units for `/implement-next`, with `scope_in`, `depen
 
 ## Inputs
 
-- **Required:** `AI_CONTEXT/<FEATURE>.contract.yaml` with `design_status: approved`.
-- **Optional:** `AI_CONTEXT/<FEATURE>_TDD.contract.yaml`.
-- **Optional:** `AI_CONTEXT/FEATURE_SLICES.contract.yaml` — slice row for scope boundaries.
+- **Required:** `artifacts/<FEATURE>.contract.yaml` with `design_status: approved`.
+- **Optional:** `artifacts/<FEATURE>_TDD.contract.yaml`.
+- **Optional:** `artifacts/FEATURE_SLICES.contract.yaml` — slice row for scope boundaries.
 - **Forbidden:** Implementing code in this skill.
 
 ## Workflow
@@ -31,15 +31,15 @@ Create bounded `FEATURE:Cn` units for `/implement-next`, with `scope_in`, `depen
 2. Read `delivery.needs_tasks` and slice `in_scope` / `out_of_scope`.
 3. Build `tasks[]` (typically 3–8; single `C1` when lite).
 4. Each task: `id`, `status: pending`, `summary`, `depends_on`, `scope_in`, `scope_out`, `implements_cases`.
-5. Write `AI_CONTEXT/<FEATURE>_TASKS.md` and `AI_CONTEXT/<FEATURE>_TASKS.contract.yaml` with `tasks_status: draft`, `current_task: null`, `workflow_profile: devflow`.
+5. Write `artifacts/<FEATURE>_TASKS.md` and `artifacts/<FEATURE>_TASKS.contract.yaml` with `tasks_status: draft`, `current_task: null`, `workflow_profile: devflow`.
 6. **STOP.** Chat reply: task table, explicit **approve tasks then `/implement-next <FEATURE>`**. Do **not** set `tasks_status: approved` without human approval.
 
 ## Output artifacts
 
 | Path | Change | Notes |
 |------|--------|-------|
-| `AI_CONTEXT/<FEATURE>_TASKS.md` | Created or replaced | |
-| `AI_CONTEXT/<FEATURE>_TASKS.contract.yaml` | Created or replaced | Queue for implement-next |
+| `artifacts/<FEATURE>_TASKS.md` | Created or replaced | |
+| `artifacts/<FEATURE>_TASKS.contract.yaml` | Created or replaced | Queue for implement-next |
 
 ## `<FEATURE>_TASKS.contract.yaml` shape
 
@@ -50,8 +50,8 @@ workflow_profile: devflow
 feature_id: "<FEATURE>"
 tasks_status: draft
 current_task: null
-feature_contract_path: AI_CONTEXT/<FEATURE>.contract.yaml
-tdd_contract_path: AI_CONTEXT/<FEATURE>_TDD.contract.yaml
+feature_contract_path: artifacts/<FEATURE>.contract.yaml
+tdd_contract_path: artifacts/<FEATURE>_TDD.contract.yaml
 
 summary: "<one sentence>"
 tasks: []

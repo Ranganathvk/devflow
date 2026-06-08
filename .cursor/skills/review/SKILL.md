@@ -24,12 +24,12 @@ Provide a **repeatable, file-backed review** for a single task-sized change set 
 ## Inputs
 
 - **Required:** Resolved `<TASK_ID>` matching `^[A-Z][A-Z0-9_]{1,31}:C[1-9][0-9]*$` **or** explicit paths + human waiver for ad-hoc (see Purpose).
-- **Required:** `AI_CONTEXT/SPEC.md` — read **Design principles**, **Implementation rules**, and **Human code ownership** (minimum).
+- **Required:** `artifacts/SPEC.md` — read **Design principles**, **Implementation rules**, and **Human code ownership** (minimum).
 - **Required:** Change set — `git diff` / `git show` / or the files the human listed as in-scope for this review.
-- **Optional:** `AI_CONTEXT/<FEATURE>_TASKS.contract.yaml` — task row + TDD cases.
-- **Optional (legacy plan):** `AI_CONTEXT/<FEATURE>_PLAN.contract.yaml` — deprecated queue.
-- **Optional:** `AI_CONTEXT/<FEATURE>_TDD.contract.yaml` — narrow `cases[]` when not using plan `test_cases[]`.
-- **Optional:** `AI_CONTEXT/PROJECT_STATE.md` — branch, constraints, or “what was supposed to be done.”
+- **Optional:** `artifacts/<FEATURE>_TASKS.contract.yaml` — task row + TDD cases.
+- **Optional (legacy plan):** `artifacts/<FEATURE>_PLAN.contract.yaml` — deprecated queue.
+- **Optional:** `artifacts/<FEATURE>_TDD.contract.yaml` — narrow `cases[]` when not using plan `test_cases[]`.
+- **Optional:** `artifacts/PROJECT_STATE.md` — branch, constraints, or “what was supposed to be done.”
 - **Forbidden:** Treating chat as the diff. Inventing files “reviewed” that are not in the change set. Approving work without listing evidence (commands run, files read).
 
 ## Resolve TASK_ID (when argument omitted)
@@ -49,16 +49,16 @@ Provide a **repeatable, file-backed review** for a single task-sized change set 
 4. **Scope check:** Load task row from `_TASKS.tasks[]` or legacy plan `tasks[]`. Confirm edits align with `scope_in` and `implements_cases`; flag **violations** as `blocking`.
 5. **Checklist (systematic):** Cover at minimum: correctness vs task/TDD IDs, tests present for new behavior, error paths, naming/style match (`CONVENTIONS.contract.yaml` when present), secrets/logging, migration safety if applicable, and “no drive-by refactors.” Record each item as **pass / fail / not_applicable** with a one-line note in the human doc.
 6. **Classify findings:** Each issue is `blocking` (must fix before sign-off) or `non_blocking` (may defer with explicit reason in `deferred[]`).
-7. **Write** `AI_CONTEXT/<FEATURE>_C<n>_REVIEW.md` (target ≤ **~120** lines): summary, checklist table, findings, open questions for the human, **sign-off block** (human fills).
-8. **Write** `AI_CONTEXT/<FEATURE>_C<n>_REVIEW.contract.yaml` using the **YAML shape** below. Set `plan_contract_path` when plan exists. Set `agent_ready_for_signoff` to `true` only if there are **zero** `blocking` findings.
+7. **Write** `artifacts/<FEATURE>_C<n>_REVIEW.md` (target ≤ **~120** lines): summary, checklist table, findings, open questions for the human, **sign-off block** (human fills).
+8. **Write** `artifacts/<FEATURE>_C<n>_REVIEW.contract.yaml` using the **YAML shape** below. Set `plan_contract_path` when plan exists. Set `agent_ready_for_signoff` to `true` only if there are **zero** `blocking` findings.
 9. **Chat reply (brief):** Paths written, blocking vs non-blocking counts. If **blocking:** fix code/tests (editor or chat), then **`/review`** again — do **not** suggest `/debug` on Simple Dev Loop. If clear: human sign-off then **`/snapshot`**.
 
 ## Output artifacts
 
 | Path | Change | Notes |
 |------|--------|-------|
-| `AI_CONTEXT/<FEATURE>_C<n>_REVIEW.md` | Created or replaced | Human checklist + sign-off block |
-| `AI_CONTEXT/<FEATURE>_C<n>_REVIEW.contract.yaml` | Created or replaced | Machine handoff; small YAML |
+| `artifacts/<FEATURE>_C<n>_REVIEW.md` | Created or replaced | Human checklist + sign-off block |
+| `artifacts/<FEATURE>_C<n>_REVIEW.contract.yaml` | Created or replaced | Machine handoff; small YAML |
 
 No other files written or edited.
 
@@ -70,7 +70,7 @@ artifact: task_review
 task_id: "<FEATURE>:C<n>"
 feature_id: "<FEATURE>"
 review_basename: "<FEATURE>_C<n>"
-plan_contract_path: AI_CONTEXT/<FEATURE>_PLAN.contract.yaml  # null if legacy tasksplit only
+plan_contract_path: artifacts/<FEATURE>_PLAN.contract.yaml  # null if legacy tasksplit only
 
 agent_checklist_completed: true
 agent_ready_for_signoff: false  # true only if zero blocking findings

@@ -17,6 +17,10 @@ description: >-
 - <secondary trigger>.
 - Do **not** invoke when <explicit anti-trigger>.
 
+## Path resolution
+
+All workflow paths use **`{context_dir}/`** (not a hardcoded folder name). Before step 1, resolve `{context_dir}` per `core/AGENTS.md` (env `DEVFLOW_CONTEXT_DIR` → `devflow.context.yaml` → default `artifacts`).
+
 ## Inputs
 
 - **Required:** Paths the skill must read in full before starting.

@@ -24,9 +24,9 @@ This skill mutates code/tests but must not silently expand scope.
 
 ## Inputs
 
-- **Required (both modes):** `AI_CONTEXT/SPEC.md`, `AI_CONTEXT/FEATURE_SLICES.contract.yaml`.
-- **Required (task mode):** `AI_CONTEXT/<FEATURE>_TASKS.contract.yaml`.
-- **Optional (both):** `AI_CONTEXT/<FEATURE>.contract.yaml`, `AI_CONTEXT/<FEATURE>_TDD.contract.yaml`, `AI_CONTEXT/SYSTEM_HLD.contract.yaml`, `AI_CONTEXT/PROJECT_STATE.md`.
+- **Required (both modes):** `{context_dir}/SPEC.md`, `{context_dir}/FEATURE_SLICES.contract.yaml`.
+- **Required (task mode):** `{context_dir}/<FEATURE>_TASKS.contract.yaml`.
+- **Optional (both):** `{context_dir}/<FEATURE>.contract.yaml`, `{context_dir}/<FEATURE>_TDD.contract.yaml`, `{context_dir}/SYSTEM_HLD.contract.yaml`, `{context_dir}/PROJECT_STATE.md`.
 - **Forbidden:** Inventing requirements from chat history alone.
 
 ## Workflow
@@ -47,7 +47,7 @@ This skill mutates code/tests but must not silently expand scope.
 | Path | Change | Notes |
 |------|--------|-------|
 | Source and test files | As required | Only files justified by selected task/slice scope |
-| `AI_CONTEXT/PROJECT_STATE.md` | Optional append | Only if file exists or user requested tracking |
+| `{context_dir}/PROJECT_STATE.md` | Optional append | Only if file exists or user requested tracking |
 
 Do not edit upstream planning contracts in this skill.
 

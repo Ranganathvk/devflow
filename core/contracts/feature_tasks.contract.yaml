@@ -1,4 +1,4 @@
-# Reference shape for AI_CONTEXT/<FEATURE>_TASKS.contract.yaml
+# Reference shape for {context_dir}/<FEATURE>_TASKS.contract.yaml
 # Emitted by /tasksplit — Dev Loop task queue.
 
 contract_version: "1"
@@ -7,8 +7,8 @@ workflow_profile: devflow
 feature_id: AUTH
 tasks_status: draft
 current_task: null
-feature_contract_path: AI_CONTEXT/AUTH.contract.yaml
-tdd_contract_path: AI_CONTEXT/AUTH_TDD.contract.yaml
+feature_contract_path: "{context_dir}/AUTH.contract.yaml"
+tdd_contract_path: "{context_dir}/AUTH_TDD.contract.yaml"
 
 summary: "<one sentence>"
 tasks: []

@@ -2,7 +2,7 @@
 
 Canonical home of all framework skills. Each skill is a folder containing at least a `SKILL.md` (front-matter + workflow prose) and any helper assets.
 
-## Authoring rules (from `AI_CONTEXT/SPEC.md`)
+## Authoring rules (from `{context_dir}/SPEC.md`)
 
 - Skills are **modular and reusable** — small, bounded, composable.
 - Each `SKILL.md` defines: purpose, when to invoke, required/forbidden inputs, exact workflow steps, expected outputs, files mutated, context budget, failure handling.

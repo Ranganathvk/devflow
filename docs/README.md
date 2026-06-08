@@ -14,7 +14,7 @@ Guides for using and extending **devflow**.
 | Doc | Purpose |
 |-----|---------|
 | [DELTA_PRINCIPLES.md](DELTA_PRINCIPLES.md) | Safe-change rules for existing repos |
-| [../AI_CONTEXT/SPEC.md](../AI_CONTEXT/SPEC.md) | Framework product specification |
+| [../artifacts/SPEC.md](../artifacts/SPEC.md) | Framework product specification |
 | [../core/AGENTS.md](../core/AGENTS.md) | Canonical agent harness rules |
 | [../core/skills/README.md](../core/skills/README.md) | Skill catalog and paths |
 | [../CONTRIBUTING.md](../CONTRIBUTING.md) | How to change the framework |

@@ -20,7 +20,7 @@ This skill is **not** a git replacement. It does **not** fix code — resolve bl
 
 ## When to invoke
 
-- `/snapshot` — **Simple Dev Loop (default):** resolve `<TASK_ID>` from `current_task` on `AI_CONTEXT/<FEATURE>_PLAN.contract.yaml`.
+- `/snapshot` — **Simple Dev Loop (default):** resolve `<TASK_ID>` from `current_task` on `{context_dir}/<FEATURE>_PLAN.contract.yaml`.
 - `/snapshot <TASK_ID>` — explicit task (e.g. after legacy or multi-plan workflows).
 - After **`/review`** artifacts exist for that task.
 - After **`human_signoff: approved`** in the review contract **or** explicit human approval in chat.
@@ -31,11 +31,11 @@ This skill is **not** a git replacement. It does **not** fix code — resolve bl
 ## Inputs
 
 - **Required:** Resolved `<TASK_ID>` matching `^[A-Z][A-Z0-9_]{1,31}:C[1-9][0-9]*$`.
-- **Required:** `AI_CONTEXT/<FEATURE>_C<n>_REVIEW.contract.yaml` with zero `blocking` findings (or `agent_ready_for_signoff: true`).
-- **Required:** `AI_CONTEXT/SPEC.md` — skim **Human code ownership** (minimum).
-- **Required (Simple Dev Loop):** `AI_CONTEXT/<FEATURE>_PLAN.contract.yaml` — patch task queue on success.
+- **Required:** `{context_dir}/<FEATURE>_C<n>_REVIEW.contract.yaml` with zero `blocking` findings (or `agent_ready_for_signoff: true`).
+- **Required:** `{context_dir}/SPEC.md` — skim **Human code ownership** (minimum).
+- **Required (Simple Dev Loop):** `{context_dir}/<FEATURE>_PLAN.contract.yaml` — patch task queue on success.
 - **Optional:** `git rev-parse HEAD` for `git_head`.
-- **Optional:** `AI_CONTEXT/PROJECT_STATE.md` — one-line append when present.
+- **Optional:** `{context_dir}/PROJECT_STATE.md` — one-line append when present.
 - **Forbidden:** Fabricating green test results; snapshot while review shows blockers.
 
 ## Resolve TASK_ID (when argument omitted)
@@ -49,26 +49,26 @@ This skill is **not** a git replacement. It does **not** fix code — resolve bl
 
 1. **Resolve** `<TASK_ID>` from argument or plan `current_task`.
 2. **Parse** → `<FEATURE>`, `C<n>`, `basename = "<FEATURE>_C<n>"`.
-3. **Load** `AI_CONTEXT/<FEATURE>_C<n>_REVIEW.contract.yaml`.
+3. **Load** `{context_dir}/<FEATURE>_C<n>_REVIEW.contract.yaml`.
 4. **Gate — blockers:** If any finding has `severity: blocking` or `agent_ready_for_signoff: false` with open blockers → **stop**. Tell human: fix code/tests, re-run **`/review`** (Simple Dev Loop does not use `/debug`).
 5. **Gate — sign-off:** If `human_signoff` is not `approved` and no explicit chat approval → **stop**; complete `/review` sign-off steps.
 6. **Gate — verification:** Run or confirm tests/checks for the task scope. Record commands and outcome. If failing and no human waiver → **stop**.
-7. **Write** `AI_CONTEXT/<FEATURE>_C<n>_SNAPSHOT.contract.yaml` (YAML shape below).
+7. **Write** `{context_dir}/<FEATURE>_C<n>_SNAPSHOT.contract.yaml` (YAML shape below).
 8. **Link back:** Set `linked_snapshot_path` on the review contract.
 9. **Queue update:** Patch plan or tasks contract:
    - Matching `tasks[].id` → `status: done`
    - `current_task: null`
-10. **PROJECT_STATE:** If `AI_CONTEXT/PROJECT_STATE.md` exists, append: ``- [snapshot] `<TASK_ID>` verified``.
+10. **PROJECT_STATE:** If `{context_dir}/PROJECT_STATE.md` exists, append: ``- [snapshot] `<TASK_ID>` verified``.
 11. **STOP.** Chat reply: snapshot path, verification summary, pending task count. If pending tasks → **`/implement-next`**. If queue empty → feature plan complete. `/learn` is optional (advanced).
 
 ## Output artifacts
 
 | Path | Change | Notes |
 |------|--------|-------|
-| `AI_CONTEXT/<FEATURE>_C<n>_SNAPSHOT.contract.yaml` | Created or replaced | Checkpoint |
-| `AI_CONTEXT/<FEATURE>_C<n>_REVIEW.contract.yaml` | Patch `linked_snapshot_path` | |
-| `AI_CONTEXT/<FEATURE>_PLAN.contract.yaml` | Patched | `done` + `current_task: null` |
-| `AI_CONTEXT/PROJECT_STATE.md` | Optional append | If file exists |
+| `{context_dir}/<FEATURE>_C<n>_SNAPSHOT.contract.yaml` | Created or replaced | Checkpoint |
+| `{context_dir}/<FEATURE>_C<n>_REVIEW.contract.yaml` | Patch `linked_snapshot_path` | |
+| `{context_dir}/<FEATURE>_PLAN.contract.yaml` | Patched | `done` + `current_task: null` |
+| `{context_dir}/PROJECT_STATE.md` | Optional append | If file exists |
 
 No application source edits in this skill.
 
@@ -85,8 +85,8 @@ snapshot_basename: "<FEATURE>_C<n>"
 captured_at: "<ISO8601>"
 git_head: "<sha-or-unknown>"
 
-review_contract_path: AI_CONTEXT/<FEATURE>_C<n>_REVIEW.contract.yaml
-plan_contract_path: AI_CONTEXT/<FEATURE>_PLAN.contract.yaml
+review_contract_path: {context_dir}/<FEATURE>_C<n>_REVIEW.contract.yaml
+plan_contract_path: {context_dir}/<FEATURE>_PLAN.contract.yaml
 
 human_signoff: approved
 

@@ -1,4 +1,4 @@
-# Reference shape for AI_CONTEXT/PROJECT_OVERVIEW.contract.yaml
+# Reference shape for {context_dir}/PROJECT_OVERVIEW.contract.yaml
 # Emitted by /workspace-scan — not a runtime config file.
 
 contract_version: "1"

@@ -1,11 +1,11 @@
-# Reference shape for AI_CONTEXT/CONVENTIONS.contract.yaml
+# Reference shape for {context_dir}/CONVENTIONS.contract.yaml
 # Emitted by /convention-detect — not a runtime config file.
 
 contract_version: "1"
 artifact: conventions
 workflow_profile: devflow
 detected_at: "2026-01-01"
-project_overview_contract_path: AI_CONTEXT/PROJECT_OVERVIEW.contract.yaml
+project_overview_contract_path: "{context_dir}/PROJECT_OVERVIEW.contract.yaml"
 
 summary: "<one paragraph, evidence-backed>"
 

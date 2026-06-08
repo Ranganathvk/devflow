@@ -6,7 +6,7 @@ Bootstrap and sync utilities for attaching **devflow** to consumer repositories 
 
 | Script | Purpose |
 |--------|---------|
-| [`install.ps1`](install.ps1) | Copy `core/`, `adapters/`, seed `AI_CONTEXT/`, sync Cursor skills into a **target repo** |
+| [`install.ps1`](install.ps1) | Copy `core/`, `adapters/`, seed `artifacts/`, sync Cursor skills into a **target repo** |
 | [`sync-cursor.ps1`](sync-cursor.ps1) | Copy `core/AGENTS.md` + `core/skills/*` → `.cursor/` (Windows) |
 | [`sync-cursor.sh`](sync-cursor.sh) | Same as above (macOS / Linux) |
 
@@ -40,7 +40,7 @@ Optional **`-RepoRoot`** (PowerShell) points at a different repo root when synci
 ## What install does
 
 1. Copies `core/` and `adapters/` into the target repo (if not already present from a submodule/copy).
-2. Creates `AI_CONTEXT/` and seeds `SPEC.md` / `PROJECT_STATE.md` from `core/templates/` when missing.
+2. Creates the context directory (default `artifacts/`) and seeds `devflow.context.yaml`, `SPEC.md`, and `PROJECT_STATE.md` from `core/templates/` when missing.
 3. Materializes `.cursor/AGENTS.md` and `.cursor/skills/<name>/SKILL.md` from canonical `core/`.
 
 Installer outputs are **derived** — never edit them as a second source of truth.

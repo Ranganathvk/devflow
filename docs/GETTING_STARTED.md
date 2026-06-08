@@ -9,7 +9,7 @@ This guide walks through using **devflow** in a real project with **Cursor**. Ot
 - **Contract handoffs** — compact `*.contract.yaml` files downstream skills consume
 - **Human ownership** — review → snapshot on every task; optional `/debug` and `/learn`
 
-Full product definition: [AI_CONTEXT/SPEC.md](../AI_CONTEXT/SPEC.md).
+Full product definition: [artifacts/SPEC.md](../artifacts/SPEC.md).
 
 ## Dev Loop (cheat sheet)
 
@@ -25,7 +25,7 @@ Full guide: **[DEV_LOOP.md](DEV_LOOP.md)**.
 
 1. **Clone** this repository (or use it as a GitHub template).
 2. Open the repo in **Cursor**. Skills are under `.cursor/skills/` (synced from `core/skills/`).
-3. Replace placeholders in `AI_CONTEXT/SPEC.md`, or start with **`/grillme`**.
+3. Replace placeholders in `artifacts/SPEC.md`, or start with **`/grillme`**.
 4. Run the Dev Loop stage by stage.
 
 ## Option B — Attach to an existing repository
@@ -47,7 +47,45 @@ chmod +x ../devflow/installer/install.sh
 ../devflow/installer/install.sh .
 ```
 
-The installer copies `core/` and `adapters/`, seeds `AI_CONTEXT/`, and syncs to `.cursor/`.
+The installer copies `core/` and `adapters/`, seeds `artifacts/`, and syncs to `.cursor/`.
+
+Or use the CLI:
+
+```powershell
+devflow cursor install --scope repo
+devflow claude install --scope repo
+devflow copilot install --scope repo
+```
+
+### Context directory (custom name)
+
+Workflow files live under a **context directory** at the repo root (default **`artifacts/`**).
+
+**Recommended — one command (repo install):**
+
+```powershell
+cd C:\path\to\your-app
+devflow cursor install --scope repo --context-dir my-workflow
+```
+
+That writes `devflow.context.yaml`, creates `my-workflow/SPEC.md`, and syncs skills with `my-workflow/…` paths materialized in `.cursor/skills/`.
+
+**Other ways to set the folder name:**
+
+| Method | When to use |
+|--------|-------------|
+| `--context-dir my-workflow` on `devflow <agent> install` | Easiest; sets manifest + install in one step |
+| `devflow.context.yaml` with `context_dir: my-workflow` | Commit the name in repo; then run install without `-c` |
+| `DEVFLOW_CONTEXT_DIR=my-workflow` env var | CI or shell profile; overrides manifest |
+
+**Then install skills** (if you did not use the CLI above):
+
+```powershell
+devflow cursor install --scope repo      # this project
+devflow cursor install --scope global    # all Cursor projects (keeps {context_dir} token)
+```
+
+Canonical skills under `core/skills/` use **`{context_dir}/`**; repo install **materializes** it to your folder in agent mirrors.
 
 Then run **`/understand`** when working in an existing repo, or **`/grillme`** when shaping spec from scratch.
 
@@ -66,9 +104,10 @@ All design work (questions, research, DB, API classification) runs inside **`/de
 
 | Path | Purpose |
 |------|---------|
-| `AI_CONTEXT/SPEC.md` | Your product spec |
-| `AI_CONTEXT/PROJECT_STATE.md` | Status, decisions, blockers |
-| `AI_CONTEXT/*.contract.yaml` | Machine-readable handoffs |
+| `devflow.context.yaml` | Context directory name for this repo |
+| `artifacts/SPEC.md` | Your product spec (default context dir) |
+| `artifacts/PROJECT_STATE.md` | Status, decisions, blockers |
+| `artifacts/*.contract.yaml` | Machine-readable handoffs |
 | `core/skills/` | Canonical skills (**edit here**) |
 | `.cursor/skills/` | Cursor mirror (**run sync**) |
 | `core/AGENTS.md` | Agent harness rules |

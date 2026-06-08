@@ -7,7 +7,7 @@
 | Field | Value |
 |-------|-------|
 | Detected | YYYY-MM-DD |
-| Overview ref | AI_CONTEXT/PROJECT_OVERVIEW.contract.yaml |
+| Overview ref | {context_dir}/PROJECT_OVERVIEW.contract.yaml |
 | Revision | initial |
 
 ## 1. Summary

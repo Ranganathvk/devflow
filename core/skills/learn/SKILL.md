@@ -1,8 +1,8 @@
 ---
 name: learn
 description: >-
-  After /snapshot <TASK_ID>, distills durable lessons into AI_CONTEXT/LEARNINGS.md (append)
-  and optionally AI_CONTEXT/<FEATURE>_C<n>_LEARN.contract.yaml for automation. Closes the
+  After /snapshot <TASK_ID>, distills durable lessons into {context_dir}/LEARNINGS.md (append)
+  and optionally {context_dir}/<FEATURE>_C<n>_LEARN.contract.yaml for automation. Closes the
   implement → review → debug → snapshot loop for knowledge retention.
 ---
 
@@ -10,11 +10,11 @@ description: >-
 
 ## Purpose
 
-Turn a **completed, snapshotted** task into **compact, reusable knowledge** for the team and future agents: what worked, what surprised us, what to avoid, and which contracts or tests to trust next time. Keeps **`AI_CONTEXT/`** as the durable source of truth per framework rules.
+Turn a **completed, snapshotted** task into **compact, reusable knowledge** for the team and future agents: what worked, what surprised us, what to avoid, and which contracts or tests to trust next time. Keeps **`{context_dir}/`** as the durable source of truth per framework rules.
 
 ## When to invoke
 
-- `/learn <TASK_ID>` — immediately after `/snapshot <TASK_ID>` produced `AI_CONTEXT/<FEATURE>_C<n>_SNAPSHOT.contract.yaml`.
+- `/learn <TASK_ID>` — immediately after `/snapshot <TASK_ID>` produced `{context_dir}/<FEATURE>_C<n>_SNAPSHOT.contract.yaml`.
 - `/learn <TASK_ID>` — when revisiting an older snapshot to backfill lessons (human-directed).
 - Do **not** invoke before a snapshot exists **unless** the human explicitly requests **“lessons without snapshot”** for a cancelled/aborted task — then set `learn_kind: aborted` in the contract and skip verification claims.
 - Do **not** dump raw logs into `LEARNINGS.md` — summarize.
@@ -22,10 +22,10 @@ Turn a **completed, snapshotted** task into **compact, reusable knowledge** for 
 ## Inputs
 
 - **Required:** `<TASK_ID>` matching `^[A-Z][A-Z0-9_]{1,31}:C[1-9][0-9]*$`.
-- **Required:** `AI_CONTEXT/<FEATURE>_C<n>_SNAPSHOT.contract.yaml` when `learn_kind: complete` (default).
-- **Optional:** `AI_CONTEXT/<FEATURE>_C<n>_REVIEW.contract.yaml` — findings / deferred items worth carrying forward.
-- **Optional:** `AI_CONTEXT/<FEATURE>_TASKS.contract.yaml` — task `title` / `risk` for indexing.
-- **Optional:** `AI_CONTEXT/SPEC.md` — only if lessons propose SPEC-level process changes (then list SPEC sections to edit separately; do not silently rewrite SPEC unless human asked).
+- **Required:** `{context_dir}/<FEATURE>_C<n>_SNAPSHOT.contract.yaml` when `learn_kind: complete` (default).
+- **Optional:** `{context_dir}/<FEATURE>_C<n>_REVIEW.contract.yaml` — findings / deferred items worth carrying forward.
+- **Optional:** `{context_dir}/<FEATURE>_TASKS.contract.yaml` — task `title` / `risk` for indexing.
+- **Optional:** `{context_dir}/SPEC.md` — only if lessons propose SPEC-level process changes (then list SPEC sections to edit separately; do not silently rewrite SPEC unless human asked).
 - **Forbidden:** Invention of incidents not supported by snapshot/review/implement artifacts.
 
 ## Workflow
@@ -33,18 +33,18 @@ Turn a **completed, snapshotted** task into **compact, reusable knowledge** for 
 1. **Parse** `<TASK_ID>` → `<FEATURE>`, `C<n>`, `basename = "<FEATURE>_C<n>"`.
 2. **Load** snapshot contract. If missing and not in **aborted** mode → **stop**; run `/snapshot` first.
 3. **Extract** 3–7 bullet lessons (max): patterns, pitfalls, test gaps closed, contract ambiguities discovered, operational commands worth standardizing.
-4. **Append** to `AI_CONTEXT/LEARNINGS.md`:
+4. **Append** to `{context_dir}/LEARNINGS.md`:
    - Create the file with a one-line header if missing: `# Project learnings (append-only, newest at bottom)` (or match existing file style if present).
    - New section: `## <YYYY-MM-DD> — <TASK_ID> (<FEATURE> C<n>)` followed by bullets + optional **“Follow-ups”** sub-list (SPEC edits, new TC-* ideas) **without** implementing them here.
-5. **Write** `AI_CONTEXT/<FEATURE>_C<n>_LEARN.contract.yaml` using the **YAML shape** below (keeps machine consumers independent of prose layout).
+5. **Write** `{context_dir}/<FEATURE>_C<n>_LEARN.contract.yaml` using the **YAML shape** below (keeps machine consumers independent of prose layout).
 6. **Chat reply (brief):** Path to learnings + contract, top 1–2 lessons, suggested next task from backlog if applicable.
 
 ## Output artifacts
 
 | Path | Change | Notes |
 |------|--------|-------|
-| `AI_CONTEXT/LEARNINGS.md` | Created or appended | New dated section; avoid bloat |
-| `AI_CONTEXT/<FEATURE>_C<n>_LEARN.contract.yaml` | Created or replaced | Small YAML |
+| `{context_dir}/LEARNINGS.md` | Created or appended | New dated section; avoid bloat |
+| `{context_dir}/<FEATURE>_C<n>_LEARN.contract.yaml` | Created or replaced | Small YAML |
 
 No other files written or edited.
 
@@ -57,7 +57,7 @@ task_id: "<FEATURE>:C<n>"
 feature_id: "<FEATURE>"
 learn_kind: complete | aborted
 
-snapshot_contract_path: "AI_CONTEXT/<FEATURE>_C<n>_SNAPSHOT.contract.yaml"  # null if aborted
+snapshot_contract_path: "{context_dir}/<FEATURE>_C<n>_SNAPSHOT.contract.yaml"  # null if aborted
 
 lessons: []
   # - id: "L-001"
