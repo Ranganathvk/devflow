@@ -39,13 +39,13 @@ Priority: env → manifest → default **`artifacts`**.
 **1. Install the `devflow-ai` CLI** (once per machine, from a clone of this repo):
 
 ```powershell
-git clone https://github.com/YOUR_ORG/devflow.git
+git clone https://github.com/Ranganathvk/devflow
 cd devflow
 uv sync
 ```
 
 ```bash
-git clone https://github.com/YOUR_ORG/devflow.git
+git clone https://github.com/Ranganathvk/devflow
 cd devflow
 uv sync
 ```
