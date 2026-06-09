@@ -20,9 +20,9 @@ How **devflow** materializes on disk for [Claude Code](https://code.claude.com).
 ## Install
 
 ```bash
-devflow claude install
-devflow claude install --scope repo -p /path/to/your-app
-devflow claude install --scope global
+devflow-ai claude install
+devflow-ai claude install --scope repo -p /path/to/your-app
+devflow-ai claude install --scope global
 ```
 
 ## Discovery
@@ -33,7 +33,7 @@ devflow claude install --scope global
 
 ## Rules
 
-- **Edit `core/skills/`**, not `.claude/skills/` — then re-run `devflow claude install`.
+- **Edit `core/skills/`**, not `.claude/skills/` — then re-run `devflow-ai claude install`.
 - Read `artifacts/SPEC.md` before non-trivial work.
 
 See [docs/GETTING_STARTED.md](../../docs/GETTING_STARTED.md) and [core/AGENTS.md](../../core/AGENTS.md).

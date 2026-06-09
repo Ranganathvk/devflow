@@ -40,7 +40,7 @@ Optional **`-RepoRoot`** (PowerShell) points at a different repo root when synci
 ## What install does
 
 1. Copies `core/` and `adapters/` into the target repo (if not already present from a submodule/copy).
-2. Creates the context directory (default `artifacts/`) and seeds `devflow.context.yaml`, `SPEC.md`, and `PROJECT_STATE.md` from `core/templates/` when missing.
+2. Creates the context directory (default `artifacts/`) and seeds `devflow.context.yaml`, `SPEC.md`, `PROJECT_STATE.md`, and `contracts/` (from `core/contracts/`) when missing.
 3. Materializes `.cursor/AGENTS.md` and `.cursor/skills/<name>/SKILL.md` from canonical `core/`.
 
 Installer outputs are **derived** — never edit them as a second source of truth.

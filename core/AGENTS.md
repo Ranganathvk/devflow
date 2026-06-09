@@ -40,7 +40,7 @@ Example: `{context_dir}/SPEC.md` → `artifacts/SPEC.md` when the default applie
 
 Repo installs **materialize** `{context_dir}/` paths to the resolved name in synced agent skills and `AGENTS.md`. Global (user-level) installs keep the token so each project resolves its own folder.
 
-Python: `devflow.config.resolve_context_dir(repo_root)`, `materialize_context_paths(text, dir)`.
+Python (`devflow-ai` package): `devflow_ai.config.resolve_context_dir(repo_root)`, `materialize_context_paths(text, dir)`.
 
 ## Dev Loop (single workflow)
 

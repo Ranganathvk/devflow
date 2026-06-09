@@ -52,9 +52,9 @@ The installer copies `core/` and `adapters/`, seeds `artifacts/`, and syncs to `
 Or use the CLI:
 
 ```powershell
-devflow cursor install --scope repo
-devflow claude install --scope repo
-devflow copilot install --scope repo
+devflow-ai cursor install --scope repo
+devflow-ai claude install --scope repo
+devflow-ai copilot install --scope repo
 ```
 
 ### Context directory (custom name)
@@ -65,7 +65,7 @@ Workflow files live under a **context directory** at the repo root (default **`a
 
 ```powershell
 cd C:\path\to\your-app
-devflow cursor install --scope repo --context-dir my-workflow
+devflow-ai cursor install --scope repo --context-dir my-workflow
 ```
 
 That writes `devflow.context.yaml`, creates `my-workflow/SPEC.md`, and syncs skills with `my-workflow/…` paths materialized in `.cursor/skills/`.
@@ -81,8 +81,8 @@ That writes `devflow.context.yaml`, creates `my-workflow/SPEC.md`, and syncs ski
 **Then install skills** (if you did not use the CLI above):
 
 ```powershell
-devflow cursor install --scope repo      # this project
-devflow cursor install --scope global    # all Cursor projects (keeps {context_dir} token)
+devflow-ai cursor install --scope repo      # this project
+devflow-ai cursor install --scope global    # all Cursor projects (keeps {context_dir} token)
 ```
 
 Canonical skills under `core/skills/` use **`{context_dir}/`**; repo install **materializes** it to your folder in agent mirrors.

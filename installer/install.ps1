@@ -65,6 +65,14 @@ if (-not (Test-Path $state)) {
     Write-Host "Seeded $ContextDir/PROJECT_STATE.md from template"
 }
 
+$contractsDest = Join-Path $ContextRoot "contracts"
+$contractsSource = Join-Path $FrameworkRoot "core\contracts"
+if (Test-Path $contractsSource) {
+    New-Item -ItemType Directory -Force -Path $contractsDest | Out-Null
+    Copy-Item -Path (Join-Path $contractsSource "*") -Destination $contractsDest -Recurse -Force
+    Write-Host "Synced core/contracts -> $ContextDir/contracts/"
+}
+
 if ($Agent -eq "cursor") {
     & (Join-Path $FrameworkRoot "installer\sync-cursor.ps1") -RepoRoot $TargetPath
 }

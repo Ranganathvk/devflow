@@ -12,14 +12,14 @@ A **public, reusable AI engineering workflow framework** for coding agents (Curs
 
 ## Install (CLI)
 
-The **`devflow`** Python package attaches the framework to any repository and syncs agent skills for **Cursor**, **Claude Code**, and **GitHub Copilot**.
+The **`devflow-ai`** Python package (`pip install devflow-ai`) attaches the framework to any repository and syncs agent skills for **Cursor**, **Claude Code**, and **GitHub Copilot**.
 
 ### What install does
 
 | Step | Repo install (`--scope repo`) | Global install (`--scope global`) |
 |------|-------------------------------|-----------------------------------|
 | Framework | Copies `core/`, `adapters/` | — |
-| Context folder | Creates `<context-dir>/` + seeds `SPEC.md`, `PROJECT_STATE.md` | — |
+| Context folder | Creates `<context-dir>/` + seeds `SPEC.md`, `PROJECT_STATE.md`, `contracts/` | — |
 | Manifest | Writes `devflow.context.yaml` | — |
 | Agent skills | Syncs to `.cursor/`, `.claude/`, or `.github/skills/` | Syncs to `~/.cursor/`, `~/.claude/`, or `~/.copilot/` |
 | Paths in skills | Materializes `{context_dir}/` → your folder name | Keeps `{context_dir}/` token (per-repo resolve) |
@@ -36,7 +36,7 @@ Priority: env → manifest → default **`artifacts`**.
 
 ### End-to-end commands
 
-**1. Install the `devflow` CLI** (once per machine, from a clone of this repo):
+**1. Install the `devflow-ai` CLI** (once per machine, from a clone of this repo):
 
 ```powershell
 git clone https://github.com/YOUR_ORG/devflow.git
@@ -54,39 +54,41 @@ uv sync
 
 ```powershell
 cd C:\path\to\your-app
-uv run --project C:\path\to\devflow devflow cursor install --scope repo
+uv run --project C:\path\to\devflow devflow-ai install --scope repo
 ```
 
 Or after `uv sync` inside the devflow repo with venv activated:
 
 ```powershell
 cd C:\path\to\your-app
-devflow cursor install --scope repo
+devflow-ai install --scope repo
 ```
+
+Equivalent per-agent form: `devflow-ai cursor install --scope repo`
 
 **3. Custom context folder** (optional — otherwise defaults to `artifacts/`):
 
 ```powershell
-devflow cursor install --scope repo --context-dir my-workflow
+devflow-ai cursor install --scope repo --context-dir my-workflow
 ```
 
 **4. Other agents** (same flags):
 
 ```powershell
-devflow claude install --scope repo
-devflow copilot install --scope repo
+devflow-ai claude install --scope repo
+devflow-ai copilot install --scope repo
 ```
 
 **5. Global skills** (all projects for that agent — no per-repo `SPEC.md`):
 
 ```powershell
-devflow cursor install --scope global
+devflow-ai cursor install --scope global
 ```
 
 **6. Interactive mode** (prompts repo vs global if you omit `--scope`):
 
 ```powershell
-devflow cursor install
+devflow-ai cursor install
 ```
 
 ### After install
@@ -96,7 +98,8 @@ your-app/
 ├── devflow.context.yaml      # context_dir: artifacts (or your custom name)
 ├── artifacts/                # default context folder
 │   ├── SPEC.md               # edit this — your product spec
-│   └── PROJECT_STATE.md
+│   ├── PROJECT_STATE.md
+│   └── contracts/            # reference schemas (from core/contracts)
 ├── core/                     # canonical framework (from install)
 ├── adapters/
 └── .cursor/                  # Cursor: AGENTS.md + skills (derived)
@@ -112,7 +115,7 @@ your-app/
 **Re-sync** after editing `core/skills/` or `core/AGENTS.md`:
 
 ```powershell
-devflow cursor install --scope repo
+devflow-ai cursor install --scope repo
 # or: .\path\to\devflow\installer\sync-cursor.ps1
 ```
 
@@ -124,7 +127,7 @@ PowerShell/bash scripts under `installer/` do the same repo attach without the C
 
 Three layers can be installed independently: the **CLI package**, a **repo attach**, and **global agent skills**.
 
-#### A. Rebuild the CLI (this `devflow` clone)
+#### A. Rebuild the CLI (this repo clone)
 
 ```powershell
 cd C:\path\to\devflow
@@ -140,7 +143,7 @@ Or uninstall only the package and resync:
 
 ```powershell
 cd C:\path\to\devflow
-uv pip uninstall devflow
+uv pip uninstall devflow-ai
 uv sync
 ```
 
@@ -154,18 +157,25 @@ uv build
 Verify:
 
 ```powershell
-uv run devflow version
+uv run devflow-ai version
 ```
 
-**Troubleshooting:** If `devflow cursor install` fails with `No such option: --scope`, an **old** `devflow` on PATH is shadowing the venv (common location: `%USERPROFILE%\.local\bin\devflow.exe`). Fix:
+**Troubleshooting:**
+
+| Error | Fix |
+|-------|-----|
+| `No such option: --scope` | Old `devflow.exe` on PATH — `uv tool uninstall devflow`, then reinstall `devflow-ai` |
+| `Cannot locate framework files (core/)` | Global install missing bundled `core/` — rebuild and reinstall: `uv tool install --force C:\path\to\devflow` |
+| Works only with `uv run` | Same as above, or set `DEVFLOW_FRAMEWORK_ROOT=C:\path\to\devflow` |
 
 ```powershell
 cd C:\path\to\devflow
+uv sync
 uv tool install --force .
-devflow --help   # should list: cursor, claude, copilot
+devflow-ai install --scope repo   # should work from any directory
 ```
 
-Or use the venv directly without fixing PATH: `uv run devflow cursor install --scope repo`
+From a clone without global install: `uv run devflow-ai install --scope repo`
 
 #### B. Remove framework from an application repo
 
@@ -188,7 +198,7 @@ Keep or delete the context folder (`artifacts/` by default) depending on whether
 Reattach:
 
 ```powershell
-devflow cursor install --scope repo
+devflow-ai cursor install --scope repo
 # add: --context-dir my-folder  if not using default artifacts/
 ```
 
@@ -211,7 +221,7 @@ Remove-Item -Force $env:USERPROFILE\.copilot\AGENTS.md -ErrorAction SilentlyCont
 Reinstall global skills:
 
 ```powershell
-devflow cursor install --scope global
+devflow-ai cursor install --scope global
 ```
 
 #### Full refresh (CLI + your app)
@@ -224,7 +234,7 @@ uv sync
 
 # 2. Clean consumer repo (backup SPEC first!), then reinstall
 cd C:\path\to\your-app
-devflow cursor install --scope repo
+devflow-ai cursor install --scope repo
 ```
 
 ---
@@ -335,7 +345,7 @@ Detail: [docs/DEV_LOOP.md](docs/DEV_LOOP.md). Existing-repo principles: [docs/DE
 
 ```powershell
 cd C:\path\to\your-app
-devflow cursor install --scope repo
+devflow-ai install --scope repo
 ```
 
 1. Edit **`artifacts/SPEC.md`**; attach **`@artifacts/SPEC.md`** and run prelude skills as needed (`/understand`, `/grillme`, …).
@@ -359,7 +369,7 @@ devflow/
 ├── devflow.context.yaml  # context_dir (default: artifacts)
 ├── artifacts/            # workflow context (configurable)
 │   └── SPEC.md           # Your product spec — edit or @-attach in chat
-├── devflow/              # Python CLI package
+├── devflow_ai/           # Python CLI package (PyPI: devflow-ai)
 ├── core/
 │   ├── AGENTS.md         # Canonical agent harness (edit here)
 │   ├── skills/           # Canonical SKILL.md modules
@@ -395,7 +405,7 @@ devflow/
 
 ## Status
 
-**v1** — Dev Loop, CLI (`devflow cursor|claude|copilot install`), and multi-agent sync are in place. See [artifacts/SPEC.md](artifacts/SPEC.md).
+**v1** — Dev Loop, CLI (`devflow-ai cursor|claude|copilot install`), and multi-agent sync are in place. See [artifacts/SPEC.md](artifacts/SPEC.md).
 
 ## Contributing
 

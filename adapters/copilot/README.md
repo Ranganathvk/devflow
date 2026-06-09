@@ -21,9 +21,9 @@ Copilot also reads `.claude/skills/` for backward compatibility; devflow uses th
 ## Install
 
 ```bash
-devflow copilot install
-devflow copilot install --scope repo -p /path/to/your-app
-devflow copilot install --scope global
+devflow-ai copilot install
+devflow-ai copilot install --scope repo -p /path/to/your-app
+devflow-ai copilot install --scope global
 ```
 
 ## Discovery
@@ -34,7 +34,7 @@ devflow copilot install --scope global
 
 ## Rules
 
-- **Edit `core/skills/`**, not `.github/skills/` — then re-run `devflow copilot install`.
+- **Edit `core/skills/`**, not `.github/skills/` — then re-run `devflow-ai copilot install`.
 - Read `artifacts/SPEC.md` before non-trivial work.
 
 See [docs/GETTING_STARTED.md](../../docs/GETTING_STARTED.md) and [core/AGENTS.md](../../core/AGENTS.md).

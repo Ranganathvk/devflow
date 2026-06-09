@@ -58,6 +58,12 @@ if [[ ! -f "$TARGET/$CONTEXT_DIR/PROJECT_STATE.md" ]]; then
   echo "Seeded $CONTEXT_DIR/PROJECT_STATE.md"
 fi
 
+if [[ -d "$FRAMEWORK_ROOT/core/contracts" ]]; then
+  mkdir -p "$TARGET/$CONTEXT_DIR/contracts"
+  cp -R "$FRAMEWORK_ROOT/core/contracts"/. "$TARGET/$CONTEXT_DIR/contracts"/
+  echo "Synced core/contracts -> $CONTEXT_DIR/contracts/"
+fi
+
 REPO_ROOT="$TARGET" "$FRAMEWORK_ROOT/installer/sync-cursor.sh"
 
 cat <<EOF
