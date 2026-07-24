@@ -16,20 +16,20 @@ This skill discovers stack, build/test tooling, module boundaries, and package l
 ## When to invoke
 
 - `/workspace-scan` — first step on an attached repo (before `/convention-detect`).
-- When `AI_CONTEXT/PROJECT_OVERVIEW.*` is missing or **stale** after major repo restructuring.
+- When `artifacts/PROJECT_OVERVIEW.*` is missing or **stale** after major repo restructuring.
 - Do **not** invoke when only refreshing coding conventions — use `/convention-detect` instead.
 - Do **not** use when shaping a new product from empty spec — use `/grillme` and `/system-hld` instead.
 
 ## Inputs
 
 - **Required:** Consumer repository tree (root and immediate children; build/config manifests).
-- **Optional:** `AI_CONTEXT/SPEC.md` (if present — use only to cross-check product name/boundary, not as primary evidence).
-- **Optional:** Existing `AI_CONTEXT/PROJECT_OVERVIEW.md` (refresh mode only when human asks to preserve intentional edits).
+- **Optional:** `artifacts/SPEC.md` (if present — use only to cross-check product name/boundary, not as primary evidence).
+- **Optional:** Existing `artifacts/PROJECT_OVERVIEW.md` (refresh mode only when human asks to preserve intentional edits).
 - **Forbidden:** Unbounded chat history; loading entire source trees; inventing modules not evidenced by paths or config; redesigning architecture.
 
 ## Workflow
 
-1. Ensure `AI_CONTEXT/` exists; create the directory if missing.
+1. Ensure `artifacts/` exists; create the directory if missing.
 2. **Orientation pass (surgical):** Inspect only what bounds the repo:
    - Root: `README*`, `package.json`, `pom.xml`, `build.gradle*`, `Cargo.toml`, `go.mod`, `pyproject.toml`, `requirements*.txt`, `Makefile`, `docker-compose*`, `*.sln`, `Directory.Build.props`, etc.
    - Top-level directories (one level); note obvious app vs library vs infra splits.
@@ -37,8 +37,8 @@ This skill discovers stack, build/test tooling, module boundaries, and package l
    - Test entrypoints: `jest.config*`, `vitest.config*`, `pytest.ini`, `*_test.go` patterns in test dirs (count dirs, do not read all tests).
 3. For each **major boundary** identified, read **at most** 1–2 representative files (e.g. main entry, root module `__init__`, or a single package README) to confirm role — not every file in the tree.
 4. Record findings with **evidence paths** (file or directory). Unknowns → `TBD` or `open_gaps` — never guess frameworks from folder names alone without a manifest.
-5. Write `AI_CONTEXT/PROJECT_OVERVIEW.md` using the skeleton below (target **≤ ~120 lines**).
-6. Write `AI_CONTEXT/PROJECT_OVERVIEW.contract.yaml` using the YAML shape below.
+5. Write `artifacts/PROJECT_OVERVIEW.md` using the skeleton below (target **≤ ~120 lines**).
+6. Write `artifacts/PROJECT_OVERVIEW.contract.yaml` using the YAML shape below.
 7. Cross-check: every contract list item traces to a path in `evidence` or is explicitly in `open_gaps`.
 8. **STOP.** Chat reply only: paths written, top-level boundaries (bullets), numbered `open_gaps`, suggested next: `/understand` (if conventions also needed) or `/convention-detect` (conventions only). Do **not** chain feature work in the same invocation.
 
@@ -46,8 +46,8 @@ This skill discovers stack, build/test tooling, module boundaries, and package l
 
 | Path | Change | Notes |
 |------|--------|-------|
-| `AI_CONTEXT/PROJECT_OVERVIEW.md` | Created or replaced | Concise orientation; ≤ ~120 lines target |
-| `AI_CONTEXT/PROJECT_OVERVIEW.contract.yaml` | Created or replaced | Machine handoff for downstream skills |
+| `artifacts/PROJECT_OVERVIEW.md` | Created or replaced | Concise orientation; ≤ ~120 lines target |
+| `artifacts/PROJECT_OVERVIEW.contract.yaml` | Created or replaced | Machine handoff for downstream skills |
 
 No other files written or edited.
 

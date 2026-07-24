@@ -10,7 +10,7 @@ description: >-
 
 ## Purpose
 
-Pop **one** task from an **approved** `AI_CONTEXT/<FEATURE>_TASKS.contract.yaml` queue and implement with minimal blast radius.
+Pop **one** task from an **approved** `{context_dir}/<FEATURE>_TASKS.contract.yaml` queue and implement with minimal blast radius.
 
 Updates `current_task` on the tasks contract; `/snapshot` marks `done`.
 
@@ -31,7 +31,7 @@ Updates `current_task` on the tasks contract; `/snapshot` marks `done`.
 ## Workflow
 
 1. **Resolve** `<FEATURE>` from argument or discovery.
-2. **Load** `*_TASKS.contract.yaml` and `AI_CONTEXT/<FEATURE>.contract.yaml`.
+2. **Load** `*_TASKS.contract.yaml` and `{context_dir}/<FEATURE>.contract.yaml`.
 3. **Gates:** `tasks_status: approved`; `design_status: approved`; when `design_stages.compat.blocking` present it must not be true.
 4. **In-flight gate:** if `current_task` with task `in_progress` → stop; `/review` → `/snapshot` first.
 5. **Select next task:** `pending` + `depends_on` satisfied; use `ordered_sequence` when present.

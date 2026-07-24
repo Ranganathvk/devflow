@@ -13,9 +13,9 @@ awaiting_approval: clarify
 current_task: null
 approved_at: null
 
-understand_contract_path: AI_CONTEXT/UNDERSTAND.contract.yaml
-conventions_contract_path: AI_CONTEXT/CONVENTIONS.contract.yaml
-feature_contract_path: AI_CONTEXT/OTP_LOGIN.contract.yaml
+understand_contract_path: "{context_dir}/UNDERSTAND.contract.yaml"
+conventions_contract_path: "{context_dir}/CONVENTIONS.contract.yaml"
+feature_contract_path: "{context_dir}/OTP_LOGIN.contract.yaml"
 
 summary: "<one paragraph>"
 

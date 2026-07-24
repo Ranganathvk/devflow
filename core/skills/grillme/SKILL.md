@@ -16,13 +16,13 @@ The **human provides SPEC** (product intent). This skill **interviews** to close
 |-------------------------|--------------|-----------|
 | **HLD only** | `SYSTEM_HLD.md` + `SYSTEM_HLD.contract.yaml` | Read-only baseline |
 | **LLD only** | `<FEATURE>_DESIGN.md` + `<FEATURE>.contract.yaml` | Read-only baseline |
-| **SPEC refinement** | `AI_CONTEXT/SPEC.md` | Active write target |
+| **SPEC refinement** | `{context_dir}/SPEC.md` | Active write target |
 
-Typical flow: attach or maintain **`AI_CONTEXT/SPEC.md`**, then **`/grillme hld`** or **`/grillme lld <FEATURE>`** — no SPEC rewriting unless the human explicitly wants spec refinement.
+Typical flow: attach or maintain **`{context_dir}/SPEC.md`**, then **`/grillme hld`** or **`/grillme lld <FEATURE>`** — no SPEC rewriting unless the human explicitly wants spec refinement.
 
 ## SPEC abstraction (high-level only)
 
-`AI_CONTEXT/SPEC.md` holds **product / high-level intent** — the same bar as `core/templates/SPEC.template.md` § Abstraction level.
+`{context_dir}/SPEC.md` holds **product / high-level intent** — the same bar as `core/templates/SPEC.template.md` § Abstraction level.
 
 | In SPEC | Not in SPEC (use HLD or LLD) |
 |---------|------------------------------|
@@ -51,8 +51,8 @@ Typical flow: attach or maintain **`AI_CONTEXT/SPEC.md`**, then **`/grillme hld`
 
 ## SPEC as input (default)
 
-1. **Required input:** `AI_CONTEXT/SPEC.md` — read in full before any question or write. Treat it as **given intent** unless the session target is **`spec`** refinement.
-2. **Human may also** `@`-attach SPEC in chat or paste a delta; use that for the session, but the **durable** SPEC is still `AI_CONTEXT/SPEC.md`. Persist chat-only SPEC text **only** when `grill_target: spec` or the human asks to save it to the file.
+1. **Required input:** `{context_dir}/SPEC.md` — read in full before any question or write. Treat it as **given intent** unless the session target is **`spec`** refinement.
+2. **Human may also** `@`-attach SPEC in chat or paste a delta; use that for the session, but the **durable** SPEC is still `{context_dir}/SPEC.md`. Persist chat-only SPEC text **only** when `grill_target: spec` or the human asks to save it to the file.
 3. **HLD-only / LLD-only:** Do **not** expand or rewrite SPEC to “fill in” design detail. Record unresolved intent gaps in the **HLD/LLD** artifact (`Open questions`, contract `open_questions`) and ask the human — or suggest a separate **`/grillme spec`** session if intent itself is wrong.
 4. **Intent-level contradiction** (answer conflicts SPEC): Ask **one** resolution question — update SPEC **only** if the human chooses to change intent; otherwise narrow the HLD/LLD decision to stay consistent with SPEC.
 
@@ -103,7 +103,7 @@ If `grill_target: lld` and `feature_id` is unknown: **one** question to confirm 
 
 | Input | Role |
 |-------|------|
-| `AI_CONTEXT/SPEC.md` | **Always required** — human-provided intent; full read every turn |
+| `{context_dir}/SPEC.md` | **Always required** — human-provided intent; full read every turn |
 | `SYSTEM_HLD*` | Read when `grill_target: hld` and files exist |
 | `<FEATURE>_DESIGN*` + contract | Read when `grill_target: lld` and files exist |
 | `FEATURE_SLICES.contract.yaml`, `SYSTEM_HLD.contract.yaml` | Optional context for LLD/HLD |
@@ -144,7 +144,7 @@ Pick **baseline** vs **incremental** from the **active output artifact** (HLD, L
 |----------------|----------|------|
 | `hld` | `SYSTEM_HLD.md`, `SYSTEM_HLD.contract.yaml` | **Read-only** (exception: human explicitly revises intent → one resolution, then optional SPEC edit) |
 | `lld` | `<FEATURE>_DESIGN.md`, `<FEATURE>.contract.yaml` | **Read-only** (same exception) |
-| `spec` | `AI_CONTEXT/SPEC.md` | Active target |
+| `spec` | `{context_dir}/SPEC.md` | Active target |
 
 No application code or other feature artifacts.
 
@@ -154,12 +154,12 @@ Stem + stacked **A / B / C** options + **Recommended** — for output gate, feat
 
 ## Context budget
 
-- **Every turn:** `AI_CONTEXT/SPEC.md` in full.
+- **Every turn:** `{context_dir}/SPEC.md` in full.
 - **When active:** HLD or LLD artifact + contract; prefer contracts over long prose when sufficient.
 
 ## Failure handling
 
-- **SPEC missing** — Stop; human must provide or create `AI_CONTEXT/SPEC.md` (e.g. from `core/templates/SPEC.template.md`) before HLD/LLD grilling.
+- **SPEC missing** — Stop; human must provide or create `{context_dir}/SPEC.md` (e.g. from `core/templates/SPEC.template.md`) before HLD/LLD grilling.
 - **HLD only but SPEC cannot bound structure** — One question: add minimal intent via `/grillme spec` vs proceed with explicit TBDs in HLD — do not invent product scope in SPEC silently.
 - **LLD only vs approved design conflict** — One resolution (replace / narrow / defer).
 - **Vague delta** — One clarifying question before writes.

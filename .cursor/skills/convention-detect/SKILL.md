@@ -16,22 +16,22 @@ This skill samples representative files guided by `PROJECT_OVERVIEW` boundaries 
 ## When to invoke
 
 - `/convention-detect` — immediately after `/workspace-scan` (or when overview exists but conventions are missing/stale).
-- When `AI_CONTEXT/CONVENTIONS.*` is missing or **stale** after large codebase style changes.
+- When `artifacts/CONVENTIONS.*` is missing or **stale** after large codebase style changes.
 - Do **not** invoke before `PROJECT_OVERVIEW` exists — run `/workspace-scan` first.
 - Do **not** use for repo layout discovery — that is `/workspace-scan`.
 
 ## Inputs
 
-- **Required:** `AI_CONTEXT/PROJECT_OVERVIEW.contract.yaml` — read in full for `modules`, `languages`, `frameworks`, and `test` hints.
-- **Required (fallback):** `AI_CONTEXT/PROJECT_OVERVIEW.md` — only if contract is missing; then stop after writing conventions and note contract should be regenerated via `/workspace-scan`.
+- **Required:** `artifacts/PROJECT_OVERVIEW.contract.yaml` — read in full for `modules`, `languages`, `frameworks`, and `test` hints.
+- **Required (fallback):** `artifacts/PROJECT_OVERVIEW.md` — only if contract is missing; then stop after writing conventions and note contract should be regenerated via `/workspace-scan`.
 - **Required:** Representative source samples from the consumer repo (see workflow).
 - **Optional:** Linter/formatter configs (`.editorconfig`, `eslint*`, `prettier*`, `ruff.toml`, `checkstyle.xml`, etc.).
-- **Optional:** `AI_CONTEXT/SPEC.md` — cross-check only; never override code evidence.
+- **Optional:** `artifacts/SPEC.md` — cross-check only; never override code evidence.
 - **Forbidden:** Unbounded chat history; reading every file in the repo; inventing conventions without evidence; editing application source.
 
 ## Workflow
 
-1. Load `AI_CONTEXT/PROJECT_OVERVIEW.contract.yaml`. If missing, stop and direct human to `/workspace-scan`.
+1. Load `artifacts/PROJECT_OVERVIEW.contract.yaml`. If missing, stop and direct human to `/workspace-scan`.
 2. Build a **sampling plan** from `modules[]` (max **4 modules**, prioritize those marked as application/core over tooling if many exist):
    - Per module: pick **2–4 files** total across the convention areas below (reuse files when one file shows multiple patterns).
    - Prefer: one service/handler, one model/DTO/entity (if layer exists), one test file, one config entrypoint.
@@ -48,8 +48,8 @@ This skill samples representative files guided by `PROJECT_OVERVIEW` boundaries 
    | **Testing** | Framework, file layout (`*_test`, `*.spec`), fixtures, mocks, assertion style, coverage hooks |
 
 4. Use IDE search (symbols, references) sparingly to confirm a pattern appears in **more than one** file when claiming a repo-wide rule; otherwise label **local / module-only**.
-5. Write `AI_CONTEXT/CONVENTIONS.md` using the skeleton below (target **≤ ~150 lines**).
-6. Write `AI_CONTEXT/CONVENTIONS.contract.yaml` using the YAML shape below.
+5. Write `artifacts/CONVENTIONS.md` using the skeleton below (target **≤ ~150 lines**).
+6. Write `artifacts/CONVENTIONS.contract.yaml` using the YAML shape below.
 7. Cross-check: each `conventions.*` entry has `evidence[]` or is listed in `open_gaps`.
 8. **STOP.** Chat reply: paths written, bullet summary per convention area, numbered `open_gaps`, suggested next step: `/understand "<change>"` or `/design <FEATURE>` per [BROWNFIELD_DEV_LOOP.md](../../docs/BROWNFIELD_DEV_LOOP.md). Do **not** chain feature design or implementation.
 
@@ -57,8 +57,8 @@ This skill samples representative files guided by `PROJECT_OVERVIEW` boundaries 
 
 | Path | Change | Notes |
 |------|--------|-------|
-| `AI_CONTEXT/CONVENTIONS.md` | Created or replaced | Human-readable conventions; ≤ ~150 lines target |
-| `AI_CONTEXT/CONVENTIONS.contract.yaml` | Created or replaced | Machine handoff for feature skills |
+| `artifacts/CONVENTIONS.md` | Created or replaced | Human-readable conventions; ≤ ~150 lines target |
+| `artifacts/CONVENTIONS.contract.yaml` | Created or replaced | Machine handoff for feature skills |
 
 No other files written or edited.
 
@@ -74,7 +74,7 @@ No other files written or edited.
 | Field | Value |
 |-------|-------|
 | Detected | YYYY-MM-DD |
-| Overview ref | AI_CONTEXT/PROJECT_OVERVIEW.contract.yaml |
+| Overview ref | artifacts/PROJECT_OVERVIEW.contract.yaml |
 | Revision | initial \| refreshed |
 
 ## 1. Summary
@@ -135,7 +135,7 @@ contract_version: "1"
 artifact: conventions
 workflow_profile: devflow
 detected_at: "YYYY-MM-DD"
-project_overview_contract_path: AI_CONTEXT/PROJECT_OVERVIEW.contract.yaml
+project_overview_contract_path: artifacts/PROJECT_OVERVIEW.contract.yaml
 
 summary: "<one paragraph>"
 

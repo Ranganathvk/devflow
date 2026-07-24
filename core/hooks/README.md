@@ -2,7 +2,7 @@
 
 Canonical hook scripts and manifests.
 
-## Allowed responsibilities (from `AI_CONTEXT/SPEC.md`)
+## Allowed responsibilities (from `artifacts/SPEC.md`)
 
 Hooks may **only**:
 

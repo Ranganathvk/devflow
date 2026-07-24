@@ -35,4 +35,4 @@ build/
 
 # Consumer workflow outputs (when dogfooding or testing install locally)
 # Uncomment if you prefer not to commit generated contracts in attached repos:
-# AI_CONTEXT/*.contract.yaml
+# artifacts/*.contract.yaml

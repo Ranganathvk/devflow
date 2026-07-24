@@ -11,7 +11,7 @@ description: >-
 
 Turn **system shape** into **implementable vertical slices**: a small set of named features (e.g. `AUTH`, `INSTALLER`) each owning an end-to-end cut of behavior, with explicit **dependencies**, **boundaries**, and **traceability** back to `SYSTEM_HLD` — without starting per-feature design, DB, or API work.
 
-Outputs are **paired** artifacts under `AI_CONTEXT/` so Stage 3 skills load **contracts**, not mega prose (per framework context strategy).
+Outputs are **paired** artifacts under `artifacts/` so Stage 3 skills load **contracts**, not mega prose (per framework context strategy).
 
 ## When to invoke
 
@@ -22,7 +22,7 @@ Outputs are **paired** artifacts under `AI_CONTEXT/` so Stage 3 skills load **co
 
 **Large change in existing repo (optional)**
 
-- `/slice` — when `AI_CONTEXT/SPEC.md` **Current change** is large, multi-part, or human says the feature is big.
+- `/slice` — when `artifacts/SPEC.md` **Current change** is large, multi-part, or human says the feature is big.
 - Requires `UNDERSTAND.contract.yaml` (run `/understand` first).
 - Does **not** require `SYSTEM_HLD` — use SPEC blast radius + `PROJECT_OVERVIEW` for boundaries.
 - Set `workflow_profile: devflow` on `FEATURE_SLICES.contract.yaml`; `system_hld_contract_path: null` when no HLD.
@@ -35,12 +35,12 @@ Outputs are **paired** artifacts under `AI_CONTEXT/` so Stage 3 skills load **co
 
 ## Inputs
 
-- **Required:** `AI_CONTEXT/SPEC.md` — read in full.
-- **Required (HLD-driven slice):** `AI_CONTEXT/SYSTEM_HLD.contract.yaml`.
-- **Required (repo-driven slice):** `AI_CONTEXT/UNDERSTAND.contract.yaml` or `PROJECT_OVERVIEW.contract.yaml`.
+- **Required:** `artifacts/SPEC.md` — read in full.
+- **Required (HLD-driven slice):** `artifacts/SYSTEM_HLD.contract.yaml`.
+- **Required (repo-driven slice):** `artifacts/UNDERSTAND.contract.yaml` or `PROJECT_OVERVIEW.contract.yaml`.
 - **Optional:** `SYSTEM_HLD.contract.yaml` if it exists alongside repo orientation artifacts.
-- **Optional:** `AI_CONTEXT/SYSTEM_HLD.md` — read only if the contract has `null`/empty lists that block safe slicing; prefer closing gaps via `open_questions` over inventing scope.
-- **Optional:** `AI_CONTEXT/PROJECT_STATE.md` for active feature focus or human notes.
+- **Optional:** `artifacts/SYSTEM_HLD.md` — read only if the contract has `null`/empty lists that block safe slicing; prefer closing gaps via `open_questions` over inventing scope.
+- **Optional:** `artifacts/PROJECT_STATE.md` for active feature focus or human notes.
 - **Forbidden:** Unbounded chat history as source of truth; inventing features absent from SPEC or `SYSTEM_HLD`; reading full `SYSTEM_HLD.md` by default when the contract suffices.
 
 ## Workflow
@@ -53,10 +53,10 @@ Outputs are **paired** artifacts under `AI_CONTEXT/` so Stage 3 skills load **co
    - Declare **in_scope** bullets (what this slice owns) and **out_of_scope** bullets (explicit non-ownership to prevent horizontal blobs).
    - List **`depends_on`**: other feature IDs only (empty if none). Graph must be **acyclic**; order features **topologically** in outputs.
 4. **Enforce framework rules from SPEC:** no mega-prompt-sized slices; prefer **fewer, larger** verticals over many micro-tasks unless SPEC already names fine-grained deliverables; respect **out_of_scope** / non-goals — do not create features for explicitly excluded product.
-5. Write `AI_CONTEXT/FEATURE_SLICES.md` using the **skeleton** below. Hard limits:
+5. Write `artifacts/FEATURE_SLICES.md` using the **skeleton** below. Hard limits:
    - Prefer **≤ ~200 lines** total; overflow → `Open questions` bullets, not narrative sprawl.
    - Include **one** Mermaid diagram: **feature dependency** (`flowchart` or `graph` showing IDs and `depends_on` edges) OR a table if a diagram would be noisy for ≤5 features.
-6. Write `AI_CONTEXT/FEATURE_SLICES.contract.yaml` using the **YAML shape** below. Values **SPEC- and contract-grounded**; unknowns → `open_questions` strings, not fabrication.
+6. Write `artifacts/FEATURE_SLICES.contract.yaml` using the **YAML shape** below. Values **SPEC- and contract-grounded**; unknowns → `open_questions` strings, not fabrication.
 7. **Cross-check:**
    - Every feature ID is unique; `depends_on` references only defined IDs; no cycles.
    - Every `logical_containers[].id` from `SYSTEM_HLD.contract.yaml` is **mapped** to at least one feature’s `primary_containers` **or** called out under top-level `open_questions` with rationale (do not leave orphan containers silently).
@@ -67,17 +67,17 @@ Outputs are **paired** artifacts under `AI_CONTEXT/` so Stage 3 skills load **co
 
 | Path | Change | Notes |
 |------|--------|-------|
-| `AI_CONTEXT/FEATURE_SLICES.md` | Created or replaced | Compact; ≤ ~200 lines target |
-| `AI_CONTEXT/FEATURE_SLICES.contract.yaml` | Created or replaced | Machine handoff; shape below |
+| `artifacts/FEATURE_SLICES.md` | Created or replaced | Compact; ≤ ~200 lines target |
+| `artifacts/FEATURE_SLICES.contract.yaml` | Created or replaced | Machine handoff; shape below |
 
-No other files written or edited (including **do not** edit `AI_CONTEXT/SPEC.md`, `SYSTEM_HLD*`, or application code).
+No other files written or edited (including **do not** edit `artifacts/SPEC.md`, `SYSTEM_HLD*`, or application code).
 
 ## `FEATURE_SLICES.md` skeleton
 
 ```markdown
 # Feature slices (vertical plan)
 
-> Sources: AI_CONTEXT/SPEC.md, AI_CONTEXT/SYSTEM_HLD.contract.yaml …
+> Sources: artifacts/SPEC.md, artifacts/SYSTEM_HLD.contract.yaml …
 
 ## Document control
 
@@ -120,8 +120,8 @@ Top-level keys (order flexible; preserve keys for tooling):
 ```yaml
 contract_version: "1"
 artifact: feature_slices
-spec_path: AI_CONTEXT/SPEC.md
-system_hld_contract_path: AI_CONTEXT/SYSTEM_HLD.contract.yaml
+spec_path: artifacts/SPEC.md
+system_hld_contract_path: artifacts/SYSTEM_HLD.contract.yaml
 summary: "<one paragraph: how the product is sliced>"
 
 suggested_sequence: []
@@ -149,8 +149,8 @@ assumptions: []
 
 ## Context budget
 
-- Read in full: `AI_CONTEXT/SPEC.md`, `AI_CONTEXT/SYSTEM_HLD.contract.yaml`.
-- Read `AI_CONTEXT/SYSTEM_HLD.md` only when required fields in the contract are empty and prose is needed to avoid invention.
+- Read in full: `artifacts/SPEC.md`, `artifacts/SYSTEM_HLD.contract.yaml`.
+- Read `artifacts/SYSTEM_HLD.md` only when required fields in the contract are empty and prose is needed to avoid invention.
 - Do **not** load prior chat; when refreshing, read existing `FEATURE_SLICES.*` only if the human asked for a merge — default is **replace** with current inputs.
 
 ## Failure handling
@@ -163,7 +163,7 @@ assumptions: []
 ## Forbidden
 
 - Horizontal-only features (“Database layer”, “All APIs”) as the sole content of a slice.
-- Editing `AI_CONTEXT/SPEC.md` or `SYSTEM_HLD*`.
+- Editing `artifacts/SPEC.md` or `SYSTEM_HLD*`.
 - Per-feature design depth (schemas, endpoints, tickets) — wrong stage.
 - More than **two** output files.
 - **Mega** feature lists — if >12 features, consolidate with human-facing `open_questions` listing merge candidates (do not silently merge without noting tradeoff).

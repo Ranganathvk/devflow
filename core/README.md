@@ -14,4 +14,4 @@ Agent-specific locations (for example `.cursor/`, `.claude/`, `.codex/`, `.winds
 | `core/hooks/` | Canonical hook scripts / manifests (summarize, contract-emit, checkpoint, trim). |
 | `core/AGENTS.md` | Canonical framework agent guidance. |
 
-See `AI_CONTEXT/SPEC.md` for the full design contract.
+See `artifacts/SPEC.md` for the full design contract.

@@ -12,8 +12,8 @@ Canonical boilerplate and document templates consumed by skills, the installer, 
 
 | File | Used for |
 |------|----------|
-| `SPEC.template.md` | Seed for a new consumer repo's `AI_CONTEXT/SPEC.md`. |
-| `PROJECT_STATE.template.md` | Seed for `AI_CONTEXT/PROJECT_STATE.md` (durable state). |
+| `SPEC.template.md` | Seed for a new consumer repo's `{context_dir}/SPEC.md`. |
+| `PROJECT_STATE.template.md` | Seed for `{context_dir}/PROJECT_STATE.md` (durable state). |
 | `SKILL.template.md` | Skeleton for authoring a new skill under `core/skills/`. |
 
 Additional templates (feature design, DB stub, API stub, contract starters) will land in later increments per the SPEC bootstrap sequence.

@@ -34,10 +34,10 @@ Downstream: **`/tdd <FEATURE>`** → **`/tasksplit <FEATURE>`** → **`/implemen
 
 ## Inputs
 
-- **Required:** `AI_CONTEXT/SPEC.md`
-- **Required (existing repo):** `AI_CONTEXT/CONVENTIONS.contract.yaml` and `AI_CONTEXT/UNDERSTAND.contract.yaml` or `PROJECT_OVERVIEW.contract.yaml` — if missing, suggest `/understand` first
-- **Optional:** `AI_CONTEXT/FEATURE_SLICES.contract.yaml` — scope when `/slice` ran
-- **Optional:** `AI_CONTEXT/SYSTEM_HLD.contract.yaml`
+- **Required:** `artifacts/SPEC.md`
+- **Required (existing repo):** `artifacts/CONVENTIONS.contract.yaml` and `artifacts/UNDERSTAND.contract.yaml` or `PROJECT_OVERVIEW.contract.yaml` — if missing, suggest `/understand` first
+- **Optional:** `artifacts/FEATURE_SLICES.contract.yaml` — scope when `/slice` ran
+- **Optional:** `artifacts/SYSTEM_HLD.contract.yaml`
 - **Required for work:** Consumer repo when impact/research/db/api touch code
 - **Forbidden:** Unbounded chat as spec; inventing scope the human has not confirmed
 
@@ -92,7 +92,7 @@ When uncertain, **ask one targeted question** in clarify/design — do not defau
 ## Stage stop message
 
 ```text
-Design stage complete: <STAGE> — read AI_CONTEXT/<FEATURE>_DESIGN.md § "<section>".
+Design stage complete: <STAGE> — read artifacts/<FEATURE>_DESIGN.md § "<section>".
 
 Edit for corrections. When satisfied, reply approved or:
   /design <FEATURE> approved
@@ -106,10 +106,10 @@ Then: /tdd <FEATURE> → /tasksplit <FEATURE> → /implement-next (after design_
 
 | Path | When |
 |------|------|
-| `AI_CONTEXT/<FEATURE>_DESIGN.md` | Always (updated each stage) |
-| `AI_CONTEXT/<FEATURE>.contract.yaml` | Always |
-| `AI_CONTEXT/<FEATURE>_DB.md` + `_DB.contract.yaml` | `needs_db: true` (stage `db`) |
-| `AI_CONTEXT/<FEATURE>_API.md` + `_API.contract.yaml` | `needs_api: true` (stage `api`) |
+| `artifacts/<FEATURE>_DESIGN.md` | Always (updated each stage) |
+| `artifacts/<FEATURE>.contract.yaml` | Always |
+| `artifacts/<FEATURE>_DB.md` + `_DB.contract.yaml` | `needs_db: true` (stage `db`) |
+| `artifacts/<FEATURE>_API.md` + `_API.contract.yaml` | `needs_api: true` (stage `api`) |
 
 No application source edits.
 
@@ -124,9 +124,9 @@ design_status: draft
 awaiting_approval: clarify
 title: "<from clarify>"
 
-spec_path: AI_CONTEXT/SPEC.md
-understand_contract_path: AI_CONTEXT/UNDERSTAND.contract.yaml
-conventions_contract_path: AI_CONTEXT/CONVENTIONS.contract.yaml
+spec_path: artifacts/SPEC.md
+understand_contract_path: artifacts/UNDERSTAND.contract.yaml
+conventions_contract_path: artifacts/CONVENTIONS.contract.yaml
 feature_slices_contract_path: null
 
 design_stages:
@@ -158,7 +158,7 @@ open_questions: []
 contract_version: "1"
 artifact: feature_db
 feature_id: "<FEATURE>"
-feature_contract_path: AI_CONTEXT/<FEATURE>.contract.yaml
+feature_contract_path: artifacts/<FEATURE>.contract.yaml
 summary: "<one sentence>"
 persistence: { primary_store: sql | document | kv | file | none | TBD }
 entities: []
@@ -173,7 +173,7 @@ open_questions: []
 contract_version: "1"
 artifact: feature_api
 feature_id: "<FEATURE>"
-feature_contract_path: AI_CONTEXT/<FEATURE>.contract.yaml
+feature_contract_path: artifacts/<FEATURE>.contract.yaml
 summary: "<one sentence>"
 style: { protocol: rest | grpc | graphql | cli | in_process | event | TBD }
 operations: []

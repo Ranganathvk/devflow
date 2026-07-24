@@ -2,18 +2,18 @@
 name: understand
 description: >-
   Repo orientation (workspace-scan + convention-detect) and optional SPEC delta refinement.
-  Human provides AI_CONTEXT/SPEC.md (edit or @-attach in chat); agent grill-updates that file
+  Human provides artifacts/SPEC.md (edit or @-attach in chat); agent grill-updates that file
   with blast-radius analysis. Invoke /understand when working in an existing codebase.
 ---
 
-# /understand — attach `AI_CONTEXT/SPEC.md`
+# /understand — attach `artifacts/SPEC.md`
 
 ## Purpose
 
 **One command** for repo onboarding and intent alignment:
 
 1. **Orientation** — how the repo is laid out and how code is written (when artifacts are missing or stale).
-2. **Spec delta** — read **`AI_CONTEXT/SPEC.md`** (human must edit the file or attach `@AI_CONTEXT/SPEC.md` in chat). Refine it grill-style (one question at a time, recommended answers) and record **blast radius** under **Current change**. Do not treat a short slash-command phrase as the spec — the **file** is authoritative.
+2. **Spec delta** — read **`artifacts/SPEC.md`** (human must edit the file or attach `@artifacts/SPEC.md` in chat). Refine it grill-style (one question at a time, recommended answers) and record **blast radius** under **Current change**. Do not treat a short slash-command phrase as the spec — the **file** is authoritative.
 
 Downstream: **`/design <FEATURE>`**.
 
@@ -22,7 +22,7 @@ Downstream: **`/design <FEATURE>`**.
 | Invocation | When |
 |------------|------|
 | `/understand` | First time on repo, or refresh overview/conventions |
-| `/understand` + `@AI_CONTEXT/SPEC.md` | Orientation (if needed) + SPEC delta from the attached/edited file |
+| `/understand` + `@artifacts/SPEC.md` | Orientation (if needed) + SPEC delta from the attached/edited file |
 | `/understand` (SPEC already has **Current change**) | SPEC-only pass when overview/conventions already exist |
 
 - Do **not** use when starting from an empty spec with no repo — use `/grillme` first.
@@ -31,7 +31,7 @@ Downstream: **`/design <FEATURE>`**.
 ## Inputs
 
 - **Required (orientation):** Consumer repository tree.
-- **Required (spec delta):** `AI_CONTEXT/SPEC.md` — human-edited or attached in chat; create from `core/templates/SPEC.template.md` if missing.
+- **Required (spec delta):** `artifacts/SPEC.md` — human-edited or attached in chat; create from `core/templates/SPEC.template.md` if missing.
 - **Optional:** One-line hint in the message (feature name only) — must not replace content in `SPEC.md`.
 - **Optional:** Existing overview/conventions — refresh only when human requests.
 - **Forbidden:** Unbounded chat as requirements; whole-repo dumps; editing application source.
@@ -42,10 +42,10 @@ Downstream: **`/design <FEATURE>`**.
 
 Run when `PROJECT_OVERVIEW.contract.yaml` or `CONVENTIONS.contract.yaml` is missing, stale, or human asked for refresh:
 
-1. Ensure `AI_CONTEXT/` exists.
+1. Ensure `artifacts/` exists.
 2. **Stage A** — [workspace-scan](../workspace-scan/SKILL.md) steps 2–7 → `PROJECT_OVERVIEW.*`
 3. **Stage B** — [convention-detect](../convention-detect/SKILL.md) steps 1–7 → `CONVENTIONS.*`
-4. Write `AI_CONTEXT/UNDERSTAND.contract.yaml` rollup (shape below).
+4. Write `artifacts/UNDERSTAND.contract.yaml` rollup (shape below).
 
 If both artifacts already exist and the invocation is **spec-delta only**, set `stages.workspace_scan` / `convention_detect` to `skipped` in rollup and do not rescan unless human requested refresh.
 
@@ -69,7 +69,7 @@ Additionally:
 **STOP after spec-delta work** (when no `/design` in same invocation):
 
 ```text
-SPEC updated for current change. Review: AI_CONTEXT/SPEC.md (sections Current change, …)
+SPEC updated for current change. Review: artifacts/SPEC.md (sections Current change, …)
 
 When intent is clear enough, derive a feature ID and run:
   /slice          (optional — if the change is large)
@@ -87,12 +87,12 @@ Do **not** run `/design`, `/tdd`, or `/implement-next` in the same invocation.
 
 | Path | When |
 |------|------|
-| `AI_CONTEXT/PROJECT_OVERVIEW.md` | Orientation |
-| `AI_CONTEXT/PROJECT_OVERVIEW.contract.yaml` | Orientation |
-| `AI_CONTEXT/CONVENTIONS.md` | Orientation |
-| `AI_CONTEXT/CONVENTIONS.contract.yaml` | Orientation |
-| `AI_CONTEXT/UNDERSTAND.contract.yaml` | Always refresh rollup |
-| `AI_CONTEXT/SPEC.md` | Spec delta mode only |
+| `artifacts/PROJECT_OVERVIEW.md` | Orientation |
+| `artifacts/PROJECT_OVERVIEW.contract.yaml` | Orientation |
+| `artifacts/CONVENTIONS.md` | Orientation |
+| `artifacts/CONVENTIONS.contract.yaml` | Orientation |
+| `artifacts/UNDERSTAND.contract.yaml` | Always refresh rollup |
+| `artifacts/SPEC.md` | Spec delta mode only |
 
 ## `UNDERSTAND.contract.yaml` shape
 
@@ -102,9 +102,9 @@ artifact: understand
 workflow_profile: devflow
 completed_at: "YYYY-MM-DD"
 
-project_overview_contract_path: AI_CONTEXT/PROJECT_OVERVIEW.contract.yaml
-conventions_contract_path: AI_CONTEXT/CONVENTIONS.contract.yaml
-spec_path: AI_CONTEXT/SPEC.md
+project_overview_contract_path: artifacts/PROJECT_OVERVIEW.contract.yaml
+conventions_contract_path: artifacts/CONVENTIONS.contract.yaml
+spec_path: artifacts/SPEC.md
 
 summary: "<stack + style + current change one-liner if any>"
 

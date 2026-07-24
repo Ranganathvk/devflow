@@ -11,7 +11,7 @@ Thank you for helping improve **devflow**. This repo is a **framework** (skills,
 | Doc templates | `core/templates/` | — |
 | Contract schemas | `core/contracts/` | — |
 | Cursor discovery notes | `adapters/cursor/README.md` | — |
-| Product spec for **this** framework | `AI_CONTEXT/SPEC.md` | — |
+| Product spec for **this** framework | `artifacts/SPEC.md` | — |
 
 After changing `core/`, run:
 
@@ -27,7 +27,7 @@ Commit both `core/` and the updated `.cursor/` mirror so Cursor users get change
 
 ## Skill design rules
 
-From [AI_CONTEXT/SPEC.md](AI_CONTEXT/SPEC.md):
+From [artifacts/SPEC.md](artifacts/SPEC.md):
 
 - **Small and bounded** — no mega-skills; compose orchestration instead.
 - **Explicit I/O** — required inputs, forbidden inputs, exact outputs, files mutated.
@@ -51,7 +51,7 @@ Open a GitHub issue with:
 - Agent/tool (Cursor, Claude Code, etc.)
 - Slash command invoked
 - Expected vs actual behavior
-- Whether `AI_CONTEXT/SPEC.md` and relevant `*.contract.yaml` exist
+- Whether `artifacts/SPEC.md` and relevant `*.contract.yaml` exist
 
 ## License
 
