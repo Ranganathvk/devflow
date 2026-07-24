@@ -36,6 +36,7 @@ One workflow for all projects. **Optional prelude** skills depend on repo state.
 |-------|------|
 | `/grillme` | Spec is thin, fuzzy, or needs interview-driven refinement |
 | `/understand` | Existing codebase — orientation + SPEC delta + blast radius |
+| `/improve-code-architecture` | Brownfield — scan for deepening opportunities; markdown report then grill |
 | `/system-hld` | System shape needed before slicing |
 | `/slice` | Large scope — feature catalog before per-feature work |
 
