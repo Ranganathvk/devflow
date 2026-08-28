@@ -53,6 +53,7 @@ One workflow for all projects. **Optional prelude** skills depend on repo state.
 | `/to-spec` | Requirements document exists — synthesize `artifacts/SPEC.md` (no interview) |
 | `/grillme` | Spec is thin, fuzzy, or needs interview-driven refinement |
 | `/understand` | Existing codebase — targeted investigation + PLAN |
+| `/improve-code-architecture` | Brownfield — scan for deepening opportunities; markdown report then grill |
 | `/system-hld` | System shape needed before slicing |
 | `/slice` | Large scope — feature catalog before per-feature work |
 
