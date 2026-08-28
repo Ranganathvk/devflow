@@ -54,7 +54,10 @@ $canonical = Get-ChildItem -Path $coreSkills -Directory | Where-Object {
 $keep = @{}
 foreach ($skill in $canonical) {
     $destDir = Join-Path $cursorSkills $skill.Name
-    New-Item -ItemType Directory -Force -Path $destDir | Out-Null
+    if (Test-Path $destDir) {
+        Remove-Item -Path $destDir -Recurse -Force
+    }
+    Copy-Item -Path $skill.FullName -Destination $destDir -Recurse
     $skillPath = Join-Path $skill.FullName "SKILL.md"
     $skillText = Expand-ContextPaths -Content (Get-Content $skillPath -Raw) -ContextDir $ContextDir
     Set-Content -Path (Join-Path $destDir "SKILL.md") -Value $skillText -NoNewline

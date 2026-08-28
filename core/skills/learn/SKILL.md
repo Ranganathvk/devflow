@@ -1,52 +1,49 @@
 ---
 name: learn
 description: >-
-  After /snapshot <TASK_ID>, distills durable lessons into {context_dir}/LEARNINGS.md (append)
-  and optionally {context_dir}/<FEATURE>_C<n>_LEARN.contract.yaml for automation. Closes the
-  implement → review → debug → snapshot loop for knowledge retention.
+  Optional. After a task is done on the TASKS contract, distills durable lessons into
+  {context_dir}/LEARNINGS.md (append) and optionally a LEARN contract. /review artifacts
+  are optional inputs.
 ---
 
-# /learn — Durable lessons after a verified task
+# /learn — Durable lessons after a completed task
 
 ## Purpose
 
-Turn a **completed, snapshotted** task into **compact, reusable knowledge** for the team and future agents: what worked, what surprised us, what to avoid, and which contracts or tests to trust next time. Keeps **`{context_dir}/`** as the durable source of truth per framework rules.
+Turn a **completed** task (status `done` on the tasks contract) into **compact, reusable knowledge**. Keeps **`{context_dir}/`** as the durable source of truth.
+
+`/review` artifacts are optional inputs.
 
 ## When to invoke
 
-- `/learn <TASK_ID>` — immediately after `/snapshot <TASK_ID>` produced `{context_dir}/<FEATURE>_C<n>_SNAPSHOT.contract.yaml`.
-- `/learn <TASK_ID>` — when revisiting an older snapshot to backfill lessons (human-directed).
-- Do **not** invoke before a snapshot exists **unless** the human explicitly requests **“lessons without snapshot”** for a cancelled/aborted task — then set `learn_kind: aborted` in the contract and skip verification claims.
-- Do **not** dump raw logs into `LEARNINGS.md` — summarize.
+- `/learn <TASK_ID>` — after `/implement` marked the task `done`.
+- `/learn <TASK_ID>` — backfill from an older completed task (human-directed).
+- Aborted work: human requests **“lessons without a completed task”** → `learn_kind: aborted`; skip verification claims.
+- Do **not** dump raw logs into `LEARNINGS.md`.
 
 ## Inputs
 
 - **Required:** `<TASK_ID>` matching `^[A-Z][A-Z0-9_]{1,31}:C[1-9][0-9]*$`.
-- **Required:** `{context_dir}/<FEATURE>_C<n>_SNAPSHOT.contract.yaml` when `learn_kind: complete` (default).
-- **Optional:** `{context_dir}/<FEATURE>_C<n>_REVIEW.contract.yaml` — findings / deferred items worth carrying forward.
-- **Optional:** `{context_dir}/<FEATURE>_TASKS.contract.yaml` — task `title` / `risk` for indexing.
-- **Optional:** `{context_dir}/SPEC.md` — only if lessons propose SPEC-level process changes (then list SPEC sections to edit separately; do not silently rewrite SPEC unless human asked).
-- **Forbidden:** Invention of incidents not supported by snapshot/review/implement artifacts.
+- **Required (complete):** matching task row `status: done` on `{context_dir}/<FEATURE>_TASKS.contract.yaml` (legacy plan `done` acceptable).
+- **Optional:** `{context_dir}/<FEATURE>_C<n>_REVIEW.contract.yaml`.
+- **Optional:** `{context_dir}/SPEC.md` if lessons propose process changes (list sections; do not silently rewrite SPEC).
+- **Forbidden:** Inventing incidents not supported by implement/review/task artifacts.
 
 ## Workflow
 
-1. **Parse** `<TASK_ID>` → `<FEATURE>`, `C<n>`, `basename = "<FEATURE>_C<n>"`.
-2. **Load** snapshot contract. If missing and not in **aborted** mode → **stop**; run `/snapshot` first.
-3. **Extract** 3–7 bullet lessons (max): patterns, pitfalls, test gaps closed, contract ambiguities discovered, operational commands worth standardizing.
-4. **Append** to `{context_dir}/LEARNINGS.md`:
-   - Create the file with a one-line header if missing: `# Project learnings (append-only, newest at bottom)` (or match existing file style if present).
-   - New section: `## <YYYY-MM-DD> — <TASK_ID> (<FEATURE> C<n>)` followed by bullets + optional **“Follow-ups”** sub-list (SPEC edits, new TC-* ideas) **without** implementing them here.
-5. **Write** `{context_dir}/<FEATURE>_C<n>_LEARN.contract.yaml` using the **YAML shape** below (keeps machine consumers independent of prose layout).
-6. **Chat reply (brief):** Path to learnings + contract, top 1–2 lessons, suggested next task from backlog if applicable.
+1. **Parse** `<TASK_ID>` → `<FEATURE>`, `C<n>`.
+2. **Load** tasks (or legacy plan) row. If not `done` and not aborted → **stop**; finish implement first.
+3. **Extract** 3–7 bullet lessons (max).
+4. **Append** `{context_dir}/LEARNINGS.md` (`## <YYYY-MM-DD> — <TASK_ID>`).
+5. **Write** `{context_dir}/<FEATURE>_C<n>_LEARN.contract.yaml`.
+6. **Chat:** paths, top 1–2 lessons, optional `/implement`.
 
 ## Output artifacts
 
 | Path | Change | Notes |
 |------|--------|-------|
-| `{context_dir}/LEARNINGS.md` | Created or appended | New dated section; avoid bloat |
+| `{context_dir}/LEARNINGS.md` | Created or appended | Dated section |
 | `{context_dir}/<FEATURE>_C<n>_LEARN.contract.yaml` | Created or replaced | Small YAML |
-
-No other files written or edited.
 
 ## `<FEATURE>_C<n>_LEARN.contract.yaml` shape
 
@@ -57,35 +54,29 @@ task_id: "<FEATURE>:C<n>"
 feature_id: "<FEATURE>"
 learn_kind: complete | aborted
 
-snapshot_contract_path: "{context_dir}/<FEATURE>_C<n>_SNAPSHOT.contract.yaml"  # null if aborted
+tasks_contract_path: "{context_dir}/<FEATURE>_TASKS.contract.yaml"
+review_contract_path: null  # set if review YAML exists
 
 lessons: []
-  # - id: "L-001"
-  #   summary: "<one line>"
-  #   category: process | test | design | ops | other
-
 follow_ups: []
-  # - summary: "<proposed next action>"
-  #   owner: human | agent
 ```
 
 ## Context budget
 
-- Read in full: snapshot contract; optional review contract summary fields only.
-- Do **not** re-read entire task/TDD prose.
+- Task row; optional review summary fields. Do not re-read all TDD prose.
 
 ## Failure handling
 
-- **Snapshot missing** → Stop (unless aborted mode with human confirmation).
-- **LEARNINGS.md huge** → Append only; suggest human archive old sections if > ~500 lines.
+- **Task not done** → stop unless aborted mode.
+- **LEARNINGS.md huge** → append only; suggest archive if > ~500 lines.
 
 ## Forbidden
 
-- Deleting or rewriting prior dated sections in `LEARNINGS.md` (append-only discipline).
+- Rewriting prior dated LEARNINGS sections.
 - Claiming lessons not grounded in artifacts.
+- Requiring a review artifact.
 
-## Quality bar (self-check before finishing)
+## Quality bar
 
-- [ ] Dated section exists in `LEARNINGS.md` for this `<TASK_ID>`.
-- [ ] Learn contract lists the same lessons as the prose (IDs optional but consistent).
-- [ ] No verification claims when `learn_kind: aborted`.
+- [ ] Dated LEARNINGS section for this `<TASK_ID>`.
+- [ ] Contract matches prose lessons.

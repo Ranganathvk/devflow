@@ -8,7 +8,7 @@ One line: the vertical feature or stage actively in flight (e.g. `AUTH — /desi
 
 ## Active workflow stage
 
-Pick one: `spec-alignment` / `system-shape` / `design` / `tdd` / `tasksplit` / `implement` / `review` / `debug` / `snapshot` / `learn`.
+Pick one: `spec-alignment` / `system-shape` / `design` / `tdd` / `tasksplit` / `implement` / `review` / `learn`.
 
 ## Recent decisions
 
@@ -28,9 +28,9 @@ Reference task IDs from `/tasksplit` output (e.g. `AUTH:C1`, `AUTH:C2`), not fre
 |---------|-------|-------|
 | `<FEATURE>:C1` | `pending` / `in-progress` / `done` | … |
 
-## Last snapshot
+## Last implementation
 
-Short paragraph or bullets summarizing the last `/snapshot` outcome — what landed, what artifacts updated, what is next.
+Short paragraph or bullets summarizing the last `/implement` outcome — what landed, what artifacts updated, what is next.
 
 ## Notes for the next session
 

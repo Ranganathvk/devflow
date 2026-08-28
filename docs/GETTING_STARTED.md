@@ -4,19 +4,34 @@ This guide walks through using **devflow** in a real project with **Cursor**. Ot
 
 ## What you get
 
-- **Bounded skills** (`/grillme`, `/system-hld`, `/implement`, …) instead of mega-prompts
+- **Bounded skills** (`/to-spec`, `/grillme`, `/system-hld`, `/implement`, …) instead of mega-prompts
 - **Vertical feature delivery** — one slice end-to-end, not "all DB then all APIs"
 - **Contract handoffs** — compact `*.contract.yaml` files downstream skills consume
-- **Human ownership** — review → snapshot on every task; optional `/debug` and `/learn`
+- **Human ownership** — tests and merge quality stay with the human; built-in `/review` is optional (third-party review skills are fine)
 
 Full product definition: [artifacts/SPEC.md](../artifacts/SPEC.md).
+
+## Install from Cursor Customize
+
+1. Open **Customize → Plugins** in Cursor.
+2. Paste `https://github.com/Ranganathvk/devflow`.
+3. Install at **User** scope for all projects or **Project** scope for one
+   workspace.
+4. In the target project, run `/devflow-setup`.
+5. Accept `artifacts` or choose another context folder.
+
+This installs the skills directly from GitHub. The setup skill creates
+`devflow.context.yaml`, `SPEC.md`, and `PROJECT_STATE.md` without overwriting
+existing files. Use the CLI installation below only when you also want the
+framework sources and adapters copied into the consumer repository.
 
 ## Dev Loop (cheat sheet)
 
 ```text
-Optional prelude: /grillme | /understand | /system-hld | /slice
+Optional prelude: /to-spec | /grillme | /understand | /system-hld | /slice
 
-Core loop: /design FEATURE → /tdd → /tasksplit → /implement-next → /review → /snapshot
+Core loop: /design FEATURE → /tdd → /tasksplit → /implement
+# optional: /review or a third-party review skill
 ```
 
 Full guide: **[DEV_LOOP.md](DEV_LOOP.md)**.
@@ -25,7 +40,7 @@ Full guide: **[DEV_LOOP.md](DEV_LOOP.md)**.
 
 1. **Clone** this repository (or use it as a GitHub template).
 2. Open the repo in **Cursor**. Skills are under `.cursor/skills/` (synced from `core/skills/`).
-3. Replace placeholders in `artifacts/SPEC.md`, or start with **`/grillme`**.
+3. Replace placeholders in `artifacts/SPEC.md`, or start with **`/to-spec <requirements.doc>`** / **`/grillme`**.
 4. Run the Dev Loop stage by stage.
 
 ## Option B — Attach to an existing repository
@@ -94,11 +109,12 @@ Then run **`/understand`** when working in an existing repo, or **`/grillme`** w
 | Command | When |
 |---------|------|
 | `/implement <TASK_ID>` | Explicit task invoke |
-| `/debug`, `/learn` | Optional after review |
+| `/security-review` | Optional security scan of uncommitted changes |
+| `/learn` | Optional after a completed task |
 
 All design work (questions, research, DB, API classification) runs inside **`/design`**.
 
-**Lite path:** `/slice` → minimal `/design` → `/implement <FEATURE>` → review loop.
+**Lite path:** `/design <FEATURE>` with `needs_tasks: false` → `/implement <FEATURE>`. Optional `/slice` first when you need a feature catalog.
 
 ## Key folders after install
 
@@ -127,7 +143,7 @@ All design work (questions, research, DB, API classification) runs inside **`/de
 1. **Keep SPEC decisive** — `/grillme` aligns intent, not endless brainstorming.
 2. **One feature at a time** — pick a slice, then run the core loop for that `FEATURE`.
 3. **Trust contracts** — downstream skills read `*.contract.yaml`.
-4. **Never skip review** — humans own merge quality via `/review` and tests.
+4. **Own merge quality** — tests and the review tool you actually use (PR, Ponytail, optional `/review`). The implement queue does not wait on `/review`.
 
 ## Next reads
 

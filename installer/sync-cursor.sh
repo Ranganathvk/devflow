@@ -51,7 +51,8 @@ for skill_dir in "$CORE_SKILLS"/*/; do
   [[ -f "$skill_md" ]] || continue
   name="$(basename "${skill_dir%/}")"
   dest_dir="$CURSOR_SKILLS/$name"
-  mkdir -p "$dest_dir"
+  rm -rf "$dest_dir"
+  cp -R "$skill_dir" "$dest_dir"
   expand_context_paths "$(cat "$skill_md")" "$CONTEXT_DIR" > "$dest_dir/SKILL.md"
   echo "Synced skill: $name"
 done

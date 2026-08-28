@@ -1,0 +1,8 @@
+# Devflow workflow context directory for this repository.
+# Skills and contracts live under this folder (default: {context_dir}/).
+#
+# Override order:
+#   1. DEVFLOW_CONTEXT_DIR environment variable
+#   2. This file (context_dir)
+#   3. Package default (artifacts)
+context_dir: artifacts

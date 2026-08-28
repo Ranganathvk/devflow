@@ -16,7 +16,7 @@ Run [`installer/sync-cursor.ps1`](../../installer/sync-cursor.ps1) (or `.sh`) af
 ## Discovery
 
 - Cursor loads skills from **`.cursor/skills/<name>/SKILL.md`** with YAML front matter (`name`, `description`).
-- Invoke in chat with **`/<name>`** (e.g. `/understand "add OTP"`, `/design OTP_LOGIN`, `/implement-next`).
+- Invoke in chat with **`/<name>`** (e.g. `/understand "add OTP"`, `/design OTP_LOGIN`, `/implement`).
 - **Dev Loop:** [docs/DEV_LOOP.md](../../docs/DEV_LOOP.md)
 - The agent should follow **`core/AGENTS.md`** content (mirrored to `.cursor/AGENTS.md`).
 

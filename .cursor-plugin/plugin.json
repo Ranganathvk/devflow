@@ -1,0 +1,20 @@
+{
+  "name": "devflow",
+  "version": "0.1.1",
+  "description": "A bounded, contract-driven software delivery workflow for Cursor agents.",
+  "author": {
+    "name": "Ranganath"
+  },
+  "homepage": "https://github.com/Ranganathvk/devflow",
+  "repository": "https://github.com/Ranganathvk/devflow",
+  "license": "MIT",
+  "keywords": [
+    "workflow",
+    "planning",
+    "specification",
+    "architecture",
+    "tdd",
+    "implementation"
+  ],
+  "skills": "core/skills"
+}

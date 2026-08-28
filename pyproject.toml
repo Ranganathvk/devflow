@@ -1,0 +1,29 @@
+[project]
+name = "devflow-ai"
+version = "0.1.1"
+description = "AI-assisted software engineering workflow"
+readme = "README.md"
+requires-python = ">=3.10"
+
+authors = [
+    {name = "Ranganath"}
+]
+
+dependencies = [
+    "typer",
+    "rich"
+]
+
+[project.scripts]
+devflow-ai = "devflow_ai.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["devflow_ai"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"core" = "devflow_ai/bundled/core"
+"adapters" = "devflow_ai/bundled/adapters"

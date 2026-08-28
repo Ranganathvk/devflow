@@ -1,5 +1,5 @@
-# DEPRECATED — use feature_tasks.contract.yaml via /design → /tasksplit.
-# Kept for legacy /plan-feature consumers only.
+# Legacy design-queue shape (pre `/tasksplit`). Brownfield PLAN files are written by `/understand`.
+# Do not emit this shape from `/design`.
 
 contract_version: "1"
 artifact: feature_plan
@@ -14,7 +14,6 @@ current_task: null
 approved_at: null
 
 understand_contract_path: "{context_dir}/UNDERSTAND.contract.yaml"
-conventions_contract_path: "{context_dir}/CONVENTIONS.contract.yaml"
 feature_contract_path: "{context_dir}/OTP_LOGIN.contract.yaml"
 
 summary: "<one paragraph>"
@@ -68,4 +67,4 @@ ordered_sequence: []
 open_gaps: []
 
 downstream_skills:
-  - implement-next
+  - implement

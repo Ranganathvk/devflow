@@ -10,6 +10,30 @@ A **public, reusable AI engineering workflow framework** for coding agents (Curs
 
 ---
 
+## Install in Cursor from GitHub
+
+No CLI or repository clone is required for Cursor:
+
+1. Open **Cursor → Customize → Plugins**.
+2. Paste `https://github.com/Ranganathvk/devflow` into plugin search/import.
+3. Select **Install** and choose **User** (all projects) or **Project** scope.
+4. Open the target project and run **`/devflow-setup`** once.
+5. Choose the context folder (recommended: `artifacts`), then begin with
+   `/to-spec <path>` or `/grillme spec`.
+
+Plugin installation provides the skills. `/devflow-setup` creates only:
+
+```text
+devflow.context.yaml
+artifacts/SPEC.md
+artifacts/PROJECT_STATE.md
+```
+
+Existing files are preserved. Workflow contracts are created later, only when
+their corresponding skills run.
+
+---
+
 ## Install (CLI)
 
 The **`devflow-ai`** Python package (`pip install devflow-ai`) attaches the framework to any repository and syncs agent skills for **Cursor**, **Claude Code**, and **GitHub Copilot**.
@@ -110,7 +134,7 @@ your-app/
 1. Edit **`artifacts/SPEC.md`** (or `<your-folder>/SPEC.md` if you used `-c`).
 2. Open the repo in Cursor / Claude / VS Code.
 3. Run prelude skills as needed: **`/grillme`**, **`/understand`**, …
-4. Run the core loop: **`/design`** → **`/tdd`** → **`/tasksplit`** → **`/implement-next`** → **`/review`** → **`/snapshot`**.
+4. Run the core loop: **`/design`** → **`/tdd`** → **`/tasksplit`** → **`/implement`**. `/review` is optional (or use a third-party review skill).
 
 **Re-sync** after editing `core/skills/` or `core/AGENTS.md`:
 
@@ -258,7 +282,7 @@ All workflows treat **`artifacts/SPEC.md`** as the durable source of truth — n
 | Problem | How this framework helps |
 |---------|---------------------------|
 | AI rewrites legacy code blindly | `/understand` captures layout + conventions from the real repo |
-| Giant uncontrolled codegen | `/implement-next` runs **one** task per invocation |
+| Giant uncontrolled codegen | `/implement` runs **one** task per invocation |
 | Context window overload | Skills consume compact `*.contract.yaml`, not full chat history |
 | No audit trail for AI plans | `/design` writes `*_DESIGN.md`; `/tasksplit` writes the task queue |
 | Architecture drift | `/system-hld` + `/slice` lock system shape before feature work |
@@ -271,15 +295,16 @@ One workflow for all projects. **Optional prelude** skills depend on repo state 
 
 ```text
 Optional prelude:
-  /grillme | /understand | /system-hld | /slice
+  /to-spec | /grillme | /understand | /system-hld | /slice
 
 Core loop (per feature):
-  /design <FEATURE> → /tdd → /tasksplit → /implement-next → /review → /snapshot
+  /design <FEATURE> → /tdd → /tasksplit → /implement
 ```
 
 ```mermaid
 flowchart TB
   subgraph prelude [Optional prelude]
+    TSPEC[to-spec]
     G[grillme]
     U[understand]
     H[system-hld]
@@ -289,25 +314,26 @@ flowchart TB
     D[design]
     T[tdd]
     TS[tasksplit]
-    I[implement-next]
-    R[review]
-    S[snapshot]
+    I[implement]
   end
+  TSPEC --> G
+  TSPEC --> H
   G --> D
   U --> D
   H --> SL --> D
   SL --> D
-  D --> T --> TS --> I --> R --> S
+  D --> T --> TS --> I
 ```
 
 ### Which prelude to run
 
 | Situation | Start with |
 |-----------|------------|
+| Requirements / PRD already exists | `/to-spec` |
 | Spec vague or empty | `/grillme` |
 | Existing codebase | `/understand` + `@artifacts/SPEC.md` |
-| New product / system shape | `/grillme` → `/system-hld` → `/slice` |
-| Large multi-part change | `/slice` after orientation or HLD |
+| New product / system shape | `/to-spec` or `/grillme` → `/system-hld` → `/slice` |
+| Large multi-part change | `/slice` after `/understand` or HLD |
 
 ### Core commands
 
@@ -316,14 +342,16 @@ flowchart TB
 | `/design <FEATURE>` | Per-feature design (incremental or bundled) |
 | `/tdd <FEATURE>` | Test cases after design approved |
 | `/tasksplit <FEATURE>` | Task queue `FEATURE:Cn` |
-| `/implement-next` | Next pending task |
-| `/review` / `/snapshot` | Human-owned verification |
+| `/implement` | Next pending task, or lite FEATURE (marks `done` on success) |
+| `/review` | Optional Devflow checklist (or use a third-party review skill) |
+| `/security-review` | Optional uncommitted-change security scan (linters / SAST + semantic) |
+| `/learn` | Optional lessons after a completed task |
 
 ### Approval gates
 
 1. **Design** — Approve stages in chat; `design_status: approved` before `/tdd`.
-2. **Tasks** — `tasks_status: approved` on `<FEATURE>_TASKS.contract.yaml` before `/implement-next`.
-3. **Task** — Review signoff before `/snapshot`.
+2. **Tasks** — `tasks_status: approved` on `<FEATURE>_TASKS.contract.yaml` before queued `/implement`.
+3. **Code quality** — human-owned (tests, PR, optional `/review` or Ponytail). Not a queue gate.
 
 ### Example (existing repo)
 
@@ -334,7 +362,8 @@ flowchart TB
 /tdd OTP_LOGIN
 /tasksplit OTP_LOGIN
 # tasks approved
-/implement-next → /review → /snapshot
+/implement
+# optional: /review or a third-party review skill
 ```
 
 Detail: [docs/DEV_LOOP.md](docs/DEV_LOOP.md). Existing-repo principles: [docs/DELTA_PRINCIPLES.md](docs/DELTA_PRINCIPLES.md).
@@ -350,7 +379,7 @@ devflow-ai install --scope repo
 
 1. Edit **`artifacts/SPEC.md`**; attach **`@artifacts/SPEC.md`** and run prelude skills as needed (`/understand`, `/grillme`, …).
 2. **`/design <FEATURE>`** → approve → **`/tdd`** → **`/tasksplit`** → approve tasks.
-3. Loop **`/implement-next`** → **`/review`** → **`/snapshot`** until the queue is empty.
+3. Loop **`/implement`** until the queue is empty. Review is optional.
 
 Full install options: [Install (CLI)](#install-cli) above. Skills live under `.cursor/skills/` after install (synced from `core/skills/`).
 
@@ -398,7 +427,7 @@ devflow/
 
 1. **No mega prompts** — small composable skills  
 2. **Files over chat** — plans and contracts in `artifacts/`  
-3. **Human code ownership** — explicit approval before implement; review before snapshot  
+3. **Human code ownership** — explicit approval before implement; review is optional (any tool)  
 4. **Delta thinking** — smallest safe change, match existing conventions ([DELTA_PRINCIPLES.md](docs/DELTA_PRINCIPLES.md))  
 5. **Contract-based handoff** — human doc + `.yaml` contract per stage  
 6. **Vertical tasks** — one `FEATURE:Cn` at a time  

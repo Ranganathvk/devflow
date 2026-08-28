@@ -1,21 +1,17 @@
 # Reference shape for {context_dir}/UNDERSTAND.contract.yaml
-# Emitted by /understand — rollup after Phase 0 stages.
+# Emitted by /understand — rollup after the feature PLAN is ready.
 
 contract_version: "1"
 artifact: understand
 workflow_profile: devflow
 completed_at: "2026-01-01"
 
-project_overview_contract_path: "{context_dir}/PROJECT_OVERVIEW.contract.yaml"
-conventions_contract_path: "{context_dir}/CONVENTIONS.contract.yaml"
+feature_plan_contract_path: "{context_dir}/<FEATURE>_PLAN.contract.yaml"
+feature_plan_path: "{context_dir}/<FEATURE>_PLAN.md"
 
-summary: "<one paragraph: stack + dominant coding style>"
-
-stages:
-  workspace_scan: complete
-  convention_detect: complete
+summary: "<FEATURE> — one-line state>"
 
 open_gaps: []
 
 downstream_skills:
-  - plan-feature
+  - design

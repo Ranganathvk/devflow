@@ -24,7 +24,7 @@ Outputs are **paired** artifacts under `{context_dir}/` so Stage 3 skills load *
 
 - `/slice` — when `{context_dir}/SPEC.md` **Current change** is large, multi-part, or human says the feature is big.
 - Requires `UNDERSTAND.contract.yaml` (run `/understand` first).
-- Does **not** require `SYSTEM_HLD` — use SPEC blast radius + `PROJECT_OVERVIEW` for boundaries.
+- Does **not** require `SYSTEM_HLD` — use SPEC blast radius + `/understand` for boundaries.
 - Set `workflow_profile: devflow` on `FEATURE_SLICES.contract.yaml`; `system_hld_contract_path: null` when no HLD.
 
 **Both**
@@ -37,7 +37,7 @@ Outputs are **paired** artifacts under `{context_dir}/` so Stage 3 skills load *
 
 - **Required:** `{context_dir}/SPEC.md` — read in full.
 - **Required (HLD-driven slice):** `{context_dir}/SYSTEM_HLD.contract.yaml`.
-- **Required (repo-driven slice):** `{context_dir}/UNDERSTAND.contract.yaml` or `PROJECT_OVERVIEW.contract.yaml`.
+- **Required (repo-driven slice):** `{context_dir}/UNDERSTAND.contract.yaml`.
 - **Optional:** `SYSTEM_HLD.contract.yaml` if it exists alongside repo orientation artifacts.
 - **Optional:** `{context_dir}/SYSTEM_HLD.md` — read only if the contract has `null`/empty lists that block safe slicing; prefer closing gaps via `open_questions` over inventing scope.
 - **Optional:** `{context_dir}/PROJECT_STATE.md` for active feature focus or human notes.

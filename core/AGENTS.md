@@ -11,7 +11,7 @@ This is the **canonical** agent harness for the `devflow` framework. It applies 
 - **One direction of truth.** Do not duplicate specs in chat — update the canonical file instead.
 - **No mega prompts.** Split work into bounded skills; prefer small orchestrated workflows over monolithic skills.
 - **Vertical implementation.** Deliver one feature end-to-end before broadening; no horizontal "all DB then all APIs then all UI" passes.
-- **Human code ownership.** Every implementation path includes review and snapshot; fix blockers in-editor and re-run `/review`. Optional `/debug` and `/learn` for deeper loops.
+- **Human code ownership.** Humans own merge quality (tests, PR, or any review tool they choose). Built-in `/review` is **optional**. `/implement` marks tasks `done`. Optional `/learn`.
 
 ## Source of truth (read order)
 
@@ -24,7 +24,7 @@ Agents reading this harness must consult these inputs in order before acting on 
 | 3 | `{context_dir}/PROJECT_STATE.md` (when present) | Where we are now — decisions, active work, blockers |
 | 4 | The relevant `SKILL.md` for the requested slash command, if any | Bounded workflow module |
 
-If `{context_dir}/SPEC.md` is unfilled or placeholder-heavy, align with the human via `/grillme` or `/understand` (attach `@{context_dir}/SPEC.md`) before any large change. Same for `PROJECT_STATE.md`.
+If `{context_dir}/SPEC.md` is unfilled or placeholder-heavy, align with the human via `/to-spec` (when a requirements doc exists), `/grillme`, or `/understand` (attach `@{context_dir}/SPEC.md`) before any large change. Same for `PROJECT_STATE.md`.
 
 ## Context directory (configurable)
 
@@ -50,8 +50,9 @@ One workflow for all projects. **Optional prelude** skills depend on repo state.
 
 | Skill | When |
 |-------|------|
+| `/to-spec` | Requirements document exists — synthesize `{context_dir}/SPEC.md` (no interview) |
 | `/grillme` | Spec is thin, fuzzy, or needs interview-driven refinement |
-| `/understand` | Existing codebase — orientation + SPEC delta + blast radius |
+| `/understand` | Existing codebase — targeted investigation + PLAN |
 | `/system-hld` | System shape needed before slicing |
 | `/slice` | Large scope — feature catalog before per-feature work |
 
@@ -59,25 +60,25 @@ One workflow for all projects. **Optional prelude** skills depend on repo state.
 
 ```text
 /design <FEATURE> → /tdd <FEATURE> → /tasksplit <FEATURE>
-→ /implement-next → /review → /snapshot
+→ /implement   # next pending task, or lite FEATURE; repeat until empty
 ```
 
 `/design` asks what to build, classifies delivery (`needs_db`, `needs_api`, `needs_tasks`), and emits DB/API artifacts when needed — no separate `/feature-*` commands.
 
-Repeat `/implement-next` → `/review` → `/snapshot` until the task queue is empty.
+`/review` is **optional** (Devflow checklist **or** a third-party review skill).
 
 ### Other commands
 
-- `/implement <FEATURE>` or `/implement <TASK_ID>` — explicit invoke (lite path)
-- `/debug`, `/learn` — optional post-review depth
+- `/implement` / `/implement <FEATURE>` / `/implement <TASK_ID>` — implementation (queue-next or lite)
+- `/review`, `/security-review`, `/learn` — optional
 
 ### Suggested routes
 
 | Route | Typical sequence |
 |-------|------------------|
 | Lite | `/slice` → `/design` → `/implement <FEATURE>` when `needs_tasks: false` |
-| Standard | prelude as needed → `/design` → `/tdd` → `/tasksplit` → implement loop |
-| Compliance-heavy | standard + `/tasksplit` → `/implement <TASK_ID>` per chunk + `/learn` |
+| Standard | prelude as needed → `/design` → `/tdd` → `/tasksplit` → `/implement` until empty |
+| Compliance-heavy | standard + `/implement <TASK_ID>` per chunk + `/learn` |
 
 Existing-repo safe-change principles: [docs/DELTA_PRINCIPLES.md](../docs/DELTA_PRINCIPLES.md).
 
@@ -105,8 +106,7 @@ All workflow contracts use **`workflow_profile: devflow`** unless marked legacy 
 
 | Human doc | Machine contract |
 |-----------|------------------|
-| `{context_dir}/PROJECT_OVERVIEW.md` | `{context_dir}/PROJECT_OVERVIEW.contract.yaml` |
-| `{context_dir}/CONVENTIONS.md` | `{context_dir}/CONVENTIONS.contract.yaml` |
+| `{context_dir}/<FEATURE>_PLAN.md` | `{context_dir}/<FEATURE>_PLAN.contract.yaml` |
 | *(orientation rollup)* | `{context_dir}/UNDERSTAND.contract.yaml` |
 | `{context_dir}/SYSTEM_HLD.md` | `{context_dir}/SYSTEM_HLD.contract.yaml` |
 | `{context_dir}/FEATURE_SLICES.md` | `{context_dir}/FEATURE_SLICES.contract.yaml` |
@@ -115,8 +115,8 @@ All workflow contracts use **`workflow_profile: devflow`** unless marked legacy 
 | `<FEATURE>_API.md` | `<FEATURE>_API.contract.yaml` *(when `needs_api`)* |
 | `<FEATURE>_TDD.md` | `<FEATURE>_TDD.contract.yaml` |
 | `<FEATURE>_TASKS.md` | `<FEATURE>_TASKS.contract.yaml` |
-| `{context_dir}/<FEATURE>_C<n>_REVIEW.md` | `{context_dir}/<FEATURE>_C<n>_REVIEW.contract.yaml` |
-| *(verification checkpoint; prose optional)* | `{context_dir}/<FEATURE>_C<n>_SNAPSHOT.contract.yaml` |
+| `{context_dir}/<FEATURE>_C<n>_REVIEW.md` *(optional `/review`)* | `{context_dir}/<FEATURE>_C<n>_REVIEW.contract.yaml` |
+| `{context_dir}/SECURITY_REVIEW.md` *(optional `/security-review`)* | `{context_dir}/SECURITY_REVIEW.contract.yaml` |
 | `{context_dir}/LEARNINGS.md` (append-only sections) | `{context_dir}/<FEATURE>_C<n>_LEARN.contract.yaml` |
 
 Contracts are stability-critical. Downstream skills consume contracts, not prose.
@@ -128,7 +128,7 @@ Conditional artifacts (`_DB*`, `_API*`, `_TDD*`, `_TASKS*`) emit only when appli
 - Canonical skills live under `core/skills/<name>/SKILL.md`.
 - Agent-specific paths (e.g. `.cursor/skills/<name>/SKILL.md`, `.claude/skills/<name>/SKILL.md`) are **derived** by the installer. See `adapters/<agent>/` for each tool's discovery convention.
 - To add a skill: author it under `core/skills/`, then re-sync.
-- **Deprecated slash commands** (`/feature-*`, `/plan-feature`) remain as redirect stubs only — do not extend.
+- Old names (`/feature-*`, `/plan-feature`) are unused — use `/design`.
 
 ## Hooks (allowed responsibilities)
 

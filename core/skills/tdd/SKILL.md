@@ -31,7 +31,7 @@ Map acceptance criteria from `<FEATURE>.contract.yaml` into a compact test matri
 2. Read `delivery` flags and `acceptance_criteria[]`.
 3. Build `cases[]` with ids `TC-001`, … linked to `AC-*`.
 4. Write `{context_dir}/<FEATURE>_TDD.md` and `{context_dir}/<FEATURE>_TDD.contract.yaml` — set `workflow_profile: devflow`.
-5. **STOP.** Suggest **`/tasksplit <FEATURE>`** when `needs_tasks: true`; else **`/tasksplit <FEATURE>`** still recommended for single-task queue, or **`/implement-next <FEATURE>`** only if tasksplit documents lite single task.
+5. **STOP.** Suggest **`/tasksplit <FEATURE>`** when `needs_tasks: true`; else **`/tasksplit <FEATURE>`** still recommended for a single-task queue, or **`/implement <FEATURE>`** when lite (no queue).
 
 ## Output artifacts
 

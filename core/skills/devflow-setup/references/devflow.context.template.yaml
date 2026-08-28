@@ -1,0 +1,3 @@
+# Devflow workflow context directory for this repository.
+# Skills write their workflow files under this folder.
+context_dir: artifacts

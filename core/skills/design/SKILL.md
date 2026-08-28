@@ -17,7 +17,7 @@ description: >-
 3. **Classifies delivery** — sets `needs_db`, `needs_api`, `needs_tasks` from the feature shape (not from a separate skill chain).
 4. **Designs accordingly** — core `_DESIGN.md` + `.contract.yaml`, plus `_DB.*` / `_API.*` only when classified.
 
-Downstream: **`/tdd <FEATURE>`** → **`/tasksplit <FEATURE>`** → **`/implement-next`**.
+Downstream: **`/tdd <FEATURE>`** → **`/tasksplit <FEATURE>`** → **`/implement`**.
 
 ## When to invoke
 
@@ -35,7 +35,7 @@ Downstream: **`/tdd <FEATURE>`** → **`/tasksplit <FEATURE>`** → **`/implemen
 ## Inputs
 
 - **Required:** `{context_dir}/SPEC.md`
-- **Required (existing repo):** `{context_dir}/CONVENTIONS.contract.yaml` and `{context_dir}/UNDERSTAND.contract.yaml` or `PROJECT_OVERVIEW.contract.yaml` — if missing, suggest `/understand` first
+- **Required (existing repo):** `{context_dir}/UNDERSTAND.contract.yaml` or `{context_dir}/<FEATURE>_PLAN.contract.yaml` — if missing, suggest `/understand` first
 - **Optional:** `{context_dir}/FEATURE_SLICES.contract.yaml` — scope when `/slice` ran
 - **Optional:** `{context_dir}/SYSTEM_HLD.contract.yaml`
 - **Required for work:** Consumer repo when impact/research/db/api touch code
@@ -99,7 +99,7 @@ Edit for corrections. When satisfied, reply approved or:
 
 Delivery flags: needs_db=<bool> needs_api=<bool> needs_tasks=<bool>
 
-Then: /tdd <FEATURE> → /tasksplit <FEATURE> → /implement-next (after design_status approved).
+Then: /tdd <FEATURE> → /tasksplit <FEATURE> → /implement (after design_status approved).
 ```
 
 ## Output artifacts
@@ -126,7 +126,6 @@ title: "<from clarify>"
 
 spec_path: {context_dir}/SPEC.md
 understand_contract_path: {context_dir}/UNDERSTAND.contract.yaml
-conventions_contract_path: {context_dir}/CONVENTIONS.contract.yaml
 feature_slices_contract_path: null
 
 design_stages:
@@ -200,12 +199,11 @@ open_questions: []
 
 - More than one substantive stage per invocation (except auto-`skipped` for db/api when flag false).
 - Invoking deprecated `/feature-*` skills in the same run.
-- `/tdd`, `/tasksplit`, `/implement-next` in same invocation.
+- `/tdd`, `/tasksplit`, `/implement` in same invocation.
 
-## Deprecated
+## Deprecated names
 
-- **`/plan-feature`** → `/design` ([plan-feature](../plan-feature/SKILL.md))
-- **`/feature-questions`**, **`/feature-research`**, **`/feature-design`**, **`/feature-db`**, **`/feature-api`** → `/design`
+Old names (`/plan-feature`, `/feature-questions`, `/feature-research`, `/feature-design`, `/feature-db`, `/feature-api`) all map to **`/design`**. Those skills are gone — do not look for stub folders.
 
 ## Quality bar
 
