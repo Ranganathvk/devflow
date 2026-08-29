@@ -1,0 +1,16 @@
+# Reference shape for {context_dir}/SECURITY_REVIEW.contract.yaml
+# Emitted by /security-review.
+
+contract_version: "1"
+artifact: security_review
+workflow_profile: devflow
+scope: uncommitted
+task_id: null
+reviewed_at: "2026-01-01"
+
+files_reviewed: []
+tools_run: []
+tools_skipped: []
+
+findings: []
+finding_count: 0
