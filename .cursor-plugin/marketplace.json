@@ -1,0 +1,16 @@
+{
+  "name": "devflow-marketplace",
+  "owner": {
+    "name": "Ranganath"
+  },
+  "metadata": {
+    "description": "Bounded, contract-driven software delivery workflow skills for coding agents."
+  },
+  "plugins": [
+    {
+      "name": "devflow",
+      "source": "./core",
+      "description": "Spec-to-ship delivery loop: to-spec, grillme, understand, system-hld, slice, design, tdd, tasksplit, implement, review, learn."
+    }
+  ]
+}

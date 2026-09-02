@@ -11,19 +11,48 @@ This guide walks through using **devflow** in a real project with **Cursor**. Ot
 
 Full product definition: [artifacts/SPEC.md](../artifacts/SPEC.md).
 
-## Install from Cursor Customize
+## Install as a plugin from GitHub
 
-1. Open **Customize → Plugins** in Cursor.
+This repo is a **plugin marketplace** that ships one plugin (`devflow`)
+containing every skill. Add the marketplace, then install the plugin.
+
+**Cursor**
+
+1. Open **Cursor → Plugins** and choose **Add marketplace** / **Import from
+   repo** (Team marketplaces live in the Cursor dashboard).
 2. Paste `https://github.com/Ranganathvk/devflow`.
-3. Install at **User** scope for all projects or **Project** scope for one
-   workspace.
+3. Install **`devflow`** at **User** scope for all projects or **Project** scope
+   for one workspace.
 4. In the target project, run `/devflow-setup`.
 5. Accept `artifacts` or choose another context folder.
 
-This installs the skills directly from GitHub. The setup skill creates
-`devflow.context.yaml`, `SPEC.md`, and `PROJECT_STATE.md` without overwriting
-existing files. Use the CLI installation below only when you also want the
-framework sources and adapters copied into the consumer repository.
+**Claude Code**
+
+```text
+/plugin marketplace add Ranganathvk/devflow
+/plugin install devflow@devflow-marketplace
+```
+
+Both read the manifests described in [Plugin packaging](#plugin-packaging). The
+setup skill creates `devflow.context.yaml`, `SPEC.md`, and `PROJECT_STATE.md`
+without overwriting existing files. Use the CLI installation below only when you
+also want the framework sources and adapters copied into the consumer
+repository.
+
+## Plugin packaging
+
+| File | Role |
+|------|------|
+| `.cursor-plugin/marketplace.json` | Cursor marketplace index; lists `devflow` with `source: ./core` |
+| `.claude-plugin/marketplace.json` | Same index for Claude Code |
+| `core/.cursor-plugin/plugin.json` | Cursor plugin manifest (plugin root is `core/`) |
+| `core/.claude-plugin/plugin.json` | Claude Code plugin manifest |
+| `core/skills/<name>/SKILL.md` | Skills, found by folder discovery inside the plugin root |
+
+Because the plugin root is `core/`, skills need no manifest path — `core/skills/`
+is the conventional `skills/` directory. Each skill's front-matter `name` must
+match its folder name. After changing any of these, push to the tracked branch;
+marketplaces re-index on push (or re-import to pick up brand-new plugins).
 
 ## Dev Loop (cheat sheet)
 

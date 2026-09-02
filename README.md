@@ -12,14 +12,20 @@ A **public, reusable AI engineering workflow framework** for coding agents (Curs
 
 ## Install in Cursor from GitHub
 
-No CLI or repository clone is required for Cursor:
+No CLI or repository clone is required for Cursor. The repo is a plugin
+marketplace, so add it as a marketplace first, then install the plugin from it:
 
-1. Open **Cursor → Customize → Plugins**.
-2. Paste `https://github.com/Ranganathvk/devflow` into plugin search/import.
-3. Select **Install** and choose **User** (all projects) or **Project** scope.
+1. Open **Cursor → Plugins** and choose **Add marketplace** / **Import from
+   repo** (Team marketplaces live in the Cursor dashboard).
+2. Paste `https://github.com/Ranganathvk/devflow`.
+3. Install the **`devflow`** plugin from the imported marketplace, at **User**
+   (all projects) or **Project** scope.
 4. Open the target project and run **`/devflow-setup`** once.
 5. Choose the context folder (recommended: `artifacts`), then begin with
    `/to-spec <path>` or `/grillme spec`.
+
+Claude Code reads the same repo — `/plugin marketplace add Ranganathvk/devflow`
+then `/plugin install devflow@devflow-marketplace`.
 
 Plugin installation provides the skills. `/devflow-setup` creates only:
 

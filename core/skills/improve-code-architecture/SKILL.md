@@ -1,12 +1,11 @@
 ---
-
-## name: improve-code-architecture
-
+name: improve-code-architecture
 description: >-
   Scan a codebase for deepening opportunities, present them as a markdown report in chat, then
   grill through whichever candidate the human picks. Invoke /improve-code-architecture for
   brownfield architecture friction, shallow modules, or testability seams. Does not implement code.
 disable-model-invocation: true
+---
 
 # /improve-code-architecture — Deepen shallow modules
 
