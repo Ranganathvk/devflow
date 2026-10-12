@@ -254,3 +254,16 @@ A straightforward feature should require one design invocation plus a final appr
 - [ ] Exercise a clear small feature, a DB/API feature, and a risky compatibility feature in a supported agent runtime.
 - [ ] Verify `/tdd` rejects draft designs and accepts explicitly approved designs.
 - [ ] Measure actual invocations, artifacts, evidence quality, and approval behavior.
+
+
+## Phase 5 implementation update — lightweight regression checks
+
+- Added a unittest suite that checks canonical-to-generated mirror equality for Cursor, Claude, and GitHub skills after context-path materialization; missing or stale skill mirrors fail.
+- Contract checks parse canonical examples, reject duplicate YAML mapping keys, and verify required metadata, supported example version, workflow profile, and filename/artifact consistency.
+- Safety checks cover explicit design approval, the TDD gate, task-queue approval, and one bounded implementation unit per /implement invocation.
+- Added a GitHub Actions workflow for branch pushes, pull requests, and manual dispatch.
+- Added docs/WORKFLOW_EVALUATION.md with seven repeatable scenarios, a five-dimension scorecard, and non-negotiable safety invariants.
+
+### Scope and validation limits
+
+PyYAML is installed only in CI/test execution; no DevFlow runtime dependency was added. The integration session cannot execute the GitHub Actions runner, so the workflow must be verified after push. Manual E1–E7 scenarios still require a supported coding-agent runtime; static tests cannot establish runtime turn reduction, evidence quality, or behavior.
