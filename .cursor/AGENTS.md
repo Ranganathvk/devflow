@@ -101,7 +101,7 @@ Existing-repo safe-change principles: [docs/DELTA_PRINCIPLES.md](../docs/DELTA_P
 
 ## Artifact pattern
 
-Major workflows emit **paired** artifacts: a human-readable doc and a machine-readable compact contract.
+Contracts are durable machine handoffs. Create a human-readable document when it adds distinct review/context value or the human requests it; do not pair files mechanically.
 
 All workflow contracts use **`workflow_profile: devflow`** unless marked legacy deprecated.
 
@@ -120,7 +120,7 @@ All workflow contracts use **`workflow_profile: devflow`** unless marked legacy 
 | `artifacts/SECURITY_REVIEW.md` *(optional `/security-review`)* | `artifacts/SECURITY_REVIEW.contract.yaml` |
 | `artifacts/LEARNINGS.md` (append-only sections) | `artifacts/<FEATURE>_C<n>_LEARN.contract.yaml` |
 
-Contracts are stability-critical. Downstream skills consume contracts, not prose.
+Contracts are stability-critical. Downstream skills consume contracts, not prose. For TDD and task splitting, the YAML contract is the default durable output; the skill reports a concise matrix/table in chat. Optional Markdown summaries are derived views of the contract, not independently maintained sources of truth. `/review` reports in chat by default and writes the review pair only when persistence is requested.
 
 Conditional artifacts (`_DB*`, `_API*`, `_TDD*`, `_TASKS*`) emit only when applicable; record skips in `<FEATURE>.contract.yaml` via `delivery` flags.
 

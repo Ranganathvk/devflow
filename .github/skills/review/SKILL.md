@@ -1,70 +1,56 @@
 ---
 name: review
 description: >-
-  Optional bounded checklist review after implementation. Invoke as /review <TASK_ID> or
-  /review (last done task, or current_task if still in_progress). Does not gate the task queue.
-  Prefer a third-party review skill if the human already uses one.
+  Optional bounded checklist review after implementation. Reports findings in chat by default;
+  invoke /review <TASK_ID> save to persist a review report and contract. Does not gate the task queue.
 ---
 
 # /review — Optional post-change review
 
 ## Purpose
 
-Optional **file-backed checklist** for a single task-sized change set. The default loop does **not** require this skill — humans may review in editor, PR, or a **third-party** skill (e.g. Ponytail). This skill does **not** mark tasks `done` (implement already did).
+Review one task-sized change set against its task scope, acceptance criteria, tests, and repository conventions. **Chat is the default output.** Do not create files unless the human explicitly asks to save the review (for example, `/review AUTH:C1 save`).
 
-The agent **does not** “approve” its own work as final: it records **checklist results** and **findings**. Blocking issues are fixed outside this skill (editor or `/implement`), then `/review` may be re-run.
-
-This skill **does not** rewrite application code except typos in review docs if the human asks.
+This skill does not mark tasks `done`, approve its own work as final, or rewrite application code. Humans own merge quality; use a third-party review skill if preferred.
 
 ## When to invoke
 
-- **Optional** after `/implement` when the human wants a Devflow review artifact.
-- `/review <TASK_ID>` — preferred (queue may already have `current_task: null`).
-- `/review` — resolve id (see **Resolve TASK_ID**).
-- Do **not** invoke for multiple unrelated tasks in one run.
-- Do **not** invoke before there is a **concrete** diff or file list (git diff, PR, or paths).
-- Do **not** tell the human they must `/review` before `/implement`.
-- For a security-only scan of the working tree, use `/security-review` instead.
+- `/review <TASK_ID>` — review and report findings in chat.
+- `/review <TASK_ID> save` — review and persist a report pair.
+- `/review` — resolve the task id using the rules below.
+- Do not review unrelated tasks in one run or run before a concrete diff/file list exists.
+- For security-only review, use `/security-review`.
 
 ## Inputs
 
-- **Required:** Resolved `<TASK_ID>` matching `^[A-Z][A-Z0-9_]{1,31}:C[1-9][0-9]*$` **or** explicit paths + human waiver for ad-hoc (`ADHOC:1` only if authorized).
-- **Required:** `artifacts/SPEC.md` — read **Design principles**, **Implementation rules**, and **Human code ownership** (minimum).
-- **Required:** Change set — `git diff` / `git show` / or the files the human listed.
-- **Optional:** `artifacts/<FEATURE>_TASKS.contract.yaml` — task row + TDD cases.
-- **Optional (legacy plan):** `artifacts/<FEATURE>_PLAN.contract.yaml`.
-- **Optional:** `artifacts/<FEATURE>_TDD.contract.yaml`.
-- **Optional:** `artifacts/PROJECT_STATE.md`.
-- **Forbidden:** Treating chat as the diff. Inventing files “reviewed” that are not in the change set.
+- **Required:** Resolved `<TASK_ID>` matching `^[A-Z][A-Z0-9_]{1,31}:C[1-9][0-9]*$`, or explicit paths plus human waiver for ad-hoc (`ADHOC:1` only if authorized).
+- **Required:** `artifacts/SPEC.md` — read Design principles, Implementation rules, and Human code ownership.
+- **Required:** Concrete change set from `git diff`, `git show`, PR, or paths supplied by the human.
+- **Optional:** Tasks, TDD, legacy plan contracts, and `PROJECT_STATE.md` for scope and traceability.
+- **Forbidden:** Treating chat as the diff or inventing files reviewed.
 
-## Resolve TASK_ID (when argument omitted)
+## Resolve TASK_ID
 
 1. `current_task` on `*_TASKS.contract.yaml` (or legacy `*_PLAN.contract.yaml`) if set.
-2. Else the **most recently `done`** task on an approved tasks contract (one feature → use it; several features → ask).
-3. Else `PROJECT_STATE.md` / user message.
-4. Else **stop** and ask for `/review <TASK_ID>` — do not demand `/implement`.
+2. Else the most recently `done` task on an approved tasks contract (if several features match, ask).
+3. Else `PROJECT_STATE.md` / the user's message.
+4. Else stop and ask for `/review <TASK_ID>`; do not demand `/implement`.
 
 ## Workflow
 
-1. **Resolve** `<TASK_ID>`.
-2. **Parse** `feature_id` + `C<n>`; `review_basename = "<FEATURE>_C<n>"`.
-3. **Resolve** change set; if ambiguous, **stop** with one question.
-4. **Scope check** against task row; flag violations as `blocking`.
-5. **Checklist:** correctness vs task/TDD, tests for new behavior, error paths, conventions, secrets/logging, migration safety, no drive-by refactors. Record pass / fail / not_applicable.
-6. **Classify:** `blocking` or `non_blocking` (`deferred[]` for explicit deferrals).
-7. **Write** `artifacts/<FEATURE>_C<n>_REVIEW.md` (target ≤ **~120** lines) and `artifacts/<FEATURE>_C<n>_REVIEW.contract.yaml`.
-8. **Chat:** paths, blocking vs non-blocking. If blocking: fix then re-`/review`. If clear: continue with **`/implement`** if the queue has pending tasks.
+1. Resolve the task id and parse feature/task number.
+2. Resolve the concrete change set; if ambiguous, stop with one focused question.
+3. Check scope against the task contract; flag violations as blocking.
+4. Review correctness against task/TDD, tests for new behavior, error paths, conventions, secrets/logging, migration safety, and drive-by changes.
+5. Classify findings as blocking or non-blocking; note explicit deferrals.
+6. Report a concise findings table in chat, ordered by severity, with file/line and rationale. If no findings, state what was checked and any limitations.
+7. **Only when save was explicitly requested:** write `artifacts/<FEATURE>_C<n>_REVIEW.md` and `artifacts/<FEATURE>_C<n>_REVIEW.contract.yaml` from the same review result. Otherwise, write no files.
 
-## Output artifacts
+If blocking findings exist, explain the fix path and offer to review again after changes. If clear, mention `/implement` only when the queue has pending tasks.
 
-| Path | Change | Notes |
-|------|--------|-------|
-| `artifacts/<FEATURE>_C<n>_REVIEW.md` | Created or replaced | Human checklist |
-| `artifacts/<FEATURE>_C<n>_REVIEW.contract.yaml` | Created or replaced | Small YAML |
+## Saved contract shape
 
-No other files written or edited. Do **not** change task `status` on the tasks contract.
-
-## `<FEATURE>_C<n>_REVIEW.contract.yaml` shape
+Use this only in save mode:
 
 ```yaml
 contract_version: "1"
@@ -72,38 +58,26 @@ artifact: task_review
 task_id: "<FEATURE>:C<n>"
 feature_id: "<FEATURE>"
 review_basename: "<FEATURE>_C<n>"
-plan_contract_path: artifacts/<FEATURE>_PLAN.contract.yaml  # null if unused
-
+plan_contract_path: "artifacts/<FEATURE>_PLAN.contract.yaml" # null if unused
 agent_checklist_completed: true
-agent_ready_for_signoff: false  # true only if zero blocking findings
-
+agent_ready_for_signoff: false # true only with zero blocking findings
 findings: []
 deferred: []
 resolved_findings: []
-
-human_signoff: pending  # pending | approved | rejected
+human_signoff: pending # pending | approved | rejected
 human_signoff_notes: ""
 ```
 
-## Context budget
+## Context budget and failure handling
 
-- Read in full: SPEC required sections; one task row; needed `TC-*` rows.
-- Diff/stat only for the change set.
-
-## Failure handling
-
-- **Missing TASK_ID** → ask once for `<TASK_ID>`.
-- **No diff / no files** → stop; ask how to obtain the change set.
-- **Scope mismatch** → still write review with blocking `scope_mismatch` unless human confirms ad-hoc.
-
-## Forbidden
-
-- Silent approval without a checklist.
-- Editing implementation source (use `/implement` or the editor).
-- Blocking the implement queue.
-- Rewriting plan/tasks status fields.
+- Read the task row and relevant `TC-*` cases; inspect only the concrete diff and necessary surrounding code.
+- No diff/files → stop and ask how to obtain the change set.
+- Scope mismatch → report as blocking; save only if requested.
+- Never change task status or block the implement queue.
 
 ## Quality bar
 
-- [ ] Review pair exists for one `review_basename`.
-- [ ] Chat names next **optional** step (`/implement` or stop).
+- [ ] Findings are grounded in the actual diff and ordered by severity.
+- [ ] Scope, tests, error paths, security-sensitive changes, and migration safety were considered.
+- [ ] No files were created unless persistence was requested.
+- [ ] Chat states blocking/non-blocking findings and next action.

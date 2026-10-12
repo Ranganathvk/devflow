@@ -182,3 +182,24 @@ Use the same prompts, repository fixture, and scoring rubric before and after ch
 - Do not make YAML the universal source of truth for human-owned product intent.
 - Do not hand-edit `.cursor/`, `.claude/`, or `.github/skills/`; synchronize generated mirrors from canonical sources.
 - Avoid a broad all-skills rewrite. Keep changes small enough to evaluate and revert independently.
+
+
+## Phase 2 implementation update — artifact reduction
+
+**Status:** Implemented on the Phase 1 working branch; generated mirrors updated from canonical sources.
+
+- `/review <TASK_ID>` now reports findings in chat and creates no files by default. Use `/review <TASK_ID> save` to persist the review report and contract.
+- `/tdd <FEATURE>` now writes the TDD contract by default and reports the test matrix in chat. Markdown is optional and derived from the contract.
+- `/tasksplit <FEATURE>` now writes the task queue contract by default and reports the queue in chat. Markdown is optional and derived from the contract.
+- `core/AGENTS.md`, the product spec, and the dev-loop docs now state that contracts are durable machine handoffs and Markdown is created when it adds distinct value or is requested.
+- Human approval gates remain unchanged. `/implement` remains bounded to one task per invocation. Security-review and learnings retain durable-output behavior.
+
+### Expected artifact reduction
+
+For a typical `/understand` → `/design` → `/tdd` → `/tasksplit` path, default declared artifacts fall from 9 to **7**: understand's three artifacts, design's two, and one contract each for TDD and tasksplit. A default review adds **0** files; an explicitly saved review adds two. This is a policy-derived count; actual runtime behavior still needs IDE validation.
+
+### Validation still required
+
+- [x] Canonical skills and policy updated.
+- [x] Generated Cursor, Claude, and GitHub skill mirrors updated from canonical text.
+- [ ] Execute representative workflows in a supported agent runtime and verify file counts, contract validity, approval semantics, and output quality.

@@ -58,7 +58,7 @@ flowchart TB
 | Command | Purpose |
 |---------|---------|
 | `/design` | Ask what to design; derive feature ID |
-| `/design <FEATURE>` | Staged design — classifies db/api/tasks; conditional DB/API artifacts |
+| `/design <FEATURE>` | Feature design — classifies db/api/tasks; conditional DB/API artifacts |
 | `/design <FEATURE> approved` | Approve current stage and continue |
 | `/tdd <FEATURE>` | Test cases `TC-*` after `design_status: approved` |
 | `/tasksplit <FEATURE>` | Task queue `FEATURE:Cn` |
@@ -97,8 +97,8 @@ When `/design` sets `delivery.needs_tasks: false`, skip the queue and use `/impl
 | Orientation | `<FEATURE>_PLAN.*`, `UNDERSTAND.contract.yaml` |
 | System shape | `SYSTEM_HLD.*`, `FEATURE_SLICES.*` |
 | Feature | `<FEATURE>_DESIGN.md`, `<FEATURE>.contract.yaml`, optional `_DB`, `_API`, `_QUESTIONS`, `_RESEARCH` |
-| Tests / queue | `<FEATURE>_TDD.*`, `<FEATURE>_TASKS.*` |
-| Per task (optional) | `<FEATURE>_C<n>_REVIEW.*` if `/review` is used |
+| Tests / queue | `<FEATURE>_TDD.contract.yaml`, `<FEATURE>_TASKS.contract.yaml`; Markdown summaries are optional |
+| Per task (optional) | Review findings in chat; `<FEATURE>_C<n>_REVIEW.*` only when `/review ... save` is requested |
 | Working tree (optional) | `SECURITY_REVIEW.*` if `/security-review` is used |
 
 ## Advanced (optional)
