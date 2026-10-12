@@ -59,7 +59,7 @@ flowchart TB
 |---------|---------|
 | `/design` | Ask what to design; derive feature ID |
 | `/design <FEATURE>` | Feature design — classifies db/api/tasks; conditional DB/API artifacts |
-| `/design <FEATURE> approved` | Approve current stage and continue |
+| `/design <FEATURE> approved` | Approve the complete presented design when no blocking questions remain |
 | `/tdd <FEATURE>` | Test cases `TC-*` after `design_status: approved` |
 | `/tasksplit <FEATURE>` | Task queue `FEATURE:Cn` |
 | `/implement` | Next pending task (one approved queue) |
@@ -68,7 +68,7 @@ flowchart TB
 
 ## Approval gates
 
-1. **Design** — Per-stage approval for incremental design; whole-design `design_status: approved` before `/tdd`.
+1. **Design** — One coherent design review; explicit whole-design `design_status: approved` before `/tdd`. Investigation is batched; stop only for material human decisions or final approval.
 2. **Tasks** — `tasks_status: approved` on `<FEATURE>_TASKS.contract.yaml` before queued `/implement`.
 3. **Code quality** — human-owned (tests, PR, `/review`, or a third-party review skill). **Not** a queue gate.
 
@@ -96,7 +96,7 @@ When `/design` sets `delivery.needs_tasks: false`, skip the queue and use `/impl
 | Spec | `artifacts/SPEC.md` |
 | Orientation | `<FEATURE>_PLAN.contract.yaml`; optional `<FEATURE>_PLAN.md` for human review |
 | System shape | `SYSTEM_HLD.*`, `FEATURE_SLICES.*` |
-| Feature | `<FEATURE>_DESIGN.md`, `<FEATURE>.contract.yaml`, optional `_DB`, `_API`, `_QUESTIONS`, `_RESEARCH` |
+| Feature | `<FEATURE>_DESIGN.md`, `<FEATURE>.contract.yaml`; DB/API contracts only when needed; DB/API Markdown optional |
 | Tests / queue | `<FEATURE>_TDD.contract.yaml`, `<FEATURE>_TASKS.contract.yaml`; Markdown summaries are optional |
 | Per task (optional) | Review findings in chat; `<FEATURE>_C<n>_REVIEW.*` only when `/review ... save` is requested |
 | Working tree (optional) | `SECURITY_REVIEW.*` if `/security-review` is used |

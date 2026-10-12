@@ -1,213 +1,190 @@
 ---
 name: design
 description: >-
-  Per-feature design: asks what to build, classifies delivery (db/api/tasks), produces DESIGN +
-  contract and conditional DB/API artifacts. Invoke /design FEATURE, /design "description", or
-  /design (prompt for intent). Stops for approval before /tdd.
+  Design a feature in one bounded investigation-and-synthesis pass. Bundles safe impact analysis,
+  research, design, and conditional DB/API contracts; stops for material human decisions and final
+  design approval. Invoke /design FEATURE, /design "description", or /design to ask for intent.
 ---
 
-# /design [\<FEATURE\> | "\<description\>"] [approved]
+# /design [<FEATURE> | "description"] [approved]
 
 ## Purpose
 
-**One command** for all feature design. The agent:
+Turn confirmed feature intent into a reviewable design and a machine-readable feature contract with the fewest useful interactions. Perform related read-only analysis together; do not require a separate invocation for each mechanical stage.
 
-1. **Asks the human** what they want to design (when intent is unclear).
-2. **Researches** the repo or slice context as needed.
-3. **Classifies delivery** — sets `needs_db`, `needs_api`, `needs_tasks` from the feature shape (not from a separate skill chain).
-4. **Designs accordingly** — core `_DESIGN.md` + `.contract.yaml`, plus `_DB.*` / `_API.*` only when classified.
+Downstream: `/tdd <FEATURE>` → `/tasksplit <FEATURE>` → `/implement`.
 
-Downstream: **`/tdd <FEATURE>`** → **`/tasksplit <FEATURE>`** → **`/implement`**.
+This skill never edits application source or invokes downstream skills.
 
-## When to invoke
+## Invocation
 
-| Invocation | When |
-|------------|------|
-| `/design` | No feature yet — agent asks what you want to design |
-| `/design "add OTP login"` | New feature from description; derive `feature_id`, start **clarify** |
-| `/design OTP_LOGIN` | Continue next pending stage |
-| `/design OTP_LOGIN approved` | Approve awaiting stage, run **one** next stage |
-
-- Do **not** implement code in this skill.
-- Do **not** skip whole-design approval before `/tdd`.
-- **Deprecated:** `/feature-questions`, `/feature-research`, `/feature-design`, `/feature-db`, `/feature-api` → use **`/design`** only.
+- `/design`: ask what feature/change to design if intent is not already clear from SPEC or the user message.
+- `/design "add OTP login"`: propose a feature ID and begin.
+- `/design OTP_LOGIN`: create or resume the draft.
+- `/design OTP_LOGIN approved`: explicitly approve the currently presented complete design, if no blocking questions remain.
+- If a feature contract already exists, resume it; do not overwrite approved decisions or silently reset status.
 
 ## Inputs
 
-- **Required:** `artifacts/SPEC.md`
-- **Required (existing repo):** `artifacts/<FEATURE>_PLAN.contract.yaml` with `ready_for_design: true` and `approval.status: approved`; if missing or not approved, suggest `/understand <FEATURE>` first
-- **Optional:** `artifacts/FEATURE_SLICES.contract.yaml` — scope when `/slice` ran
-- **Optional:** `artifacts/SYSTEM_HLD.contract.yaml`
-- **Required for work:** Consumer repo when impact/research/db/api touch code
-- **Forbidden:** Unbounded chat as spec; inventing scope the human has not confirmed
+- Required: `artifacts/SPEC.md`.
+- Brownfield required: `artifacts/<FEATURE>_PLAN.contract.yaml` with `ready_for_design: true` and `approval.status: approved`. If missing or unapproved, stop and suggest `/understand <FEATURE>`.
+- Optional: `artifacts/FEATURE_SLICES.contract.yaml`, `artifacts/SYSTEM_HLD.contract.yaml`.
+- Required for repository impact analysis: consumer repo access.
+- Do not treat unbounded chat as a spec or invent unconfirmed product behavior.
 
-## Stages (one per invocation)
+## Operating model
 
-| # | Stage | `_DESIGN.md` section | Notes |
-|---|-------|----------------------|-------|
-| 1 | `clarify` | § Intent & questions | **Ask the human** what to design; one question per turn with **recommended** answer; derive `feature_id` + title |
-| 2 | `impact` | § Impact | Evidence paths; skip as `skipped` if no repo (spec-only greenfield) |
-| 3 | `research` | § Research | ≤12 files read-only; skip as `skipped` if trivial and cited in SPEC |
-| 4 | `design` | § Design | Outcomes, ACs, behaviors; **classify `delivery`** (see below) |
-| 5 | `db` | § Data | Emit `_DB.*` only when `needs_db: true`; else mark `skipped` |
-| 6 | `api` | § API / interface | Emit `_API.*` only when `needs_api: true`; else mark `skipped` |
-| 7 | `compat` | § Compatibility | `blocking` flag for existing-repo deltas |
+One invocation may complete multiple safe, related steps:
 
-After stage 7 approved → set **`design_status: approved`** only on explicit whole-design approval.
+1. **Load and validate** SPEC, approved brownfield plan (if applicable), slices/HLD, and any existing feature contract.
+2. **Investigate** the relevant code path read-only. Trace entry point, owner, dependencies, patterns, tests, and relevant configuration. Normally inspect no more than 12 source/config/test files; expand only with a concrete reason.
+3. **Synthesize** the behavior, scope, acceptance criteria, delivery flags, design choice, failure paths, observability, security, compatibility, migration/deployment concerns, and operational risks relevant to this feature.
+4. **Classify** `needs_db`, `needs_api`, and `needs_tasks` with rationale.
+5. **Persist** the feature design and contract; emit DB/API contracts only when applicable.
+6. **Review boundary:** if a material product, architecture, compatibility, security, or migration decision needs human input, ask one focused question and stop. Otherwise present the coherent design for explicit approval.
 
-## Delivery classification (during `design` stage)
+Do not stop after an individual search or mechanical analysis category. Stop when human knowledge/approval is required, evidence is unavailable, a blocking risk cannot be resolved safely, or the design is ready for review.
 
-Infer from clarified intent + SPEC + slice/HLD — **state rationale** in `delivery.notes`:
+## Delivery classification
 
-| Flag | Set `true` when | Set `false` when |
-|------|-----------------|------------------|
-| `needs_db` | New/changed persistence, entities, migrations | Pure UI/config/docs/cli with no durable store |
-| `needs_api` | HTTP/RPC/events/CLI surface, external integrations | Internal-only refactor, library module, docs-only |
-| `needs_tasks` | Non-trivial scope; wants chunked `FEATURE:Cn` queue | Lite vertical slice; single bounded change |
+Infer from confirmed intent, SPEC, brownfield evidence, and system context. Record rationale in `delivery.notes`.
 
-When uncertain, **ask one targeted question** in clarify/design — do not default all flags to `true`.
+| Flag | True when | False when |
+|---|---|---|
+| `needs_db` | Persistence, entities, schema, or migrations change | No durable data/store impact |
+| `needs_api` | HTTP/RPC/events/CLI interface or external integration changes | Internal-only change without interface impact |
+| `needs_tasks` | Scope is non-trivial and benefits from an approved task queue | A single bounded vertical slice is safe and reviewable |
 
-## Workflow
+Do not guess when uncertainty materially changes the design. Ask one targeted question and preserve the rest of the analysis as draft.
 
-**A — New (`/design` or `/design "description"`)**
+## Approval and resume semantics
 
-1. If no description and no `<FEATURE>` → ask: *What feature or change do you want to design?* (recommended options from SPEC / slices if available). **STOP**.
-2. Parse or propose `feature_id` (`^[A-Z][A-Z0-9_]{1,31}$`); abort if contract exists in progress — use `/design <FEATURE>`.
-3. Load inputs; missing orientation on existing repo → `/understand`.
-4. Create `<FEATURE>_DESIGN.md` (skeleton), `<FEATURE>.contract.yaml` (`workflow_profile: devflow`, `design_status: draft`, `awaiting_approval: clarify`, all stages `pending`).
-5. Run **clarify** only — grill-style Q&A until intent is clear enough for impact/design.
-6. **STOP** — [stage stop message](#stage-stop-message).
-
-**B — Continue (`/design <FEATURE>` or `… approved`)**
-
-1. Load feature contract + DESIGN.md.
-2. If `awaiting_approval` set and no `approved` in message → **STOP** (remind section to read).
-3. On `approved`: mark stage `approved`, clear `awaiting_approval`.
-4. If all stages `approved` or `skipped` and `design_status` still `draft` → prompt whole-design approval; **STOP** unless explicit approve.
-5. Run **exactly one** next `pending` stage:
-   - **`db`:** if `needs_db` → write `_DB.md` + `_DB.contract.yaml`; else set stage `skipped`.
-   - **`api`:** if `needs_api` → write `_API.md` + `_API.contract.yaml`; else set stage `skipped`.
-6. Set `awaiting_approval` for stages that produced content; **STOP**.
-
-## Stage stop message
-
-```text
-Design stage complete: <STAGE> — read artifacts/<FEATURE>_DESIGN.md § "<section>".
-
-Edit for corrections. When satisfied, reply approved or:
-  /design <FEATURE> approved
-
-Delivery flags: needs_db=<bool> needs_api=<bool> needs_tasks=<bool>
-
-Then: /tdd <FEATURE> → /tasksplit <FEATURE> → /implement (after design_status approved).
-```
+- Initial invocation should complete the safe investigation/design work possible from available evidence and produce a coherent draft, not just create a skeleton.
+- If one material decision is unresolved, record it in `open_questions[]`, keep `design_status: draft`, ask one focused question, and stop. Resume with `/design <FEATURE>`.
+- When all blocking questions are resolved, show the design summary, key evidence, acceptance criteria, delivery flags, risks, and artifacts. Ask for explicit whole-design approval.
+- `/design <FEATURE> approved` approves the **entire currently presented draft**, not a stage. Only accept it when no blocking questions or blocking compatibility risks remain.
+- Any material scope/design change after approval resets `design_status: draft` and requires approval again.
+- Set `design_status: approved` only after explicit human approval. `/tdd` must refuse otherwise.
 
 ## Output artifacts
 
-| Path | When |
-|------|------|
-| `artifacts/<FEATURE>_DESIGN.md` | Always (updated each stage) |
-| `artifacts/<FEATURE>.contract.yaml` | Always |
-| `artifacts/<FEATURE>_DB.md` + `_DB.contract.yaml` | `needs_db: true` (stage `db`) |
-| `artifacts/<FEATURE>_API.md` + `_API.contract.yaml` | `needs_api: true` (stage `api`) |
+| Path | Default |
+|---|---|
+| `artifacts/<FEATURE>.contract.yaml` | Always; canonical structured feature state and approval |
+| `artifacts/<FEATURE>_DESIGN.md` | Always; human-reviewable design rationale and evidence |
+| `artifacts/<FEATURE>_DB.contract.yaml` | Only when `delivery.needs_db: true` |
+| `artifacts/<FEATURE>_API.contract.yaml` | Only when `delivery.needs_api: true` |
+| `artifacts/<FEATURE>_DB.md` | Optional when separate data-design review materially helps or requested |
+| `artifacts/<FEATURE>_API.md` | Optional when separate interface-design review materially helps or requested |
 
-No application source edits.
+Contracts are the downstream handoff. Optional DB/API Markdown is a readable view, not an independently maintained source of truth. Record why conditional outputs were skipped through `delivery` flags; do not create empty placeholder documents.
 
-## `<FEATURE>.contract.yaml` shape
+## Feature contract shape
 
 ```yaml
 contract_version: "1"
 artifact: feature
-feature_id: "<FEATURE>"
 workflow_profile: devflow
-design_status: draft
-awaiting_approval: clarify
-title: "<from clarify>"
-
-spec_path: artifacts/SPEC.md
-feature_plan_contract_path: artifacts/<FEATURE>_PLAN.contract.yaml
+feature_id: "<FEATURE>"
+title: "<short title>"
+design_status: draft # draft | approved
+approved_at: null
+spec_path: "artifacts/SPEC.md"
+feature_plan_contract_path: null
 feature_slices_contract_path: null
 
-design_stages:
-  clarify: { status: draft, approved_at: null }
-  impact: { status: pending, approved_at: null }
-  research: { status: pending, approved_at: null }
-  design: { status: pending, approved_at: null }
-  db: { status: pending, approved_at: null }
-  api: { status: pending, approved_at: null }
-  compat: { status: pending, approved_at: null, blocking: false }
-
-delivery:
-  delivery_profile: lite | standard | heavy
-  needs_db: false
-  needs_api: false
-  needs_tasks: true
-  notes: "<why flags were set>"
-
-depends_on: []
+summary: "<problem and intended outcome>"
 in_scope: []
 out_of_scope: []
-acceptance_criteria: []
+acceptance_criteria:
+  # - id: AC-001
+  #   given_when_then: "Given ... When ... Then ..."
+design:
+  approach: "<chosen approach and rationale>"
+  components: []
+  evidence_paths: []
+  alternatives: []
+  failure_modes: []
+  observability: []
+  security: []
+  compatibility: []
+  migration_and_deployment: []
+delivery:
+  delivery_profile: lite # lite | standard | heavy
+  needs_db: false
+  needs_api: false
+  needs_tasks: false
+  notes: "<rationale for classification>"
+depends_on: []
 open_questions: []
+risks: []
+assumptions: []
 ```
 
-## Conditional `_DB.contract.yaml` (minimal)
+## Conditional DB contract
+
+Write only when `needs_db: true`.
 
 ```yaml
 contract_version: "1"
 artifact: feature_db
 feature_id: "<FEATURE>"
-feature_contract_path: artifacts/<FEATURE>.contract.yaml
+feature_contract_path: "artifacts/<FEATURE>.contract.yaml"
 summary: "<one sentence>"
-persistence: { primary_store: sql | document | kv | file | none | TBD }
+persistence:
+  primary_store: sql # sql | document | kv | file | none | TBD
 entities: []
 relationships: []
 migrations: []
+consistency_and_transactions: []
+backfill_and_rollback: []
 open_questions: []
 ```
 
-## Conditional `_API.contract.yaml` (minimal)
+## Conditional API contract
+
+Write only when `needs_api: true`.
 
 ```yaml
 contract_version: "1"
 artifact: feature_api
 feature_id: "<FEATURE>"
-feature_contract_path: artifacts/<FEATURE>.contract.yaml
+feature_contract_path: "artifacts/<FEATURE>.contract.yaml"
 summary: "<one sentence>"
-style: { protocol: rest | grpc | graphql | cli | in_process | event | TBD }
+style:
+  protocol: rest # rest | grpc | graphql | cli | in_process | event | TBD
 operations: []
+auth_and_authorization: []
+validation_and_errors: []
 compatibility: []
+observability: []
 open_questions: []
 ```
 
-## Approval semantics
-
-| Gate | Rule |
-|------|------|
-| Stage | `approved` in chat while `awaiting_approval` matches |
-| `design_status: approved` | All stages `approved` or `skipped` + explicit human OK |
-| `/tdd` | Refuses if `design_status` not `approved` |
-
 ## Failure handling
 
-- **No SPEC** → seed from template or `/grillme`.
-- **No orientation on existing repo** → `/understand`.
-- **Unknown FEATURE in slices** → list valid IDs or `/slice`.
-- **Compat `blocking: true`** → do not approve design until resolved.
+- Missing SPEC: seed from template or suggest `/grillme`; do not fabricate product intent.
+- Missing/unapproved brownfield plan: stop and suggest `/understand <FEATURE>`.
+- No repository access: make only clearly labeled assumptions, provide one compact targeted evidence request, and keep the design draft.
+- Conflicting evidence: record the conflict and ask if it changes a material decision.
+- Blocking compatibility/security/migration risk: do not mark design approved until resolved or explicitly re-scoped by the human.
+- Missing acceptance criteria: ask a focused question; do not proceed to `/tdd`.
 
 ## Forbidden
 
-- More than one substantive stage per invocation (except auto-`skipped` for db/api when flag false).
-- Invoking deprecated `/feature-*` skills in the same run.
-- `/tdd`, `/tasksplit`, `/implement` in same invocation.
-
-## Deprecated names
-
-Old names (`/plan-feature`, `/feature-questions`, `/feature-research`, `/feature-design`, `/feature-db`, `/feature-api`) all map to **`/design`**. Those skills are gone — do not look for stub folders.
+- One invocation per mechanical design stage.
+- Treating stage approvals as a substitute for whole-design approval.
+- Setting `design_status: approved` without explicit human approval.
+- Emitting DB/API artifacts when the matching delivery flag is false.
+- Creating duplicate Markdown contracts by default for DB/API details.
+- Editing application source or invoking `/tdd`, `/tasksplit`, or `/implement` in this invocation.
+- Running whole-repository scans or generating architecture dumps.
 
 ## Quality bar
 
-- [ ] Human was asked (clarify) when intent was ambiguous.
-- [ ] `delivery` flags set with `notes` rationale.
-- [ ] DB/API artifacts exist iff flags true; otherwise stages `skipped`.
-- [ ] Chat names file, section, and next command.
+- [ ] Safe impact analysis and related research are batched into one invocation.
+- [ ] Product intent and every material decision are confirmed or explicitly left blocking.
+- [ ] Repository claims cite inspected paths; no unsupported behavior claims.
+- [ ] Acceptance criteria, delivery flags, and conditional contracts agree.
+- [ ] Security, failure paths, observability, compatibility, and migration are considered where relevant.
+- [ ] Final approval applies to the coherent complete draft; downstream TDD remains blocked until approved.

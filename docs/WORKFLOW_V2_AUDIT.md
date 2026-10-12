@@ -229,3 +229,28 @@ For a typical `/understand` → `/design` → `/tdd` → `/tasksplit` path, defa
 - [ ] Run brownfield known-pattern and ambiguous-product-rule scenarios in a supported agent runtime.
 - [ ] Verify that `/design` rejects missing/unapproved plans and accepts explicitly approved plans.
 - [ ] Measure actual invocations, tool calls, artifact count, and evidence quality.
+
+
+## Phase 4 implementation update — /design interaction reduction
+
+**Status:** Canonical design workflow and documentation updated; agent skill mirrors synchronized.
+
+- Replaced the seven-stage, one-stage-per-invocation state machine with one bounded investigation-and-synthesis pass.
+- Read-only impact analysis, research, and design are batched where evidence allows. The workflow stops for unresolved material decisions, unavailable evidence, blocking risks, or whole-design approval.
+- `/design <FEATURE> approved` now means explicit approval of the complete currently presented draft, not approval of an individual stage.
+- `design_status: approved` remains mandatory before `/tdd`; material changes reset approval.
+- DB/API contracts are emitted only when their delivery flags are true. Separate DB/API Markdown documents are optional when they materially help review.
+- Harness and dev-loop docs no longer describe per-stage approval as the default.
+
+### Expected effect
+
+A straightforward feature should require one design invocation plus a final approval response rather than separate invocations for clarify, impact, research, design, DB, API, and compatibility. Ambiguous or risky work still stops for focused human decisions. This is a policy expectation; actual turn reduction and output quality have not yet been measured in an agent runtime.
+
+### Validation still required
+
+- [x] Canonical design skill updated.
+- [x] Harness and dev-loop documentation aligned.
+- [x] Cursor, Claude, and GitHub design mirrors materialized from canonical source.
+- [ ] Exercise a clear small feature, a DB/API feature, and a risky compatibility feature in a supported agent runtime.
+- [ ] Verify `/tdd` rejects draft designs and accepts explicitly approved designs.
+- [ ] Measure actual invocations, artifacts, evidence quality, and approval behavior.
