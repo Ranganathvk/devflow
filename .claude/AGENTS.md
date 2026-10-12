@@ -107,15 +107,14 @@ All workflow contracts use **`workflow_profile: devflow`** unless marked legacy 
 
 | Human doc | Machine contract |
 |-----------|------------------|
-| `artifacts/<FEATURE>_PLAN.md` | `artifacts/<FEATURE>_PLAN.contract.yaml` |
-| *(orientation rollup)* | `artifacts/UNDERSTAND.contract.yaml` |
+| *(optional plan review)* `artifacts/<FEATURE>_PLAN.md` | `artifacts/<FEATURE>_PLAN.contract.yaml` |
 | `artifacts/SYSTEM_HLD.md` | `artifacts/SYSTEM_HLD.contract.yaml` |
 | `artifacts/FEATURE_SLICES.md` | `artifacts/FEATURE_SLICES.contract.yaml` |
 | `<FEATURE>_DESIGN.md` | `<FEATURE>.contract.yaml` |
-| `<FEATURE>_DB.md` | `<FEATURE>_DB.contract.yaml` *(when `needs_db`)* |
-| `<FEATURE>_API.md` | `<FEATURE>_API.contract.yaml` *(when `needs_api`)* |
-| `<FEATURE>_TDD.md` | `<FEATURE>_TDD.contract.yaml` |
-| `<FEATURE>_TASKS.md` | `<FEATURE>_TASKS.contract.yaml` |
+| *(optional DB review)* `<FEATURE>_DB.md` | `<FEATURE>_DB.contract.yaml` *(when `needs_db`)* |
+| *(optional API review)* `<FEATURE>_API.md` | `<FEATURE>_API.contract.yaml` *(when `needs_api`)* |
+| *(optional test plan)* `<FEATURE>_TDD.md` | `<FEATURE>_TDD.contract.yaml` |
+| *(optional task summary)* `<FEATURE>_TASKS.md` | `<FEATURE>_TASKS.contract.yaml` |
 | `artifacts/<FEATURE>_C<n>_REVIEW.md` *(optional `/review`)* | `artifacts/<FEATURE>_C<n>_REVIEW.contract.yaml` |
 | `artifacts/SECURITY_REVIEW.md` *(optional `/security-review`)* | `artifacts/SECURITY_REVIEW.contract.yaml` |
 | `artifacts/LEARNINGS.md` (append-only sections) | `artifacts/<FEATURE>_C<n>_LEARN.contract.yaml` |
