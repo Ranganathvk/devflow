@@ -267,3 +267,22 @@ A straightforward feature should require one design invocation plus a final appr
 ### Scope and validation limits
 
 PyYAML is installed only in CI/test execution; no DevFlow runtime dependency was added. The integration session cannot execute the GitHub Actions runner, so the workflow must be verified after push. Manual E1–E7 scenarios still require a supported coding-agent runtime; static tests cannot establish runtime turn reduction, evidence quality, or behavior.
+
+
+## Phase 6 implementation update — CI validation and artifact-policy reconciliation
+
+- Inspected the first GitHub Actions run. Six of seven tests passed; the harness mirror equality check correctly failed because `.cursor/AGENTS.md` and `.claude/AGENTS.md` had not been regenerated after the canonical artifact table changed. Regenerated both mirrors from `core/AGENTS.md`; the subsequent run on commit `d1742d4` passed.
+- Reconciled a remaining policy conflict: the audit/spec say human-readable design docs are optional when they add distinct review value, while `/design` still required `<FEATURE>_DESIGN.md`. The feature contract is now the sole required design artifact; design Markdown is optional and derived from it.
+- Removed the stale `UNDERSTAND.contract.yaml` rollup row from the harness artifact table; `/understand` has explicitly stopped emitting that deprecated duplicate.
+- Aligned `docs/DEV_LOOP.md` and added a regression test for the optional design document and absence of the understand rollup.
+
+### Current default artifact budget
+
+For a typical `/understand` → `/design` → `/tdd` → `/tasksplit` path, the declared default is now **4 durable contracts**: feature plan, feature, TDD, and task queue. A separate plan or design Markdown view is added only when requested or when its evidence/rationale materially benefits human review. DB/API contracts remain conditional; review remains chat-only unless saved.
+
+### Validation
+
+- [x] The initial CI failure was traced to a real mirror-drift defect and fixed.
+- [x] The subsequent run for `d1742d4` completed successfully.
+- [ ] The updated artifact-policy changes must pass the next CI run.
+- [ ] Live coding-agent scenario evaluation remains separate from static CI.

@@ -110,7 +110,7 @@ All workflow contracts use **`workflow_profile: devflow`** unless marked legacy 
 | *(optional plan review)* `{context_dir}/<FEATURE>_PLAN.md` | `{context_dir}/<FEATURE>_PLAN.contract.yaml` |
 | `{context_dir}/SYSTEM_HLD.md` | `{context_dir}/SYSTEM_HLD.contract.yaml` |
 | `{context_dir}/FEATURE_SLICES.md` | `{context_dir}/FEATURE_SLICES.contract.yaml` |
-| `<FEATURE>_DESIGN.md` | `<FEATURE>.contract.yaml` |
+| *(optional design review)* `{context_dir}/<FEATURE>_DESIGN.md` | `{context_dir}/<FEATURE>.contract.yaml` |
 | *(optional DB review)* `<FEATURE>_DB.md` | `<FEATURE>_DB.contract.yaml` *(when `needs_db`)* |
 | *(optional API review)* `<FEATURE>_API.md` | `<FEATURE>_API.contract.yaml` *(when `needs_api`)* |
 | *(optional test plan)* `<FEATURE>_TDD.md` | `<FEATURE>_TDD.contract.yaml` |

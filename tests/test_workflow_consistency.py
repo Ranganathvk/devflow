@@ -111,6 +111,13 @@ class WorkflowConsistencyTests(unittest.TestCase):
         self.assertIn("design_status: approved", tdd)
         self.assertIn("Do not invoke before design approval", tdd)
 
+    def test_design_markdown_is_optional_and_harness_has_no_rollup_contract(self):
+        design = (ROOT / "core/skills/design/SKILL.md").read_text(encoding="utf-8")
+        agents = (ROOT / "core/AGENTS.md").read_text(encoding="utf-8")
+        self.assertIn("Optional when separate human review adds value or is requested", design)
+        self.assertIn("optional design review", agents.lower())
+        self.assertNotIn("UNDERSTAND.contract.yaml", agents)
+
     def test_implement_stays_bounded_to_one_unit(self):
         text = (ROOT / "core/skills/implement/SKILL.md").read_text(encoding="utf-8")
         self.assertIn("Implement **one** bounded chunk", text)

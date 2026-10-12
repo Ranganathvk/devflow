@@ -71,13 +71,13 @@ Do not guess when uncertainty materially changes the design. Ask one targeted qu
 | Path | Default |
 |---|---|
 | `{context_dir}/<FEATURE>.contract.yaml` | Always; canonical structured feature state and approval |
-| `{context_dir}/<FEATURE>_DESIGN.md` | Always; human-reviewable design rationale and evidence |
+| `{context_dir}/<FEATURE>_DESIGN.md` | Optional when separate human review adds value or is requested; derive from the feature contract |
 | `{context_dir}/<FEATURE>_DB.contract.yaml` | Only when `delivery.needs_db: true` |
 | `{context_dir}/<FEATURE>_API.contract.yaml` | Only when `delivery.needs_api: true` |
 | `{context_dir}/<FEATURE>_DB.md` | Optional when separate data-design review materially helps or requested |
 | `{context_dir}/<FEATURE>_API.md` | Optional when separate interface-design review materially helps or requested |
 
-Contracts are the downstream handoff. Optional DB/API Markdown is a readable view, not an independently maintained source of truth. Record why conditional outputs were skipped through `delivery` flags; do not create empty placeholder documents.
+The feature contract is the downstream handoff and is the only required design artifact. Present the coherent design, evidence, acceptance criteria, delivery flags, and risks in chat for approval. Create `<FEATURE>_DESIGN.md` only when separate human review adds distinct value or the human requests it; derive it from the contract rather than independently maintaining facts. Optional DB/API Markdown is likewise a readable view, not a second source of truth. Record conditional outputs through `delivery` flags; do not create empty placeholder documents.
 
 ## Feature contract shape
 
@@ -186,5 +186,6 @@ open_questions: []
 - [ ] Product intent and every material decision are confirmed or explicitly left blocking.
 - [ ] Repository claims cite inspected paths; no unsupported behavior claims.
 - [ ] Acceptance criteria, delivery flags, and conditional contracts agree.
+- [ ] Design Markdown is omitted unless it adds distinct review value or is requested.
 - [ ] Security, failure paths, observability, compatibility, and migration are considered where relevant.
 - [ ] Final approval applies to the coherent complete draft; downstream TDD remains blocked until approved.

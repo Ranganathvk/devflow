@@ -96,7 +96,7 @@ When `/design` sets `delivery.needs_tasks: false`, skip the queue and use `/impl
 | Spec | `artifacts/SPEC.md` |
 | Orientation | `<FEATURE>_PLAN.contract.yaml`; optional `<FEATURE>_PLAN.md` for human review |
 | System shape | `SYSTEM_HLD.*`, `FEATURE_SLICES.*` |
-| Feature | `<FEATURE>_DESIGN.md`, `<FEATURE>.contract.yaml`; DB/API contracts only when needed; DB/API Markdown optional |
+| Feature | `<FEATURE>.contract.yaml`; optional `<FEATURE>_DESIGN.md` when separate review adds value; DB/API contracts only when needed; DB/API Markdown optional |
 | Tests / queue | `<FEATURE>_TDD.contract.yaml`, `<FEATURE>_TASKS.contract.yaml`; Markdown summaries are optional |
 | Per task (optional) | Review findings in chat; `<FEATURE>_C<n>_REVIEW.*` only when `/review ... save` is requested |
 | Working tree (optional) | `SECURITY_REVIEW.*` if `/security-review` is used |
