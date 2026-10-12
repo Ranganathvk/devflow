@@ -116,15 +116,16 @@ Do **not** author giant monolithic skills.
 
 ## Artifact pattern
 
-Major workflows emit **paired** artifacts:
+Major workflows emit the compact contract needed for reliable downstream handoff. A human-readable document is retained when it adds design rationale, evidence, or a review surface that the contract does not capture.
 
-
-| Human doc             | Machine contract           |
-| --------------------- | -------------------------- |
-| e.g. `SYSTEM_HLD.md`  | `SYSTEM_HLD.contract.yaml` |
-| e.g. `AUTH_DESIGN.md` | `AUTH.contract.yaml`       |
-| e.g. `AUTH_DB.md`     | `AUTH_DB.contract.yaml`    |
-| e.g. `AUTH_API.md`    | `AUTH_API.contract.yaml`   |
+| Workflow output | Default policy |
+| --- | --- |
+| `SPEC.md` | Human-owned source of product intent; not replaced by generated YAML |
+| Feature/design contract | Durable structured state and downstream handoff |
+| HLD/slice/design/understand narrative | Retain when it provides distinct context or human review value |
+| TDD/task Markdown | Optional projection; contract is sufficient by default |
+| Review report | Chat by default; persist the report/contract pair only when requested |
+| DB/API documents | Conditional, when the feature design warrants separate review |
 
 
 ## Context strategy
