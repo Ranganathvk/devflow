@@ -1,5 +1,7 @@
-# Reference shape for {context_dir}/UNDERSTAND.contract.yaml
-# Emitted by /understand — rollup after the feature PLAN is ready.
+# Legacy reference shape for {context_dir}/UNDERSTAND.contract.yaml.
+# Deprecated: /understand now writes only {context_dir}/<FEATURE>_PLAN.contract.yaml.
+# Keep this file for migration/reading older projects; do not emit new rollup contracts.
+
 
 contract_version: "1"
 artifact: understand

@@ -1,360 +1,94 @@
 ---
 name: understand
 description: >-
-  Per-feature brownfield investigation as a state machine — assess known context,
-  close the highest-priority gap with one question or search, persist artifacts/<FEATURE>_PLAN.md
-  every turn, repeat until ready for design. Invoke /understand, /understand FEATURE, or
-  /understand "description" on an existing codebase.
+  Bounded brownfield investigation before design. Performs several targeted read-only searches
+  per invocation, persists one feature-plan contract, and asks only for decisions that require
+  human knowledge. Invoke /understand, /understand FEATURE, or /understand "description".
 ---
 
-# /understand [\<FEATURE\> | "\<description>"]
+# /understand [<FEATURE> | "description"]
 
 ## Purpose
 
-**One command** — a **state machine**, not a single prompt — for disciplined investigation before design on **existing codebases**.
+Gather only the codebase context needed to design a bounded change. Investigate the change path, cite repository evidence, record meaningful risks and unknowns, then stop for human input or approval. This is not a whole-repository survey.
 
-Goal: acquire **just enough context** to safely run `/design <FEATURE>`. The agent never tries to understand the whole repository; it closes gaps one at a time until the feature is **Ready for Design**.
+Downstream: `/design <FEATURE>`.
 
-Downstream: **`/design <FEATURE>`**.
+## Invocation
 
-Do **not**:
+- `/understand`: ask what change to investigate only when no intent is available from the message or SPEC.
+- `/understand <FEATURE>`: resume from the existing feature-plan contract.
+- `/understand "add OTP login"`: derive a proposed feature ID and investigate the supplied intent.
+- Use for brownfield changes. For empty-spec greenfield work, use `/grillme` or `/design` as appropriate.
+- Never implement or chain `/design`, `/tdd`, `/tasksplit`, or `/implement` in this invocation.
 
-- Scan or summarize the whole repository
-- Generate architecture documentation or knowledge graphs
-- Dump layout or conventions as separate artifacts (close those gaps with targeted search)
-- Implement features or chain `/design` in the same invocation
+## Inputs and bounds
 
-## When to invoke
+- Required: consumer repository access for targeted searches, if available.
+- Optional: `artifacts/SPEC.md` and `PROJECT_STATE.md`.
+- Resume state: `artifacts/<FEATURE>_PLAN.contract.yaml`; read it first.
+- Read only files relevant to the feature path. Normally inspect no more than 12 source/config/test files in one invocation; expand only with a concrete reason.
+- Do not dump the repository tree, scan every module, generate architecture docs/knowledge graphs, edit application source, or invent paths.
 
-| Invocation | When |
-|------------|------|
-| `/understand` | New change — agent asks what to investigate; derives `<FEATURE>` |
-| `/understand <FEATURE>` | Continue the loop from persisted PLAN state |
-| `/understand "add OTP login"` | Propose `<FEATURE>` id; seed PLAN; enter the loop |
+## Operating model
 
-- Use on **existing codebases** when preparing a bounded change.
-- Do **not** use when starting from an empty spec with no repo — use `/grillme` first.
-- Do **not** implement — use `/design` → `/tdd` → `/tasksplit` → `/implement`.
+**One invocation may perform multiple bounded read-only investigation steps.** The unit of control is a meaningful decision boundary, not an individual search.
 
-## Inputs
+1. **Assess:** read the existing plan contract (if any), SPEC, and relevant state.
+2. **Investigate:** run several focused searches and inspect relevant files. Follow entry points to the owning component, one or more analogous patterns, critical dependencies, and applicable tests/configuration.
+3. **Synthesize:** record evidence-backed findings, scope, constraints, risks, and unresolved questions.
+4. **Persist:** update the feature-plan contract once the investigation batch has meaningful results or before stopping.
+5. **Transition:** ask one focused human question and stop if blocked; otherwise continue investigation if a material gap remains; when ready, present the summary and request approval.
 
-- **Required:** Consumer repository (for targeted search when tools available).
-- **Optional:** `artifacts/SPEC.md` — product-level intent only; do not rewrite unrelated sections.
-- **State (continue mode):** `artifacts/<FEATURE>_PLAN.md` + `artifacts/<FEATURE>_PLAN.contract.yaml` — **read first every turn**.
-- **Forbidden:** Unbounded chat as requirements; whole-repo dumps; editing application source; inventing paths without evidence.
+Do not stop merely because one search or a mechanical category is complete. Do stop when the next step requires product intent, a business rule, a material scope/architecture decision, human-provided repository evidence, or approval.
 
----
+## Investigation strategy
 
-## Core loop (every turn)
+Prioritize in this order, but cover related items together when the same evidence answers several questions:
 
-`/understand` is a **repeatable state machine**. Each turn executes exactly this sequence:
+1. **Intent:** problem and business goal confirmed by the human or authoritative SPEC.
+2. **Entry path:** handler, endpoint, job, CLI, event, or caller that initiates the change.
+3. **Ownership:** responsible module/service and its evidence path.
+4. **Scope:** explicit in-scope and out-of-scope boundaries.
+5. **Dependencies:** important integrations, persistence, configuration, and call paths.
+6. **Existing patterns:** a comparable implementation, or a documented search that found none.
+7. **Constraints and risks:** compatibility, security, performance, migration, deployment, operational failure modes.
+8. **Open questions:** resolve blocking uncertainties; retain non-blocking questions with explicit rationale.
 
-```text
-1. ASSESS   — Read persisted PLAN + contract; summarize what is already known.
-2. PRIORITIZE — Pick the single highest-priority missing gap (see gap categories).
-3. ACT      — One focused question OR one targeted repo/IDE search (never both, never many).
-4. PERSIST  — Merge results into PLAN.md + PLAN.contract.yaml; update progress tracker.
-5. TRANSITION — If ready_for_design: request human approval. Else: continue loop or STOP if blocked.
-```
+Use the cheapest search that can answer the question. Search symbols, route names, types, configuration keys, imports/callers, tests, and migration names. Inspect the smallest useful file set and cite paths for every repository-derived claim. A path is evidence of location, not proof that a behavior works; inspect the relevant implementation/test where needed.
 
-```mermaid
-stateDiagram-v2
-  [*] --> Assess
-  Assess --> Prioritize: read PLAN
-  Prioritize --> Act: top gap selected
-  Act --> Persist: answer or search result
-  Persist --> Assess: not ready, not blocked
-  Persist --> Blocked: needs human input
-  Blocked --> Assess: human responds
-  Persist --> ReadyCheck: all exit conditions met
-  ReadyCheck --> Blocked: request approval
-  ReadyCheck --> [*]: approved, ready_for_design true
-```
+If tools are available, execute searches and inspect files directly. If repo access is unavailable, emit one compact search request for the human to run and stop. Never claim a search was performed when it was not.
 
-**Loop rules**
+## Human questions and approvals
 
-- **Persist every turn** — never keep state only in chat. After step 4, `artifacts/<FEATURE>_PLAN.md` and `.contract.yaml` must exist and reflect current knowledge (draft is fine).
-- **One action per turn** — one question *or* one search, not a list.
-- **Continue within a session** when the agent can act autonomously (has search tools and no human-only gap). Run multiple loop iterations in one invocation when unblocked.
-- **STOP only when:**
-  - waiting on human input (answer, approval, or IDE paste), or
-  - `ready_for_design: true` and human has approved → hand off to `/design`.
-- Do **not** STOP after an arbitrary "phase" — only on block or completion.
+- Ask only when the answer requires human knowledge or changes product behavior, scope, compatibility policy, or another material decision.
+- Ask **one focused question at a time**, with a recommended answer when defensible.
+- Do not ask the human to locate code that the agent can search itself.
+- If a human answer is required, persist current findings and the question, then stop. Resume with `/understand <FEATURE>`.
+- When investigation is ready, summarize the proposed intent, scope, key evidence, patterns, constraints, risks, and non-blocking unknowns in chat. Ask for explicit approval.
+- Set `ready_for_design: true` and `understand_status: ready` only after explicit human approval. Do not treat silence or a generated report as approval.
 
----
+## Ready-for-design criteria
 
-## Step 1 — Assess (read state)
+All must hold before asking for final approval:
 
-At the **start of every turn**:
+- Problem statement and business goal are human-confirmed or grounded in the authoritative SPEC.
+- Domain and responsible components are evidence-backed.
+- In-scope and out-of-scope boundaries are explicit.
+- Each material in-scope component has an evidence path, or a clearly identified blocking unknown.
+- At least one analogous pattern is cited, or a targeted search and its “none found” result are recorded.
+- Material dependencies, constraints, and risks are captured, or their absence is explicitly justified.
+- No unresolved blocking questions remain.
 
-1. Ensure `artifacts/` exists.
-2. Load `artifacts/<FEATURE>_PLAN.md` and `artifacts/<FEATURE>_PLAN.contract.yaml` if present; else seed empty skeleton (see [Output artifacts](#output-artifacts)).
-3. Optionally skim `artifacts/SPEC.md` for product intent — do not rewrite it.
-4. Summarize internally (and briefly in chat if useful): what is **known**, what is **unknown**, what is **blocked on human**.
+A failed or empty search is not evidence that a component does not exist. Record the attempted search and try a different symbol/entry path before concluding “none found.”
 
-The PLAN files are the **source of truth** for investigation state — not chat history.
+## Durable output
 
----
+**Default: one file** in the consumer repository: `artifacts/<FEATURE>_PLAN.contract.yaml`. This contract is the resumable investigation state and the handoff consumed by `/design`.
 
-## Step 2 — Prioritize (pick one gap)
+Do not create `UNDERSTAND.contract.yaml`: it only duplicated pointers to the feature plan. Do not create `<FEATURE>_PLAN.md` by default. Create that Markdown view only when the human asks for it or the evidence/rationale is substantial enough that a separate review document materially helps. If created, derive it from the contract and avoid independently maintained copies of facts.
 
-Scan [gap categories](#gap-categories) in **priority order**. Select the **first category** that still has an open, blocking gap. Within that category, pick the **single most important** missing piece.
-
-**Priority order** (highest first — do not skip a higher category while it has blocking gaps):
-
-| Priority | Category | Blocking until |
-|----------|----------|----------------|
-| P0 | **Intent** | Problem statement + business goal confirmed by human |
-| P1 | **Entry points** | At least one evidence path for how the change enters the system (API, handler, job, CLI) |
-| P2 | **Ownership** | Service/module responsible is identified with evidence path |
-| P3 | **Scope** | In-scope and out-of-scope boundaries stated |
-| P4 | **Dependencies** | Critical integrations/dependencies on the change path have evidence or explicit unknown |
-| P5 | **Patterns** | ≥1 analogous implementation cited, or explicit "none found" after search |
-| P6 | **Constraints** | Blocking constraints (compat, security, migration) captured or confirmed none |
-| P7 | **Risks** | Material risks named or explicitly none |
-| P8 | **Open questions** | No unresolved blocking questions remain (non-blocking may remain with human ack) |
-
-If two gaps tie, prefer the one **closer to the change entry point** (intent → code → patterns → constraints).
-
-State the chosen gap in chat:
-
-```text
-Highest-priority gap: <category> — <one-line description of what is missing>
-```
-
----
-
-## Step 3 — Act (one question or one search)
-
-Choose **exactly one** action type for this turn.
-
-### A — Focused question
-
-Use when the gap requires human knowledge (intent, constraints, approval, business rules).
-
-- One question only.
-- Include a **recommended** answer when choices are fixed.
-- Do not ask broad questions ("tell me about the architecture").
-
-### B — Targeted search
-
-Use when the gap can be closed by repo/IDE evidence.
-
-- Pick one template from the [investigation prompt library](#investigation-prompt-library).
-- **Agent has search tools** → run the search, record evidence paths.
-- **Agent lacks repo access** → emit the prompt block and **STOP** for human paste.
-
-```text
-Objective
-  <what we need to learn>
-
-Suggested Search
-  <symbol, endpoint, class name, or grep pattern>
-
-Expected Output
-  • <concrete item>
-  • <concrete item>
-
-Next Step
-  Share the results here.
-```
-
-**Never** combine multiple questions or searches in one turn.
-
----
-
-## Step 4 — Persist (update PLAN)
-
-After every act — success, partial result, or new unknown — **write files**:
-
-1. Update `artifacts/<FEATURE>_PLAN.md` sections affected by new knowledge.
-2. Update `artifacts/<FEATURE>_PLAN.contract.yaml`:
-   - `progress.*` booleans
-   - `evidence_paths`, `patterns`, `constraints`, `risks`, `open_questions`
-   - `understand_status: draft` until approved
-3. Refresh `artifacts/UNDERSTAND.contract.yaml` rollup (minimal pointer to current PLAN).
-
-Show the [progress tracker](#progress-tracker-every-turn) in chat after persist.
-
----
-
-## Step 5 — Transition (continue, block, or complete)
-
-| Condition | Next |
-|-----------|------|
-| All [exit conditions](#exit-conditions-ready-for-design) met | Ask human to review PLAN; request approval; on approval set `ready_for_design: true`, `understand_status: ready` |
-| Human input required | **STOP** — state is persisted; resume with `/understand <FEATURE>` |
-| Gaps remain, agent can act | Return to **Step 1** (next loop iteration) |
-| Search failed | Record in `unknowns` / `open_questions`; pick alternate search next turn or ask human |
-
-**Completion STOP message:**
-
-```text
-Understanding complete for <FEATURE>.
-
-Review: artifacts/<FEATURE>_PLAN.md
-
-When satisfied, run:
-  /design <FEATURE>
-```
-
----
-
-## Gap categories (reference)
-
-Categories map to PLAN sections — the loop pulls from these dynamically, not in a fixed session-long phase.
-
-| Category | PLAN sections | Typical actions |
-|----------|---------------|-----------------|
-| Intent | Feature summary, Business goal | Clarifying questions; confirm ACs |
-| Entry points | Relevant files (handlers, routes) | Locate API / service search |
-| Ownership | Relevant components | Locate service search |
-| Scope | Scope in/out | Questions + evidence from entry files |
-| Dependencies | Dependencies and integrations | Locate integration search; trace imports/callers |
-| Patterns | Existing patterns to reuse | Locate similar implementation search |
-| Constraints | Constraints | Questions on compat, security, perf, deploy, migration |
-| Risks | Risks, Unknowns | Questions + evidence from change path |
-| Open questions | Open questions | Resolve or explicitly defer with human ack |
-
----
-
-## Exit conditions (Ready for Design)
-
-All must be true before requesting approval:
-
-- [ ] `progress.problem_statement` and `progress.business_goal` — human confirmed
-- [ ] `progress.domain` and `progress.components` — evidence-backed (not guessed)
-- [ ] Every in-scope component has an `evidence_paths` entry **or** an `open_questions` entry marked blocking
-- [ ] `progress.existing_patterns` — ≥1 pattern cited **or** search attempted and "none found" recorded
-- [ ] `progress.constraints` — blocking constraints captured or confirmed none
-- [ ] `progress.risks` — material risks listed or explicitly none
-- [ ] No `open_questions` with `blocking: true` remain unresolved
-
-Set `ready_for_design: true` in the contract **only after explicit human approval** of the PLAN.
-
----
-
-## Progress tracker (every turn)
-
-Show after Step 4 (persist):
-
-```text
-Understanding Progress — <FEATURE>
-
-✓ Problem Statement      ◯ or ✓
-✓ Business Goal          ◯ or ✓
-◯ Domain
-◯ Components
-◯ Existing Patterns
-◯ Constraints
-◯ Risks
-◯ Ready for Design
-
-Current gap: <category> — <one line>
-Loop: assess → prioritize → act → persist
-```
-
-Mark ✓ only when evidence-backed or human-confirmed per exit conditions.
-
----
-
-## Investigation prompt library
-
-Substitute concrete names from PLAN intent sections.
-
-### Locate API
-
-```text
-Objective: Identify the HTTP/RPC handler for <capability>.
-Suggested Search: <route, controller name, or OpenAPI operationId>
-Expected Output: handler file, route registration, request/response types
-Next Step: Share the results here.
-```
-
-### Locate service
-
-```text
-Objective: Identify the service/module responsible for <capability>.
-Suggested Search: <ServiceName or domain keyword>
-Expected Output: class/module names, package path, primary entry file
-Next Step: Share the results here.
-```
-
-### Locate database
-
-```text
-Objective: Find where <entity/concept> is persisted.
-Suggested Search: <EntityName, table name, repository interface>
-Expected Output: entity/model, repository, migration or schema file
-Next Step: Share the results here.
-```
-
-### Locate similar implementation
-
-```text
-Objective: Find an existing feature analogous to <requested change>.
-Suggested Search: <similar feature name or endpoint>
-Expected Output: files implementing the analogous flow end-to-end
-Next Step: Share the results here.
-```
-
-### Locate integration
-
-```text
-Objective: Find how the system integrates with <external system/queue>.
-Suggested Search: <client class, adapter, topic name>
-Expected Output: client/adapter file, config, call sites
-Next Step: Share the results here.
-```
-
-### Locate configuration
-
-```text
-Objective: Find configuration for <feature/flag/env>.
-Suggested Search: <env var, feature flag key, config key>
-Expected Output: config file, default values, where loaded
-Next Step: Share the results here.
-```
-
----
-
-## Output artifacts
-
-Written to the **consumer project's** `artifacts/`:
-
-| Path | When |
-|------|------|
-| `artifacts/<FEATURE>_PLAN.md` | **Every turn** after Step 4 (seed on first turn) |
-| `artifacts/<FEATURE>_PLAN.contract.yaml` | **Every turn** after Step 4 |
-| `artifacts/UNDERSTAND.contract.yaml` | **Every turn** — rollup pointer |
-
-### `<FEATURE>_PLAN.md` skeleton
-
-Target **≤ ~150 lines**. PLAN = *what exists and what is affected* — not a design doc.
-
-```markdown
-# <FEATURE> — understanding plan
-
-## Feature summary
-## Business goal
-## Scope
-### In scope
-### Out of scope
-## Affected domains
-## Relevant components
-## Relevant files
-<!-- evidence paths only; no invented paths -->
-## Existing patterns to reuse
-## Dependencies and integrations
-## Constraints
-## Risks
-## Unknowns
-## Open questions
-## Readiness
-<!-- ready for /design when human approves -->
-```
-
-### `<FEATURE>_PLAN.contract.yaml` shape
+### Feature-plan contract shape
 
 ```yaml
 contract_version: "1"
@@ -362,100 +96,79 @@ artifact: feature_plan
 workflow_profile: devflow
 feature_id: "<FEATURE>"
 title: "<short title>"
-understand_status: draft | ready
-completed_at: "YYYY-MM-DD"
-
-summary: "<one paragraph; update each persist>"
-
-progress:
-  problem_statement: false
-  business_goal: false
-  domain: false
-  components: false
-  existing_patterns: false
-  constraints: false
-  risks: false
-  ready_for_design: false
-
-evidence_paths: []
-  # - path: "src/..."
-  #   role: "handler | service | repo | config | test | other"
-  #   notes: "..."
-
-patterns: []
-  # - id: PAT-001
-  #   summary: "..."
-  #   evidence_paths: ["..."]
-
-constraints: []
-  # - id: CON-001
-  #   category: compat | security | performance | deploy | migration | other
-  #   summary: "..."
-  #   blocking: false
-
-risks: []
-open_questions: []
-  # - id: Q-001
-  #   question: "..."
-  #   blocking: true
-
+understand_status: draft # draft | ready
+updated_at: "YYYY-MM-DD"
 ready_for_design: false
 
+intent:
+  problem_statement: "<human-confirmed or SPEC-grounded>"
+  business_goal: "<human-confirmed or SPEC-grounded>"
+summary: "<concise current understanding>"
+
+scope:
+  in_scope: []
+  out_of_scope: []
+
+domains: []
+components: []
+evidence_paths:
+  # - path: "src/..."
+  #   role: "entry | service | repository | config | test | migration | other"
+  #   claim: "What this path demonstrates"
+
+patterns:
+  # - id: PAT-001
+  #   summary: "Reusable behavior"
+  #   evidence_paths: ["src/..."]
+
+dependencies: []
+constraints:
+  # - id: CON-001
+  #   category: compat | security | performance | deploy | migration | other
+  #   summary: "Constraint"
+  #   blocking: false
+risks: []
+open_questions:
+  # - id: Q-001
+  #   question: "Question"
+  #   blocking: true
+  #   why_blocking: "Decision affected"
+
+assumptions: []
+searches:
+  # - query: "symbol or search intent"
+  #   result: "What was found, including none found"
+  #   evidence_paths: ["src/..."]
+
+approval:
+  status: pending # pending | approved
+  approved_at: null
+  notes: ""
 downstream_skills:
   - design
 ```
-
-### `UNDERSTAND.contract.yaml` rollup (minimal)
-
-```yaml
-contract_version: "1"
-artifact: understand
-workflow_profile: devflow
-completed_at: "YYYY-MM-DD"
-
-feature_plan_contract_path: "artifacts/<FEATURE>_PLAN.contract.yaml"
-feature_plan_path: "artifacts/<FEATURE>_PLAN.md"
-
-summary: "<FEATURE> — one-line state>"
-
-open_gaps: []
-
-downstream_skills:
-  - design
-```
-
-## Feature ID rules
-
-- Derive from description: `^[A-Z][A-Z0-9_]{1,31}$` (e.g. `"add OTP login"` → `OTP_LOGIN`).
-- Propose to human on first use; reuse existing id when `artifacts/<FEATURE>_PLAN.*` exists.
 
 ## Failure handling
 
-- **Change too vague** — P0 Intent gap only; one clarifying question; persist partial PLAN; do not invent paths.
-- **Search returns nothing** — persist under `unknowns`; next turn pick alternate search or ask human.
-- **Investigation blocked** — persist current state; **STOP** with specific ask; resume via `/understand <FEATURE>`.
-- **Missing `artifacts/`** — create before first persist.
+- Missing or vague intent: ask one focused question; do not invent product behavior.
+- No repository access: persist known intent, provide one targeted search request, and stop.
+- Search yields nothing: record the query/result and try a different entry path before declaring no pattern found.
+- Conflicting evidence: record the conflict and ask only if it changes the next safe step.
+- Existing approved plan with changed requirements: mark approval pending and explain which facts changed.
 
 ## Forbidden
 
-- Whole-repo layout or conventions dumps as separate skills.
-- Keeping investigation state only in chat without persisting PLAN.
-- Feature design, TDD, tasksplit, implementation, review.
-- Chaining `/design`, `/tdd`, or `/implement` in the same run.
-- Knowledge graphs, vector DBs, or whole-repo parsing platforms.
+- Whole-repository summaries, unbounded scans, or architecture documentation dumps.
+- Requiring a separate user turn for each search.
+- Creating a Markdown plan and rollup contract by default.
+- Claiming `ready_for_design` without explicit human approval.
+- Implementing code or invoking downstream skills.
 
 ## Quality bar
 
-- [ ] Every turn: read PLAN → pick top gap → one action → persist PLAN.
-- [ ] Progress tracker and current gap shown after persist.
-- [ ] One question **or** one search per turn — never a laundry list.
-- [ ] Every claimed component has evidence path or blocking open question.
-- [ ] `ready_for_design` set only after exit conditions + human approval.
-- [ ] STOP only when blocked on human or investigation complete.
-
-## Advanced
-
-| Need | Use |
-|------|-----|
-| Full product spec interview | `/grillme` |
-| Large multi-feature scope | `/slice` |
+- [ ] Several safe searches are batched when they answer related questions.
+- [ ] Every codebase claim has a real evidence path.
+- [ ] The investigation is bounded and focused on the requested change.
+- [ ] Human questions are necessary, focused, and not answerable by repository search.
+- [ ] One durable contract is updated before stopping.
+- [ ] Approval and blocking unknowns are represented explicitly.

@@ -94,7 +94,7 @@ When `/design` sets `delivery.needs_tasks: false`, skip the queue and use `/impl
 | Phase | Files |
 |-------|--------|
 | Spec | `artifacts/SPEC.md` |
-| Orientation | `<FEATURE>_PLAN.*`, `UNDERSTAND.contract.yaml` |
+| Orientation | `<FEATURE>_PLAN.contract.yaml`; optional `<FEATURE>_PLAN.md` for human review |
 | System shape | `SYSTEM_HLD.*`, `FEATURE_SLICES.*` |
 | Feature | `<FEATURE>_DESIGN.md`, `<FEATURE>.contract.yaml`, optional `_DB`, `_API`, `_QUESTIONS`, `_RESEARCH` |
 | Tests / queue | `<FEATURE>_TDD.contract.yaml`, `<FEATURE>_TASKS.contract.yaml`; Markdown summaries are optional |

@@ -35,7 +35,7 @@ Downstream: **`/tdd <FEATURE>`** → **`/tasksplit <FEATURE>`** → **`/implemen
 ## Inputs
 
 - **Required:** `artifacts/SPEC.md`
-- **Required (existing repo):** `artifacts/UNDERSTAND.contract.yaml` or `artifacts/<FEATURE>_PLAN.contract.yaml` — if missing, suggest `/understand` first
+- **Required (existing repo):** `artifacts/<FEATURE>_PLAN.contract.yaml` with `ready_for_design: true` and `approval.status: approved`; if missing or not approved, suggest `/understand <FEATURE>` first
 - **Optional:** `artifacts/FEATURE_SLICES.contract.yaml` — scope when `/slice` ran
 - **Optional:** `artifacts/SYSTEM_HLD.contract.yaml`
 - **Required for work:** Consumer repo when impact/research/db/api touch code
@@ -125,7 +125,7 @@ awaiting_approval: clarify
 title: "<from clarify>"
 
 spec_path: artifacts/SPEC.md
-understand_contract_path: artifacts/UNDERSTAND.contract.yaml
+feature_plan_contract_path: artifacts/<FEATURE>_PLAN.contract.yaml
 feature_slices_contract_path: null
 
 design_stages:

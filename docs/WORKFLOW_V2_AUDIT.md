@@ -203,3 +203,29 @@ For a typical `/understand` → `/design` → `/tdd` → `/tasksplit` path, defa
 - [x] Canonical skills and policy updated.
 - [x] Generated Cursor, Claude, and GitHub skill mirrors updated from canonical text.
 - [ ] Execute representative workflows in a supported agent runtime and verify file counts, contract validity, approval semantics, and output quality.
+
+
+## Phase 3 implementation update — /understand simplification
+
+**Status:** Canonical skill updated; downstream input contract aligned; generated mirrors synchronized.
+
+- A single invocation may perform multiple bounded, read-only searches and inspect related files before synthesizing findings.
+- The skill asks one focused question only when a human decision or unavailable repository evidence is required; it no longer requires one search per iteration/turn.
+- Default durable output is now one `<FEATURE>_PLAN.contract.yaml`. The duplicate `UNDERSTAND.contract.yaml` rollup is no longer emitted. `<FEATURE>_PLAN.md` is optional when separate human review adds value.
+- The plan contract explicitly records intent, scope, components, evidence paths, patterns, dependencies, constraints, risks, searches, assumptions, open questions, and approval.
+- `/design` now requires the approved feature-plan contract for brownfield work and points its feature contract at that file.
+- Human approval remains required before `ready_for_design: true`; implementation remains out of scope.
+
+### Expected artifact and interaction effects
+
+- Default `/understand` output falls from three files to one contract (two fewer files, or 67% fewer declared outputs).
+- Search/investigation turns should decrease when several safe searches can be completed in one invocation. This is an expected behavior change, not a measured runtime result.
+- The Markdown plan remains available for substantial evidence or explicit human review, but is not a second independently maintained source of truth.
+
+### Validation still required
+
+- [x] Canonical `/understand` and `/design` instructions aligned.
+- [x] Cursor, Claude, and GitHub skill mirrors materialized from canonical sources.
+- [ ] Run brownfield known-pattern and ambiguous-product-rule scenarios in a supported agent runtime.
+- [ ] Verify that `/design` rejects missing/unapproved plans and accepts explicitly approved plans.
+- [ ] Measure actual invocations, tool calls, artifact count, and evidence quality.
