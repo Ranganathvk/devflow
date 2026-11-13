@@ -29,7 +29,7 @@ The framework **enforces** disciplined workflows; the **human** remains architec
 3. **Human code ownership** — Humans own merge quality (tests, PR, optional `/review` or a third-party review skill). `/implement` marks tasks done.
 4. **Context rotation** — Broad phases use broad context; deep work uses **narrow, surgical** context; avoid unbounded chat history as the source of truth.
 5. **Separate questions / research / design** — Do not mix speculative design with objective repo inspection. Preferred order is **Questions → Research → Design → Implementation**, but these are **optional modules per feature** (not a mandatory chain for every slice).
-6. **Contract-based handoff** — Major artifacts emit a **human-readable doc** and a **machine-readable compact contract** (`.yaml`); downstream steps consume **contracts**, not giant prior docs.
+6. **Contract-based handoff** — Downstream steps consume **machine-readable compact contracts** (`.yaml`), not giant prior docs. Create a human-readable document when it adds distinct review/context value or the human requests it; do not mechanically pair a Markdown file with every contract.
 7. **Short design docs** — Feature design docs stay **compact** (order of **~200 lines max** per doc).
 
 ## Locked workflow (slash commands)
@@ -116,15 +116,16 @@ Do **not** author giant monolithic skills.
 
 ## Artifact pattern
 
-Major workflows emit **paired** artifacts:
+Major workflows emit the compact contract needed for reliable downstream handoff. A human-readable document is retained when it adds design rationale, evidence, or a review surface that the contract does not capture.
 
-
-| Human doc             | Machine contract           |
-| --------------------- | -------------------------- |
-| e.g. `SYSTEM_HLD.md`  | `SYSTEM_HLD.contract.yaml` |
-| e.g. `AUTH_DESIGN.md` | `AUTH.contract.yaml`       |
-| e.g. `AUTH_DB.md`     | `AUTH_DB.contract.yaml`    |
-| e.g. `AUTH_API.md`    | `AUTH_API.contract.yaml`   |
+| Workflow output | Default policy |
+| --- | --- |
+| `SPEC.md` | Human-owned source of product intent; not replaced by generated YAML |
+| Feature/design contract | Durable structured state and downstream handoff |
+| HLD/slice/design/understand narrative | Retain when it provides distinct context or human review value |
+| TDD/task Markdown | Optional projection; contract is sufficient by default |
+| Review report | Chat by default; persist the report/contract pair only when requested |
+| DB/API documents | Conditional, when the feature design warrants separate review |
 
 
 ## Context strategy

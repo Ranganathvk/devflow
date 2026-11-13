@@ -1,47 +1,41 @@
 ---
 name: tasksplit
 description: >-
-  Task queue FEATURE:Cn after /tdd. Writes FEATURE_TASKS.md and contract with tasks_status draft
-  until approved. Invoke /tasksplit FEATURE before /implement.
+  Build an approved-gated FEATURE:Cn task queue for /implement. The YAML task contract is the
+  default durable output; a Markdown task summary is optional. Invoke /tasksplit FEATURE before queued implementation.
 ---
 
-# /tasksplit \<FEATURE\> — Task queue
+# /tasksplit <FEATURE> — Task queue
 
 ## Purpose
 
-Create bounded `FEATURE:Cn` units for `/implement`, with `scope_in`, `depends_on`, and `implements_cases` linked to TDD.
+Create bounded `FEATURE:Cn` units for `/implement`, with explicit scope, dependencies, and traceability to test cases. **The tasks contract is the source of truth.** Report the task table in chat; do not create a duplicate Markdown file unless requested.
 
 ## When to invoke
 
-- `/tasksplit <FEATURE>` — after `/tdd <FEATURE>` (or after approved `/design` when TDD skipped with human waiver).
-- When `delivery.needs_tasks: true` on feature contract — **required** before `/implement`.
-- When `needs_tasks: false` — emit **one** task `FEATURE:C1` covering full slice scope for queue consistency.
+- `/tasksplit <FEATURE>` — after approved design and normally after `/tdd <FEATURE>` (TDD may be skipped with explicit human waiver).
+- When `delivery.needs_tasks: true`, create a dependency-ordered queue before queued `/implement`.
+- When `needs_tasks: false`, prefer the lite `/implement <FEATURE>` path; create a single `FEATURE:C1` only when queue consistency or traceability is useful.
 - Re-run when scope or TDD changes materially.
 
 ## Inputs
 
 - **Required:** `{context_dir}/<FEATURE>.contract.yaml` with `design_status: approved`.
 - **Optional:** `{context_dir}/<FEATURE>_TDD.contract.yaml`.
-- **Optional:** `{context_dir}/FEATURE_SLICES.contract.yaml` — slice row for scope boundaries.
+- **Optional:** `{context_dir}/FEATURE_SLICES.contract.yaml` for scope boundaries.
 - **Forbidden:** Implementing code in this skill.
 
 ## Workflow
 
-1. Validate feature contract; gate on `design_status: approved`.
+1. Validate the feature contract and design approval.
 2. Read `delivery.needs_tasks` and slice `in_scope` / `out_of_scope`.
-3. Build `tasks[]` (typically 3–8; single `C1` when lite).
-4. Each task: `id`, `status: pending`, `summary`, `depends_on`, `scope_in`, `scope_out`, `implements_cases`.
-5. Write `{context_dir}/<FEATURE>_TASKS.md` and `{context_dir}/<FEATURE>_TASKS.contract.yaml` with `tasks_status: draft`, `current_task: null`, `workflow_profile: devflow`.
-6. **STOP.** Chat reply: task table, explicit **approve tasks then `/implement`**. Do **not** set `tasks_status: approved` without human approval.
+3. Build a dependency-ordered `tasks[]` list (typically 3–8 tasks for non-trivial work; fewer when appropriate).
+4. Each task must include `id`, `status: pending`, `summary`, `depends_on`, `scope_in`, `scope_out`, and `implements_cases` where test cases exist.
+5. Write `{context_dir}/<FEATURE>_TASKS.contract.yaml` with `tasks_status: draft` and `current_task: null`.
+6. Show the task table and rationale in chat. **Stop for explicit human approval**; do not set `tasks_status: approved` without it.
+7. If requested, write `{context_dir}/<FEATURE>_TASKS.md` as a readable projection of the contract.
 
-## Output artifacts
-
-| Path | Change | Notes |
-|------|--------|-------|
-| `{context_dir}/<FEATURE>_TASKS.md` | Created or replaced | |
-| `{context_dir}/<FEATURE>_TASKS.contract.yaml` | Created or replaced | Queue for `/implement` |
-
-## `<FEATURE>_TASKS.contract.yaml` shape
+## Contract shape
 
 ```yaml
 contract_version: "1"
@@ -50,19 +44,10 @@ workflow_profile: devflow
 feature_id: "<FEATURE>"
 tasks_status: draft
 current_task: null
-feature_contract_path: {context_dir}/<FEATURE>.contract.yaml
-tdd_contract_path: {context_dir}/<FEATURE>_TDD.contract.yaml
-
+feature_contract_path: "{context_dir}/<FEATURE>.contract.yaml"
+tdd_contract_path: "{context_dir}/<FEATURE>_TDD.contract.yaml"
 summary: "<one sentence>"
 tasks: []
-  # - id: AUTH:C1
-  #   status: pending
-  #   summary: "..."
-  #   depends_on: []
-  #   scope_in: []
-  #   scope_out: []
-  #   implements_cases: [TC-001]
-
 ordered_sequence: []
 open_questions: []
 assumptions: []
@@ -70,19 +55,22 @@ assumptions: []
 
 ## Approval semantics
 
-- **`tasks_status: approved`** — only after explicit human approval; required before `/implement`.
+- `tasks_status: approved` — only after explicit human approval; required before queued `/implement`.
 
 ## Failure handling
 
 - Missing feature contract → stop; `/design <FEATURE>`.
-- `needs_tasks: true` with no chunking basis → `open_questions`; do not emit empty queue.
+- No safe chunking basis → record an open question and ask; do not emit an empty queue.
+- Invalid dependency or scope overlap → fix the plan before requesting approval.
 
 ## Forbidden
 
-- `tasks_status: approved` without human approval.
-- Implementation in same invocation.
+- Approving tasks without human approval.
+- Implementing code in the same invocation.
+- Treating optional Markdown as a second task-state source.
 
-## Quality bar (self-check before finishing)
+## Quality bar
 
-- [ ] Valid IDs and acyclic `depends_on`.
-- [ ] Chat states approval gate before `/implement`.
+- [ ] IDs are valid and dependencies are acyclic.
+- [ ] Task scopes are bounded, ordered, and traceable to acceptance criteria/test cases where available.
+- [ ] The chat response clearly states the approval gate before queued `/implement`.

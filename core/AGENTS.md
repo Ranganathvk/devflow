@@ -101,26 +101,25 @@ Existing-repo safe-change principles: [docs/DELTA_PRINCIPLES.md](../docs/DELTA_P
 
 ## Artifact pattern
 
-Major workflows emit **paired** artifacts: a human-readable doc and a machine-readable compact contract.
+Contracts are durable machine handoffs. Create a human-readable document when it adds distinct review/context value or the human requests it; do not pair files mechanically.
 
 All workflow contracts use **`workflow_profile: devflow`** unless marked legacy deprecated.
 
 | Human doc | Machine contract |
 |-----------|------------------|
-| `{context_dir}/<FEATURE>_PLAN.md` | `{context_dir}/<FEATURE>_PLAN.contract.yaml` |
-| *(orientation rollup)* | `{context_dir}/UNDERSTAND.contract.yaml` |
+| *(optional plan review)* `{context_dir}/<FEATURE>_PLAN.md` | `{context_dir}/<FEATURE>_PLAN.contract.yaml` |
 | `{context_dir}/SYSTEM_HLD.md` | `{context_dir}/SYSTEM_HLD.contract.yaml` |
 | `{context_dir}/FEATURE_SLICES.md` | `{context_dir}/FEATURE_SLICES.contract.yaml` |
-| `<FEATURE>_DESIGN.md` | `<FEATURE>.contract.yaml` |
-| `<FEATURE>_DB.md` | `<FEATURE>_DB.contract.yaml` *(when `needs_db`)* |
-| `<FEATURE>_API.md` | `<FEATURE>_API.contract.yaml` *(when `needs_api`)* |
-| `<FEATURE>_TDD.md` | `<FEATURE>_TDD.contract.yaml` |
-| `<FEATURE>_TASKS.md` | `<FEATURE>_TASKS.contract.yaml` |
+| *(optional design review)* `{context_dir}/<FEATURE>_DESIGN.md` | `{context_dir}/<FEATURE>.contract.yaml` |
+| *(optional DB review)* `<FEATURE>_DB.md` | `<FEATURE>_DB.contract.yaml` *(when `needs_db`)* |
+| *(optional API review)* `<FEATURE>_API.md` | `<FEATURE>_API.contract.yaml` *(when `needs_api`)* |
+| *(optional test plan)* `<FEATURE>_TDD.md` | `<FEATURE>_TDD.contract.yaml` |
+| *(optional task summary)* `<FEATURE>_TASKS.md` | `<FEATURE>_TASKS.contract.yaml` |
 | `{context_dir}/<FEATURE>_C<n>_REVIEW.md` *(optional `/review`)* | `{context_dir}/<FEATURE>_C<n>_REVIEW.contract.yaml` |
 | `{context_dir}/SECURITY_REVIEW.md` *(optional `/security-review`)* | `{context_dir}/SECURITY_REVIEW.contract.yaml` |
 | `{context_dir}/LEARNINGS.md` (append-only sections) | `{context_dir}/<FEATURE>_C<n>_LEARN.contract.yaml` |
 
-Contracts are stability-critical. Downstream skills consume contracts, not prose.
+Contracts are stability-critical. Downstream skills consume contracts, not prose. For TDD and task splitting, the YAML contract is the default durable output; the skill reports a concise matrix/table in chat. Optional Markdown summaries are derived views of the contract, not independently maintained sources of truth. `/review` reports in chat by default and writes the review pair only when persistence is requested.
 
 Conditional artifacts (`_DB*`, `_API*`, `_TDD*`, `_TASKS*`) emit only when applicable; record skips in `<FEATURE>.contract.yaml` via `delivery` flags.
 
