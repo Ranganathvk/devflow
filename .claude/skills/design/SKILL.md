@@ -62,7 +62,7 @@ Do not guess when uncertainty materially changes the design. Ask one targeted qu
 - Initial invocation should complete the safe investigation/design work possible from available evidence and produce a coherent draft, not just create a skeleton.
 - If one material decision is unresolved, record it in `open_questions[]`, keep `design_status: draft`, ask one focused question, and stop. Resume with `/design <FEATURE>`.
 - When all blocking questions are resolved, show the design summary, key evidence, acceptance criteria, delivery flags, risks, and artifacts. Ask for explicit whole-design approval.
-- `/design <FEATURE> approved` approves the **entire currently presented draft**, not a stage. Only accept it when no blocking questions or blocking compatibility risks remain.
+- `/design <FEATURE> approved` approves the **entire currently presented draft**, not a stage. Only accept it when no blocking questions remain and `design.compatibility.blocking` is not true.
 - Any material scope/design change after approval resets `design_status: draft` and requires approval again.
 - Set `design_status: approved` only after explicit human approval. `/tdd` must refuse otherwise.
 
@@ -107,7 +107,9 @@ design:
   failure_modes: []
   observability: []
   security: []
-  compatibility: []
+  compatibility:
+    blocking: false # true while an unresolved compatibility risk blocks approval and /implement
+    notes: [] # short risks, or an explicit non-issue
   migration_and_deployment: []
 delivery:
   delivery_profile: lite # lite | standard | heavy
@@ -167,7 +169,7 @@ open_questions: []
 - Missing/unapproved brownfield plan: stop and suggest `/understand <FEATURE>`.
 - No repository access: make only clearly labeled assumptions, provide one compact targeted evidence request, and keep the design draft.
 - Conflicting evidence: record the conflict and ask if it changes a material decision.
-- Blocking compatibility/security/migration risk: do not mark design approved until resolved or explicitly re-scoped by the human.
+- Blocking compatibility risk: set `design.compatibility.blocking: true` and do not mark design approved until that flag is false or the human explicitly re-scopes the risk. Blocking security or migration risks likewise keep `design_status: draft` until resolved or re-scoped.
 - Missing acceptance criteria: ask a focused question; do not proceed to `/tdd`.
 
 ## Forbidden

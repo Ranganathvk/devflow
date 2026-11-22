@@ -129,6 +129,166 @@ class WorkflowConsistencyTests(unittest.TestCase):
         self.assertIn("Stop for explicit human approval", text)
         self.assertIn("tasks_status: approved", text)
 
+    def test_skill_contract_reads_are_written(self):
+        """Fail when a skill reads a contract artifact or dotted field no skill writes.
+
+        Catches handoff drift such as a required ``UNDERSTAND.contract.yaml`` after
+        ``/understand`` stopped emitting it, or a gate on ``design_stages.compat.blocking``
+        after ``/design`` dropped that stage machine.
+        """
+        written_artifacts, written_fields = set(), set()
+        read_artifacts, read_fields = {}, {}
+        for name, path in canonical_skills().items():
+            text = path.read_text(encoding="utf-8")
+            written_artifacts |= _written_contract_artifacts(text)
+            written_fields |= _written_contract_fields(text)
+            for artifact in _read_contract_artifacts(text):
+                read_artifacts.setdefault(artifact, set()).add(name)
+            for field in _read_contract_fields(text):
+                read_fields.setdefault(field, set()).add(name)
+        for path in sorted((ROOT / "core/contracts").glob("*.contract.yaml")):
+            written_fields |= _yaml_key_paths(path.read_text(encoding="utf-8"))
+
+        missing = {
+            "artifacts": {
+                artifact: sorted(skills)
+                for artifact, skills in sorted(read_artifacts.items())
+                if artifact not in written_artifacts
+            },
+            "fields": {
+                field: sorted(skills)
+                for field, skills in sorted(read_fields.items())
+                if field not in written_fields
+            },
+        }
+        self.assertEqual(
+            {"artifacts": {}, "fields": {}},
+            missing,
+            "contract artifacts or fields read by a skill are never written",
+        )
+
+
+_FENCE_RE = re.compile(r"```.*?```", re.DOTALL)
+_FRONTMATTER_RE = re.compile(r"\A---\n.*?\n---\n", re.DOTALL)
+_HEADING_RE = re.compile(r"^##\s+(.+)$", re.MULTILINE)
+_BACKTICK_RE = re.compile(r"`([^`]+)`")
+_WRITE_LINE_RE = re.compile(r"(?i)\b(write|writes|persist|persists|append|appended|created or replaced)\b")
+_READ_LINE_RE = re.compile(r"(?i)\b(requires?|required|read|load|resume|gates?)\b")
+_NEGATIVE_LINE_RE = re.compile(
+    r"(?i)(?:\b(?:do not|don't|never)\b|\bnot\b).{0,48}\b(?:create|write|emit|require|look)\b"
+)
+_FIELD_RE = re.compile(r"^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]+)+$")
+_FILE_EXT_RE = re.compile(r"\.(?:yaml|yml|md|py|json|toml|txt|sh|ps1)$", re.IGNORECASE)
+_YAML_KEY_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_-]*")
+
+
+def _skill_prose(text):
+    text = _FRONTMATTER_RE.sub("", text, count=1)
+    return _FENCE_RE.sub("", text)
+
+
+def _sections(text):
+    matches = list(_HEADING_RE.finditer(text))
+    for index, match in enumerate(matches):
+        start = match.end()
+        end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
+        yield match.group(1).strip().lower(), text[start:end]
+
+
+def _normalize_contract(token):
+    token = token.strip().strip(".,;:")
+    for prefix in ("{context_dir}/", "<context_dir>/"):
+        token = token.replace(prefix, "")
+    if "/" in token or "\\" in token or not token.endswith(".contract.yaml"):
+        return None
+    token = token.replace("<FEATURE>", "FEATURE").replace("<feature>", "FEATURE")
+    token = token.replace("*", "FEATURE")
+    token = re.sub(r"<[^>]+>", "", token)
+    return token
+
+
+def _contracts_on_line(line):
+    found = []
+    for token in _BACKTICK_RE.findall(line):
+        normalized = _normalize_contract(token)
+        if normalized:
+            found.append(normalized)
+    return found
+
+
+def _read_contract_artifacts(text):
+    prose = _skill_prose(text)
+    found = set()
+    for title, body in _sections(prose):
+        is_input = title.startswith("input")
+        for line in body.splitlines():
+            if _NEGATIVE_LINE_RE.search(line):
+                continue
+            if is_input or _READ_LINE_RE.search(line):
+                found.update(_contracts_on_line(line))
+    return found
+
+
+def _written_contract_artifacts(text):
+    prose = _skill_prose(text)
+    found = set()
+    for title, body in _sections(prose):
+        is_output = "output" in title or title.startswith("durable")
+        for line in body.splitlines():
+            if _NEGATIVE_LINE_RE.search(line):
+                continue
+            if is_output or _WRITE_LINE_RE.search(line):
+                found.update(_contracts_on_line(line))
+    return found
+
+
+def _read_contract_fields(text):
+    found = set()
+    for token in _BACKTICK_RE.findall(_skill_prose(text)):
+        token = token.strip()
+        if _FILE_EXT_RE.search(token) or "/" in token or "*" in token or " " in token:
+            continue
+        if _FIELD_RE.fullmatch(token):
+            found.add(token)
+    return found
+
+
+def _yaml_key_paths(yaml_text):
+    paths = set()
+    stack = []
+    for line in yaml_text.splitlines():
+        code = line.split("#", 1)[0].rstrip()
+        if not code.strip():
+            continue
+        indent = len(code) - len(code.lstrip(" "))
+        stripped = code.strip()
+        if stripped.startswith("- "):
+            rest = stripped[2:].strip()
+            if ":" not in rest:
+                continue
+            key = rest.split(":", 1)[0].strip()
+            key_indent = indent + 2
+        elif ":" in stripped:
+            key = stripped.split(":", 1)[0].strip()
+            key_indent = indent
+        else:
+            continue
+        if not _YAML_KEY_RE.fullmatch(key or ""):
+            continue
+        while stack and stack[-1][0] >= key_indent:
+            stack.pop()
+        paths.add(".".join([item[1] for item in stack] + [key]))
+        stack.append((key_indent, key))
+    return paths
+
+
+def _written_contract_fields(text):
+    text = _FRONTMATTER_RE.sub("", text, count=1)
+    found = set()
+    for block in re.findall(r"```yaml\n(.*?)```", text, flags=re.DOTALL):
+        found |= _yaml_key_paths(block)
+    return found
+
 
 if __name__ == "__main__":
     unittest.main()

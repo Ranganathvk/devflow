@@ -30,7 +30,7 @@ On success in **task/queue** mode, mark the task **`done`** and set **`current_t
 ## Inputs
 
 - **Required (all modes):** `{context_dir}/SPEC.md`.
-- **Required (task/queue):** `{context_dir}/<FEATURE>_TASKS.contract.yaml` with `tasks_status: approved`.
+- **Required (task/queue):** `{context_dir}/<FEATURE>_TASKS.contract.yaml` with `tasks_status: approved`, and `{context_dir}/<FEATURE>.contract.yaml` for the design gates.
 - **Required (lite):** `{context_dir}/<FEATURE>.contract.yaml`.
 - **Optional:** `{context_dir}/<FEATURE>_TDD.contract.yaml`, `{context_dir}/SYSTEM_HLD.contract.yaml`, `{context_dir}/FEATURE_SLICES.contract.yaml`, `{context_dir}/PROJECT_STATE.md`.
 - **Forbidden:** Inventing requirements from chat history alone.
@@ -49,11 +49,11 @@ On success in **task/queue** mode, mark the task **`done`** and set **`current_t
    - `^([A-Z][A-Z0-9_]{1,31}):C[1-9][0-9]*$` → **task mode**.
    - `^[A-Z][A-Z0-9_]{1,31}$` → if approved TASKS contract exists for that feature → **queue-next for FEATURE**; else **lite mode**.
    - Otherwise stop with format hint.
-2. **Gates (task/queue):** `tasks_status: approved`; `design_status: approved`; `design_stages.compat.blocking` must not be true.
+2. **Gates (task/queue):** `tasks_status: approved`; on `{context_dir}/<FEATURE>.contract.yaml`, `design_status: approved` and `design.compatibility.blocking` must not be true.
 3. **In-flight:** if `current_task` is `in_progress` → **resume that task**. Do not wait for review.
 4. **Else (queue-next):** pick `pending` with `depends_on` satisfied; use `ordered_sequence` when present.
 5. **Task mode:** load the named row; enforce `depends_on`; scope-lock.
-6. **Lite mode:** use `in_scope` / delivery flags from the feature contract (slice row if present); if `needs_tasks: true` and a queue exists, do **not** lite — use queue-next instead. If `needs_tasks: true` and no queue, stop and suggest `/tasksplit`.
+6. **Lite mode:** use `in_scope` / delivery flags from the feature contract (slice row if present); if `needs_tasks: true` and a queue exists, do **not** lite — use queue-next instead. If `needs_tasks: true` and no queue, stop and suggest `/tasksplit`. Stop if `design.compatibility.blocking` is true.
 7. Bind `current_task` + `in_progress` in task/queue modes.
 8. Implement the smallest change set for that scope.
 9. Run checks for the touched area. If they fail, leave `in_progress` and **stop**.
@@ -72,7 +72,7 @@ Do not edit design/TDD/slice contracts. Queue status fields on the tasks contrac
 
 ## Failure handling
 
-- Missing approval → stop with which gate failed.
+- Missing approval or `design.compatibility.blocking: true` → stop with which gate failed.
 - Empty queue → feature complete or `/tasksplit`.
 - Invalid id → accepted formats.
 - Scope mismatch → stop; split or scope decision.
