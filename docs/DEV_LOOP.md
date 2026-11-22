@@ -50,7 +50,7 @@ flowchart TB
 | Spec empty or vague (no source doc) | `/grillme` |
 | Existing codebase | `/understand` (attach `@artifacts/SPEC.md`) |
 | New product or major system shape | `/to-spec` or `/grillme` → `/system-hld` → `/slice` |
-| Large multi-feature change | `/slice` (after `/understand` or `/system-hld`) |
+| Large multi-feature change | `/slice` after `/understand` (`<FEATURE>_PLAN.contract.yaml`) or `/system-hld` (`SYSTEM_HLD.contract.yaml`) |
 | Small focused change in known repo | `/understand` → `/design <FEATURE>` |
 
 ## Core commands
@@ -68,8 +68,8 @@ flowchart TB
 
 ## Approval gates
 
-1. **Design** — One coherent design review; explicit whole-design `design_status: approved` before `/tdd`. Investigation is batched; stop only for material human decisions or final approval.
-2. **Tasks** — `tasks_status: approved` on `<FEATURE>_TASKS.contract.yaml` before queued `/implement`.
+1. **Design** — One coherent design review; explicit whole-design `design_status: approved` before `/tdd`. Do not approve while `design.compatibility.blocking` is true. Investigation is batched; stop only for material human decisions or final approval.
+2. **Tasks** — `tasks_status: approved` on `<FEATURE>_TASKS.contract.yaml` before queued `/implement`. Queued and lite `/implement` also stop when `<FEATURE>.contract.yaml` has `design.compatibility.blocking: true`.
 3. **Code quality** — human-owned (tests, PR, `/review`, or a third-party review skill). **Not** a queue gate.
 
 ## Per-feature loop

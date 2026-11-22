@@ -339,7 +339,7 @@ flowchart TB
 | Spec vague or empty | `/grillme` |
 | Existing codebase | `/understand` + `@artifacts/SPEC.md` |
 | New product / system shape | `/to-spec` or `/grillme` → `/system-hld` → `/slice` |
-| Large multi-part change | `/slice` after `/understand` or HLD |
+| Large multi-part change | `/slice` after `/understand` (`<FEATURE>_PLAN.contract.yaml`) or HLD (`SYSTEM_HLD.contract.yaml`) |
 
 ### Core commands
 
@@ -355,8 +355,8 @@ flowchart TB
 
 ### Approval gates
 
-1. **Design** — Approve stages in chat; `design_status: approved` before `/tdd`.
-2. **Tasks** — `tasks_status: approved` on `<FEATURE>_TASKS.contract.yaml` before queued `/implement`.
+1. **Design** — Explicit whole-design approval; `design_status: approved` before `/tdd`. Do not approve while `design.compatibility.blocking` is true.
+2. **Tasks** — `tasks_status: approved` on `<FEATURE>_TASKS.contract.yaml` before queued `/implement`. `/implement` also stops when `design.compatibility.blocking` is true.
 3. **Code quality** — human-owned (tests, PR, optional `/review` or Ponytail). Not a queue gate.
 
 ### Example (existing repo)
@@ -364,7 +364,7 @@ flowchart TB
 ```text
 /understand @artifacts/SPEC.md
 /design OTP_LOGIN
-# approved (per stage)
+# design approved
 /tdd OTP_LOGIN
 /tasksplit OTP_LOGIN
 # tasks approved

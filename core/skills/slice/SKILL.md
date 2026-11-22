@@ -2,7 +2,7 @@
 name: slice
 description: >-
   Vertical feature decomposition (FEATURE_SLICES.md + contract). After /system-hld when HLD exists;
-  optional for large changes in existing repos (SPEC + UNDERSTAND). Next: /design FEATURE.
+  optional for large changes in existing repos (SPEC + feature plan from /understand). Next: /design FEATURE.
 ---
 
 # /slice — Vertical feature decomposition
@@ -23,9 +23,10 @@ Outputs are **paired** artifacts under `{context_dir}/` so Stage 3 skills load *
 **Large change in existing repo (optional)**
 
 - `/slice` — when `{context_dir}/SPEC.md` **Current change** is large, multi-part, or human says the feature is big.
-- Requires `UNDERSTAND.contract.yaml` (run `/understand` first).
-- Does **not** require `SYSTEM_HLD` — use SPEC blast radius + `/understand` for boundaries.
-- Set `workflow_profile: devflow` on `FEATURE_SLICES.contract.yaml`; `system_hld_contract_path: null` when no HLD.
+- Requires `{context_dir}/<FEATURE>_PLAN.contract.yaml` from `/understand` (run `/understand` first).
+- Does **not** require `SYSTEM_HLD` — use SPEC blast radius + the feature-plan contract for boundaries.
+- Do not require `UNDERSTAND.contract.yaml`. `/understand` does not write that rollup.
+- Set `workflow_profile: devflow` on `FEATURE_SLICES.contract.yaml`; `system_hld_contract_path: null` when no HLD; set `feature_plan_contract_path` to the plan contract.
 
 **Both**
 
@@ -37,16 +38,17 @@ Outputs are **paired** artifacts under `{context_dir}/` so Stage 3 skills load *
 
 - **Required:** `{context_dir}/SPEC.md` — read in full.
 - **Required (HLD-driven slice):** `{context_dir}/SYSTEM_HLD.contract.yaml`.
-- **Required (repo-driven slice):** `{context_dir}/UNDERSTAND.contract.yaml`.
-- **Optional:** `SYSTEM_HLD.contract.yaml` if it exists alongside repo orientation artifacts.
-- **Optional:** `{context_dir}/SYSTEM_HLD.md` — read only if the contract has `null`/empty lists that block safe slicing; prefer closing gaps via `open_questions` over inventing scope.
+- **Required (repo-driven slice):** `{context_dir}/<FEATURE>_PLAN.contract.yaml` produced by `/understand`. If several plans exist, use the plan for the change being sliced.
+- **Optional:** `{context_dir}/SYSTEM_HLD.contract.yaml` when an HLD exists alongside the feature plan.
+- **Optional:** `{context_dir}/<FEATURE>_PLAN.md` when `/understand` created that review view and the plan contract leaves a boundary ambiguous.
+- **Optional:** `{context_dir}/SYSTEM_HLD.md` — read only if the HLD contract has `null`/empty lists that block safe slicing; prefer closing gaps via `open_questions` over inventing scope.
 - **Optional:** `{context_dir}/PROJECT_STATE.md` for active feature focus or human notes.
 - **Forbidden:** Unbounded chat history as source of truth; inventing features absent from SPEC or `SYSTEM_HLD`; reading full `SYSTEM_HLD.md` by default when the contract suffices.
 
 ## Workflow
 
-1. Detect routing (see [design](../design/SKILL.md)). Read **required** inputs for that path. HLD-driven slice without `SYSTEM_HLD.contract.yaml` → **stop**; `/system-hld`. Repo-driven slice without orientation → **stop**; `/understand`.
-2. **Extract slicing signals** from SPEC + contract: `summary`, `product_boundary`, `logical_containers`, `constraints`, `downstream_skills`, `open_questions`, and any workflow/examples that imply user-visible capabilities.
+1. Detect routing (see [design](../design/SKILL.md)). Read **required** inputs for that path. HLD-driven slice without `SYSTEM_HLD.contract.yaml` → **stop**; `/system-hld`. Repo-driven slice without `<FEATURE>_PLAN.contract.yaml` → **stop**; `/understand`.
+2. **Extract slicing signals** from SPEC + the contract for this path. HLD-driven: `summary`, `product_boundary`, `logical_containers`, `constraints`, `downstream_skills`, `open_questions`, and any workflow/examples that imply user-visible capabilities. Repo-driven: `summary`, `intent`, `scope`, `components`, `domains`, `constraints`, `risks`, and `open_questions` from the feature-plan contract.
 3. **Propose vertical features** — each feature MUST:
    - Have a **stable ID**: `^[A-Z][A-Z0-9_]{1,31}$` (examples: `AUTH`, `CORE_SKILLS`, `INSTALLER`).
    - Represent **one vertical**: user- or operator-visible outcome that can flow through `/design` → `/implement` without “all layers everywhere.”
@@ -59,7 +61,7 @@ Outputs are **paired** artifacts under `{context_dir}/` so Stage 3 skills load *
 6. Write `{context_dir}/FEATURE_SLICES.contract.yaml` using the **YAML shape** below. Values **SPEC- and contract-grounded**; unknowns → `open_questions` strings, not fabrication.
 7. **Cross-check:**
    - Every feature ID is unique; `depends_on` references only defined IDs; no cycles.
-   - Every `logical_containers[].id` from `SYSTEM_HLD.contract.yaml` is **mapped** to at least one feature’s `primary_containers` **or** called out under top-level `open_questions` with rationale (do not leave orphan containers silently).
+   - When `SYSTEM_HLD.contract.yaml` is an input, every `logical_containers[].id` is **mapped** to at least one feature’s `primary_containers` **or** called out under top-level `open_questions` with rationale (do not leave orphan containers silently). Repo-driven with no HLD: trace features to plan `scope` and `components` instead of HLD containers.
    - **Suggested_sequence** lists all feature IDs exactly once in valid dependency order.
 8. Chat reply (brief): paths written, feature count, **numbered** open questions / assumptions, suggested next command (`/design <FIRST_FEATURE>` or human-picked feature).
 
@@ -77,7 +79,7 @@ No other files written or edited (including **do not** edit `{context_dir}/SPEC.
 ```markdown
 # Feature slices (vertical plan)
 
-> Sources: {context_dir}/SPEC.md, {context_dir}/SYSTEM_HLD.contract.yaml …
+> Sources: {context_dir}/SPEC.md, {context_dir}/SYSTEM_HLD.contract.yaml or {context_dir}/<FEATURE>_PLAN.contract.yaml …
 
 ## Document control
 
@@ -121,7 +123,8 @@ Top-level keys (order flexible; preserve keys for tooling):
 contract_version: "1"
 artifact: feature_slices
 spec_path: {context_dir}/SPEC.md
-system_hld_contract_path: {context_dir}/SYSTEM_HLD.contract.yaml
+system_hld_contract_path: {context_dir}/SYSTEM_HLD.contract.yaml  # null when repo-driven and no HLD
+feature_plan_contract_path: null  # {context_dir}/<FEATURE>_PLAN.contract.yaml when repo-driven
 summary: "<one paragraph: how the product is sliced>"
 
 suggested_sequence: []
@@ -132,7 +135,7 @@ features: []
   #   title: "Human-readable title"
   #   outcome: "<one sentence user/operator outcome>"
   #   depends_on: []   # other feature IDs only
-  #   primary_containers: []  # ids from SYSTEM_HLD.contract logical_containers
+  #   primary_containers: []  # HLD logical_container ids, or plan component names when no HLD
   #   in_scope: []
   #   out_of_scope: []
   #   traces_to: []  # strings: SYS-REQ-*, SPEC section names, or HLD notes
@@ -149,13 +152,14 @@ assumptions: []
 
 ## Context budget
 
-- Read in full: `{context_dir}/SPEC.md`, `{context_dir}/SYSTEM_HLD.contract.yaml`.
-- Read `{context_dir}/SYSTEM_HLD.md` only when required fields in the contract are empty and prose is needed to avoid invention.
+- Read in full: `{context_dir}/SPEC.md` and the routing contract (`{context_dir}/SYSTEM_HLD.contract.yaml` or `{context_dir}/<FEATURE>_PLAN.contract.yaml`).
+- Read `{context_dir}/SYSTEM_HLD.md` or `<FEATURE>_PLAN.md` only when required fields in the contract are empty and prose is needed to avoid invention.
 - Do **not** load prior chat; when refreshing, read existing `FEATURE_SLICES.*` only if the human asked for a merge — default is **replace** with current inputs.
 
 ## Failure handling
 
-- **`SYSTEM_HLD.contract.yaml` missing** — Stop; run `/system-hld` first.
+- **`SYSTEM_HLD.contract.yaml` missing on an HLD-driven slice** — Stop; run `/system-hld` first.
+- **`<FEATURE>_PLAN.contract.yaml` missing on a repo-driven slice** — Stop; run `/understand` first.
 - **SPEC or contract too thin** — Emit minimal YAML with `open_questions` explaining what is missing; keep markdown short; do **not** invent features to fill the page.
 - **Cycle detected in dependencies** — Fix before writing: merge features or remove an edge; if unresolved, stop with one message listing the cycle.
 - **Conflict with existing human-edited `FEATURE_SLICES.md`** — Default **replace**; if the human explicitly asked to preserve named sections, merge only those sections and note the merge in Document control.
@@ -163,7 +167,7 @@ assumptions: []
 ## Forbidden
 
 - Horizontal-only features (“Database layer”, “All APIs”) as the sole content of a slice.
-- Editing `{context_dir}/SPEC.md` or `SYSTEM_HLD*`.
+- Editing `{context_dir}/SPEC.md`, `SYSTEM_HLD*`, or `<FEATURE>_PLAN*`.
 - Per-feature design depth (schemas, endpoints, tickets) — wrong stage.
 - More than **two** output files.
 - **Mega** feature lists — if >12 features, consolidate with human-facing `open_questions` listing merge candidates (do not silently merge without noting tradeoff).
